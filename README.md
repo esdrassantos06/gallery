@@ -11,6 +11,8 @@
 [![npm](https://img.shields.io/npm/v/@esdrassantos06/gallery)](https://www.npmjs.com/package/@esdrassantos06/gallery)
 [![License: MIT](https://img.shields.io/badge/license-MIT-black)](./LICENSE)
 
+**[Live demo](https://gallery-esdrassantos06.vercel.app)**
+
 An accessible, themeable image lightbox for React. It has zero runtime dependencies, works with any grid, and every string, icon, color, size and timing can be replaced.
 
 > **Status:** version 1.0.0, phase 4 of 7. The core lightbox, thumbnails, zoom, fullscreen, video and embeds, slideshow, deep linking, rotation and download described below are implemented and tested. The optional grids, interaction polish and release tooling are planned and **not available yet** (see [Roadmap](#roadmap)).
@@ -757,7 +759,7 @@ npm run dev
 
 It has three galleries of locally generated samples: the default look, driven by a panel of options and kept in the URL hash as `#galeria-N`; a customised one with Portuguese labels, replaced icons, a custom caption, an extra toolbar link and a theme set through `--eg-*` variables; and a video and slideshow gallery with a native video with captions and an iframe slide.
 
-`npm run build:site` builds it into `playground/dist`. It deploys to Vercel as a static site with `vercel.json`, which also sends a strict Content Security Policy (`default-src 'self'`, no `'unsafe-inline'`) that the whole site, lightbox included, runs under.
+`npm run build:site` builds it into `playground/dist`. It is live at [gallery-esdrassantos06.vercel.app](https://gallery-esdrassantos06.vercel.app) and deploys to Vercel as a static site with `vercel.json`, which also sends a strict Content Security Policy (`default-src 'self'`, no `'unsafe-inline'`) that the whole site, lightbox included, runs under.
 
 ## Contributing
 
