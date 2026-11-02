@@ -7,3 +7,4 @@ next-env.d.ts
 /public/samples
 /public/videos
 /public/embed-demo.*
+/lib/generated

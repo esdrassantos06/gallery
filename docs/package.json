@@ -3,12 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "assets": "node scripts/copy-assets.js",
+    "assets": "node scripts/copy-assets.js && node scripts/size.js",
     "predev": "npm run assets",
     "dev": "next dev",
     "prebuild": "npm run assets",
     "build": "next build",
     "postbuild": "node scripts/csp.js",
+    "pretypecheck": "npm run assets",
     "start": "serve out",
     "typecheck": "next typegen && tsc --noEmit"
   },
