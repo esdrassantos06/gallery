@@ -23,6 +23,12 @@
   --border: #dddad3;
   --input: #d3d0c8;
   --ring: #0b0b0c;
+  --eg-grid-radius: calc(var(--radius) - 4px);
+  --eg-grid-background: var(--muted);
+  --eg-grid-focus-color: var(--ring);
+  --eg-filter-border-color: var(--border);
+  --eg-filter-active-background: var(--foreground);
+  --eg-filter-active-color: var(--background);
 }
 
 @media (prefers-color-scheme: dark) {

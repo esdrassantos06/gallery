@@ -1,4 +1,4 @@
-import type { LightboxLabels } from "./types";
+import type { FilterLabels, GridLabels, LightboxLabels } from "./types";
 
 /** English defaults. Pass `labels` to translate any of them. */
 export const defaultLabels: LightboxLabels = {
@@ -25,4 +25,20 @@ export const defaultLabels: LightboxLabels = {
   rotateRight: "Rotate right",
   download: "Download",
   downloadError: "This file could not be downloaded here, so it opened in a new tab.",
+};
+
+/** English defaults of the grids. */
+export const defaultGridLabels: GridLabels = {
+  open: (index, _total, slide) => {
+    const name = slide.alt || (typeof slide.title === "string" ? slide.title : "");
+    return name ? `Open ${name}` : `Open image ${index}`;
+  },
+};
+
+/** English defaults of `GalleryFilter`. */
+export const defaultFilterLabels: FilterLabels = {
+  group: "Filter",
+  all: "All",
+  category: (category) => category,
+  count: (count) => (count === 1 ? "1 image" : `${count} images`),
 };

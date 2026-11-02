@@ -410,3 +410,168 @@ export interface LightboxProps {
    */
   container?: HTMLElement | null | undefined;
 }
+
+/** A value, or a function that returns it from the grid's measured width in px. */
+export type Responsive<T> = T | ((containerWidth: number) => T);
+
+/** Strings of the grids. Override any of them for translations. */
+export interface GridLabels {
+  /** Accessible name of the button that opens a slide. Numbers are 1-based. */
+  open: (index: number, total: number, slide: Slide) => string;
+}
+
+/** Extra class names, added next to the built-in `eg-*` class of each grid part. */
+export interface GridClassNames {
+  /** The list, `.eg-grid`. */
+  root: string;
+  /** Each list item, `.eg-grid-item`. */
+  item: string;
+  /** Each button that opens a slide, `.eg-grid-button`. */
+  button: string;
+  /** Each built-in image, `.eg-grid-image`. */
+  image: string;
+}
+
+/** Arguments given to {@link GridRender.image}. */
+export interface RenderGridImageProps {
+  /** The slide to draw. */
+  slide: Slide;
+  /** Its position in `slides`. */
+  index: number;
+  /** Width of the item in px. */
+  width: number;
+  /** Height of the item in px. */
+  height: number;
+  /** Value for `<img sizes>`: the item width, for example `320px`. */
+  sizes: string;
+}
+
+/** Render overrides of the grids. */
+export interface GridRender {
+  /**
+   * Content of one item, for example a framework image component. It fills the
+   * item, which is positioned, so `fill`-style images work. Return `undefined`
+   * to keep the built-in image.
+   */
+  image?: ((props: RenderGridImageProps) => ReactNode) | undefined;
+}
+
+/** What a grid exposes through its `ref`. */
+export interface GridHandle {
+  /** The button of slide `index`, or `null`. Pass it to the `Lightbox` `getThumbnail` prop. */
+  getThumbnail: (index: number) => HTMLElement | null;
+}
+
+/** Props shared by every grid. */
+export interface GridProps {
+  /** Items to show, in order. Their `width` and `height` set each item's shape. */
+  slides: Slide[];
+  /**
+   * Called with the index of the clicked slide. When omitted, items are plain
+   * images with their `alt` text instead of buttons.
+   */
+  onOpen?: ((index: number) => void) | undefined;
+  /**
+   * Space between items, in px.
+   * @defaultValue 8
+   */
+  gap?: Responsive<number> | undefined;
+  /**
+   * Width in px used on the server and before the grid is measured. Set it to
+   * the width the grid usually has to avoid a reflow on load.
+   * @defaultValue 1024
+   */
+  defaultContainerWidth?: number | undefined;
+  /** Replaces any of the {@link GridLabels} strings. */
+  labels?: Partial<GridLabels> | undefined;
+  /** Adds class names to any of the {@link GridClassNames} parts. */
+  classNames?: Partial<GridClassNames> | undefined;
+  /** Replaces built-in parts. See {@link GridRender}. */
+  render?: GridRender | undefined;
+  /** Extra class on the list. */
+  className?: string | undefined;
+  /** Inline style on the list. Handy for `--eg-grid-*` variables. */
+  style?: CSSProperties | undefined;
+}
+
+/** Props of `MasonryGrid`. */
+export interface MasonryGridProps extends GridProps {
+  /**
+   * Number of columns.
+   * @defaultValue 2 below 640px, 3 below 1024px, 4 from there
+   */
+  columns?: Responsive<number> | undefined;
+}
+
+/** Props of `JustifiedGrid`. */
+export interface JustifiedGridProps extends GridProps {
+  /**
+   * Row height to aim for, in px. Rows end up a little shorter or taller so they fill the width.
+   * @defaultValue 180 below 640px, 260 from there
+   */
+  rowHeight?: Responsive<number> | undefined;
+  /**
+   * What to do with the leftover items that cannot fill the last row: keep them
+   * at `rowHeight` (`start`), stretch them like the other rows (`justify`) or leave them out (`hide`).
+   * @defaultValue "start"
+   */
+  lastRow?: "start" | "justify" | "hide" | undefined;
+}
+
+/** Props of `UniformGrid`. */
+export interface UniformGridProps extends GridProps {
+  /**
+   * Number of columns.
+   * @defaultValue 2 below 640px, 3 below 1024px, 4 from there
+   */
+  columns?: Responsive<number> | undefined;
+  /**
+   * Shape of every item, width / height. Images are cropped to fill it.
+   * @defaultValue 1
+   */
+  aspectRatio?: number | undefined;
+}
+
+/** Strings of `GalleryFilter`. Override any of them for translations. */
+export interface FilterLabels<T extends string = string> {
+  /** Accessible name of the group of buttons. */
+  group: string;
+  /** Text of the button that shows every item. */
+  all: string;
+  /** Text of the button of one category. */
+  category: (category: T) => string;
+  /** Text of the polite live region, read by screen readers when the visible count changes. */
+  count: (count: number) => string;
+}
+
+/** Extra class names, added next to the built-in `eg-*` class of each filter part. */
+export interface FilterClassNames {
+  /** The wrapper, `.eg-filter`. */
+  root: string;
+  /** The group of buttons, `.eg-filter-group`. */
+  group: string;
+  /** Each button, `.eg-filter-button`. */
+  button: string;
+  /** The visually hidden live region, `.eg-filter-status`. */
+  status: string;
+}
+
+/** Props of `GalleryFilter`. */
+export interface GalleryFilterProps<T extends string = string> {
+  /** Categories to offer, in order. An "All" button comes first. */
+  categories: readonly T[];
+  /** The selected category, or `null` for all. */
+  value: T | null;
+  /** Called with the chosen category, or `null` when "All" is chosen. */
+  onChange: (value: T | null) => void;
+  /** Number of items visible with the current selection, announced when it changes. */
+  count: number;
+  /** Replaces any of the {@link FilterLabels} strings. */
+  labels?: Partial<FilterLabels<T>> | undefined;
+  /** Adds class names to any of the {@link FilterClassNames} parts. */
+  classNames?: Partial<FilterClassNames> | undefined;
+  /** Extra class on the wrapper. */
+  className?: string | undefined;
+  /** Inline style on the wrapper. Handy for `--eg-filter-*` variables. */
+  style?: CSSProperties | undefined;
+}

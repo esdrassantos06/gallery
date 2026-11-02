@@ -1,7 +1,19 @@
 import { StrictMode, useId, useRef, useState, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { Check, Copy, ExternalLink } from "lucide-react";
-import { Lightbox, useLightboxHash, type LightboxProps, type Slide, type Transition } from "../src";
+import {
+  GalleryFilter,
+  JustifiedGrid,
+  Lightbox,
+  MasonryGrid,
+  UniformGrid,
+  useLightboxHash,
+  type GridHandle,
+  type GridProps,
+  type LightboxProps,
+  type Slide,
+  type Transition,
+} from "../src";
 import "../src/styles.css";
 import "./site.css";
 import { Button } from "@/components/ui/button";
@@ -349,6 +361,84 @@ function SlideshowGallery() {
   );
 }
 
+type Layout = "justified" | "masonry" | "uniform";
+type Shape = "Landscape" | "Portrait" | "Square";
+
+const shapes: Shape[] = ["Landscape", "Portrait", "Square"];
+
+function shapeOf(slide: Slide): Shape {
+  const ratio = (slide.width ?? 1) / (slide.height ?? 1);
+  return ratio > 1.05 ? "Landscape" : ratio < 0.95 ? "Portrait" : "Square";
+}
+
+function GridsGallery() {
+  const [layout, setLayout] = useState<Layout>("justified");
+  const [shape, setShape] = useState<Shape | null>(null);
+  const [index, setIndex] = useState(-1);
+  const grid = useRef<GridHandle>(null);
+  const headingId = useId();
+  const shown = shape ? samples.filter((slide) => shapeOf(slide) === shape) : samples;
+  const props: GridProps = {
+    slides: shown,
+    onOpen: setIndex,
+    labels: { open: (i, _total, slide) => `Open ${slide.alt?.split(":")[0] ?? `image ${i}`}` },
+  };
+  return (
+    <section aria-labelledby={headingId} className="scroll-mt-8 py-16">
+      <div className="mb-8 max-w-2xl">
+        <h2 id={headingId} className="text-2xl font-semibold tracking-[-0.02em] text-balance">
+          Grids and filter
+        </h2>
+        <p className="text-muted-foreground mt-2 text-pretty">
+          Justified rows, masonry columns or uniform cells, with a category filter. The grids work
+          without the lightbox and the lightbox works without them; here they share the filtered
+          list, so indices always match.
+        </p>
+      </div>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <GalleryFilter
+          categories={shapes}
+          value={shape}
+          onChange={setShape}
+          count={shown.length}
+          labels={{ group: "Filter by shape" }}
+        />
+        <RadioGroup
+          aria-label="Layout"
+          value={layout}
+          onValueChange={(next) => setLayout(next as Layout)}
+          className="grid grid-cols-3 gap-2"
+        >
+          {(["justified", "masonry", "uniform"] as Layout[]).map((l) => (
+            <Label
+              key={l}
+              className="has-[[data-state=checked]]:border-foreground flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 font-normal capitalize"
+            >
+              <RadioGroupItem value={l} aria-label={l} />
+              {l}
+            </Label>
+          ))}
+        </RadioGroup>
+      </div>
+      {layout === "justified" ? (
+        <JustifiedGrid ref={grid} {...props} rowHeight={(w) => (w < 640 ? 140 : 220)} />
+      ) : layout === "masonry" ? (
+        <MasonryGrid ref={grid} {...props} />
+      ) : (
+        <UniformGrid ref={grid} {...props} aspectRatio={4 / 3} />
+      )}
+      <Lightbox
+        slides={shown}
+        open={index >= 0}
+        index={Math.max(index, 0)}
+        onIndexChange={setIndex}
+        onClose={() => setIndex(-1)}
+        getThumbnail={(i) => grid.current?.getThumbnail(i)}
+      />
+    </section>
+  );
+}
+
 const usage = `import { Lightbox, useLightboxHash } from "@esdrassantos06/gallery";
 import "@esdrassantos06/gallery/styles.css";
 
@@ -376,7 +466,7 @@ export function Gallery({ slides }) {
 }`;
 
 const facts = [
-  ["9.3 kB", "min + brotli, measured"],
+  ["9.4 kB", "min + brotli, measured"],
   ["0", "runtime dependencies"],
   ["React 18 and 19", "SSR safe, App Router ready"],
   ["WCAG 2.2 AA", "focus trap, live region, reduced motion"],
@@ -517,6 +607,10 @@ function App() {
           <Separator />
 
           <SlideshowGallery />
+
+          <Separator />
+
+          <GridsGallery />
 
           <Separator />
 

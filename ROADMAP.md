@@ -8,7 +8,7 @@ Phases ship one at a time. Each one ends with unit, integration and end-to-end t
 | 2     | Thumbnail strip, zoom (wheel, double click, double tap, pinch, pan, buttons, keys), fullscreen, image loading and error states                                                                                      | Done        |
 | 3     | Video slides (MP4, YouTube through `youtube-nocookie.com`, Vimeo), custom iframe slides, slideshow with progress bar                                                                                                | Done        |
 | 4     | Hash deep linking with back-button close, rotation, download                                                                                                                                                        | Done        |
-| 5     | Optional grids (masonry, justified, uniform) and a category filter, all usable without the lightbox and vice versa                                                                                                  | Planned     |
+| 5     | Optional grids (masonry, justified, uniform) and a category filter, all usable without the lightbox and vice versa                                                                                                  | Done        |
 | 6     | Interaction polish: toolbar overflow menu on narrow screens, idle-hiding controls, right-to-left layouts, pinch to close, flip, Web Share, pager dots, caption placement inside the slide, cropped-thumbnail flight | Planned     |
 | 7     | Release: CI on React 18 and 19, npm Trusted Publishing through OIDC, Vercel site, contributor docs (done); integration in the ModuloService site (planned)                                                          | In progress |
 

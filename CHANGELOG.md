@@ -2,6 +2,10 @@
 
 All notable changes are listed here. The project follows [Semantic Versioning](https://semver.org).
 
+## Unreleased
+
+- Optional `MasonryGrid`, `JustifiedGrid` and `UniformGrid` with responsive columns or row height, lazy `srcset` thumbnails without layout shift and a `ref` that plugs into `getThumbnail`, plus a `GalleryFilter` with `aria-pressed` toggle buttons and a live count. Each works with or without the lightbox, and they are tree-shaken away when unused.
+
 ## 1.0.0 (unreleased)
 
 First release.

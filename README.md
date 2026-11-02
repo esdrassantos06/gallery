@@ -13,9 +13,9 @@
 
 **[Live demo](https://gallery-esdrassantos06.vercel.app)**
 
-An accessible, themeable image lightbox for React. It has zero runtime dependencies, works with any grid, and every string, icon, color, size and timing can be replaced.
+An accessible, themeable image lightbox for React, with optional masonry, justified and uniform grids and a category filter. It has zero runtime dependencies, works with any grid, and every string, icon, color, size and timing can be replaced.
 
-> **Status:** version 1.0.0, phase 4 of 7. The core lightbox, thumbnails, zoom, fullscreen, video and embeds, slideshow, deep linking, rotation and download described below are implemented and tested. The optional grids, interaction polish and release tooling are planned and **not available yet** (see [Roadmap](#roadmap)).
+> **Status:** version 1.0.0, phase 5 of 7. The core lightbox, thumbnails, zoom, fullscreen, video and embeds, slideshow, deep linking, rotation, download, the optional grids and the category filter described below are implemented and tested. The grids and the filter are not in 1.0.0 yet; they ship in the next release. Interaction polish and release tooling are planned and **not available yet** (see [Roadmap](#roadmap)).
 
 ## Contents
 
@@ -42,6 +42,7 @@ An accessible, themeable image lightbox for React. It has zero runtime dependenc
 - [Deep linking](#deep-linking)
 - [Rotation](#rotation)
 - [Download](#download)
+- [Grids and filter](#grids-and-filter)
 - [Accessibility](#accessibility)
 - [Content Security Policy](#content-security-policy)
 - [Performance](#performance)
@@ -67,6 +68,7 @@ An accessible, themeable image lightbox for React. It has zero runtime dependenc
 - Deep links through the URL hash (`#galeria-3`) with back-button close and exact URL restore.
 - Rotation in quarter turns that keeps fitting and zoom correct.
 - Downloads that keep the file name across origins and fall back to a new tab when the server refuses.
+- Optional masonry, justified and uniform grids and a category filter, each usable with or without the lightbox.
 - Only the current slide and a configurable number of neighbors are mounted, so nothing else loads.
 - `srcset` and `sizes`, explicit image dimensions, and one `ResizeObserver`.
 - Modal dialog semantics, focus trap, focus return, a polite live region and scroll lock that keeps the page from shifting.
@@ -224,15 +226,18 @@ Import `@esdrassantos06/gallery/styles.css` in `app/layout.tsx` or in the client
 
 ### Other exports
 
-| Export                                           | Description                                                                                                                                                                                                                                                                                    |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `defaultLabels`                                  | The English labels, to extend instead of rewriting.                                                                                                                                                                                                                                            |
-| `defaultIcons`                                   | The built-in icons.                                                                                                                                                                                                                                                                            |
-| `Icon`                                           | The SVG base used by the built-in icons (24 × 24 grid, 1.5px stroke, `currentColor`). Use it to draw matching icons.                                                                                                                                                                           |
-| `fitContain(width, height, boxWidth, boxHeight)` | The fit math the lightbox uses: scales a size into a box without upscaling.                                                                                                                                                                                                                    |
-| `getMedia(slide, { autoplay? })`                 | How a slide renders: `image`, `video`, `youtube`, `vimeo` or `iframe`, with the embed URL.                                                                                                                                                                                                     |
-| `useLightboxHash(prefix, { count? })`            | `[index, setIndex]` kept in the URL hash. See [Deep linking](#deep-linking).                                                                                                                                                                                                                   |
-| Types                                            | `Slide`, `VideoSource`, `VideoTrack`, `Transition`, `ZoomOptions`, `VideoOptions`, `SlideshowOptions`, `DownloadOptions`, `LightboxHashOptions`, `LightboxProps`, `LightboxLabels`, `LightboxIcons`, `LightboxClassNames`, `LightboxRender`, `RenderSlideProps`, `Media`, `MediaKind`, `Size`. |
+| Export                                           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MasonryGrid`, `JustifiedGrid`, `UniformGrid`    | Optional thumbnail grids. See [Grids and filter](#grids-and-filter).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `GalleryFilter`                                  | Optional category filter. See [Grids and filter](#grids-and-filter).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `defaultGridLabels`, `defaultFilterLabels`       | The English labels of the grids and the filter.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `defaultLabels`                                  | The English labels, to extend instead of rewriting.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `defaultIcons`                                   | The built-in icons.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `Icon`                                           | The SVG base used by the built-in icons (24 × 24 grid, 1.5px stroke, `currentColor`). Use it to draw matching icons.                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `fitContain(width, height, boxWidth, boxHeight)` | The fit math the lightbox uses: scales a size into a box without upscaling.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `getMedia(slide, { autoplay? })`                 | How a slide renders: `image`, `video`, `youtube`, `vimeo` or `iframe`, with the embed URL.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `useLightboxHash(prefix, { count? })`            | `[index, setIndex]` kept in the URL hash. See [Deep linking](#deep-linking).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Types                                            | `Slide`, `VideoSource`, `VideoTrack`, `Transition`, `ZoomOptions`, `VideoOptions`, `SlideshowOptions`, `DownloadOptions`, `LightboxHashOptions`, `LightboxProps`, `LightboxLabels`, `LightboxIcons`, `LightboxClassNames`, `LightboxRender`, `RenderSlideProps`, `Media`, `MediaKind`, `Size`, and for the grids and filter `GridProps`, `MasonryGridProps`, `JustifiedGridProps`, `UniformGridProps`, `GridHandle`, `GridComponent`, `GridLabels`, `GridClassNames`, `GridRender`, `RenderGridImageProps`, `Responsive`, `GalleryFilterProps`, `FilterLabels`, `FilterClassNames`. |
 
 ## Labels and translations
 
@@ -696,6 +701,161 @@ const [index, setIndex] = useLightboxHash("galeria", { count: slides.length });
 - `slide.download` points the button at another URL, for example the original file instead of a resized `src`; `slide.download = false` hides it on that slide.
 - The file name comes from `slide.downloadName`, then `download.filename(slide, index)`, then the last segment of the URL.
 
+## Grids and filter
+
+The grids and the filter are optional. Each one works on its own: a grid without the lightbox is a responsive photo layout, and the lightbox keeps working with any markup you already have.
+
+```tsx
+import { useRef, useState } from "react";
+import {
+  GalleryFilter,
+  JustifiedGrid,
+  Lightbox,
+  type GridHandle,
+  type Slide,
+} from "@esdrassantos06/gallery";
+import "@esdrassantos06/gallery/styles.css";
+
+type Photo = Slide & { trade: "roofs" | "walls" };
+
+export function Gallery({ photos }: { photos: Photo[] }) {
+  const [trade, setTrade] = useState<Photo["trade"] | null>(null);
+  const [index, setIndex] = useState(-1);
+  const grid = useRef<GridHandle>(null);
+  const shown = trade ? photos.filter((photo) => photo.trade === trade) : photos;
+
+  return (
+    <>
+      <GalleryFilter
+        categories={["roofs", "walls"]}
+        value={trade}
+        onChange={setTrade}
+        count={shown.length}
+      />
+      <JustifiedGrid
+        ref={grid}
+        slides={shown}
+        onOpen={setIndex}
+        rowHeight={(w) => (w < 640 ? 200 : 320)}
+      />
+      <Lightbox
+        slides={shown}
+        open={index >= 0}
+        index={Math.max(index, 0)}
+        onIndexChange={setIndex}
+        onClose={() => setIndex(-1)}
+        getThumbnail={(i) => grid.current?.getThumbnail(i)}
+      />
+    </>
+  );
+}
+```
+
+Pass the same filtered list to the grid and the lightbox, so the index the grid reports is the index the lightbox shows. `getThumbnail` from the grid's `ref` makes the lightbox fly out of the clicked photo and return focus to it on close.
+
+### Layouts
+
+- **`JustifiedGrid`**: rows of equal height that fill the width edge to edge, each image keeping its aspect ratio, each row as close as possible to `rowHeight`.
+- **`MasonryGrid`**: equal-width columns. Each item goes into the shortest column, so the DOM, reading and tab order stays left to right, top to bottom.
+- **`UniformGrid`**: equal cells in a CSS grid, images cropped to `aspectRatio`.
+
+Masonry and justified items are positioned from each slide's `width` and `height` (a slide without them is treated as square), so the layout is known before any image loads and nothing shifts. Uniform cells take their shape from `aspectRatio`.
+
+### Grid props
+
+Every grid takes these props:
+
+| Prop                    | Type                           | Default  | Description                                                                                                                        |
+| ----------------------- | ------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `slides`                | `Slide[]`                      | required | Items to show, in order.                                                                                                           |
+| `onOpen`                | `(index: number) => void`      |          | Called with the index of the clicked slide. Without it, items are plain images with their `alt` text instead of buttons.           |
+| `ref`                   | `Ref<GridHandle>`              |          | `{ getThumbnail(index) }`, the button of a slide, for the lightbox `getThumbnail` prop.                                            |
+| `gap`                   | `Responsive<number>`           | `8`      | Space between items, in px.                                                                                                        |
+| `defaultContainerWidth` | `number`                       | `1024`   | Width used on the server and before the grid is measured. Set it to the width the grid usually has to avoid a reflow on load.      |
+| `labels`                | `Partial<GridLabels>`          | English  | `open(index, total, slide)`: accessible name of each button. Defaults to `Open {alt}`, then `Open {title}`, then `Open image {n}`. |
+| `classNames`            | `Partial<GridClassNames>`      |          | Extra classes for `root`, `item`, `button` and `image`.                                                                            |
+| `render`                | `{ image?(props): ReactNode }` |          | Replaces the built-in `<img>`. Receives `slide`, `index`, `width`, `height` and `sizes`; return `undefined` to keep the built-in.  |
+| `className`, `style`    | `string`, `CSSProperties`      |          | On the list.                                                                                                                       |
+
+`Responsive<T>` is a value or a function of the grid's measured width: `columns={(width) => (width < 640 ? 2 : 4)}`.
+
+| Grid            | Prop          | Type                             | Default                                      |
+| --------------- | ------------- | -------------------------------- | -------------------------------------------- |
+| `JustifiedGrid` | `rowHeight`   | `Responsive<number>`             | `180` below 640px, `260` from there          |
+| `JustifiedGrid` | `lastRow`     | `"start" \| "justify" \| "hide"` | `"start"`: leftover items keep `rowHeight`   |
+| `MasonryGrid`   | `columns`     | `Responsive<number>`             | `2` below 640px, `3` below 1024px, `4` above |
+| `UniformGrid`   | `columns`     | `Responsive<number>`             | `2` below 640px, `3` below 1024px, `4` above |
+| `UniformGrid`   | `aspectRatio` | `number`                         | `1`                                          |
+
+The built-in image uses `thumbnail`, then `poster`, then `src`, plus `srcSet` with `sizes` set to the rendered width, `loading="lazy"`, `decoding="async"` and explicit `width` and `height`. Video and embed slides need a `thumbnail` or `poster`. To use a framework image component, return it from `render.image`; the item is positioned, so `fill`-style images work:
+
+```tsx
+<JustifiedGrid
+  slides={photos}
+  onOpen={setIndex}
+  render={{
+    image: ({ slide, sizes }) => (
+      <Image fill src={slide.src} alt="" sizes={sizes} className="object-cover" />
+    ),
+  }}
+/>
+```
+
+### `GalleryFilter`
+
+| Prop                 | Type                         | Default  | Description                                                                 |
+| -------------------- | ---------------------------- | -------- | --------------------------------------------------------------------------- |
+| `categories`         | `readonly T[]`               | required | Categories to offer, in order. An "All" button comes first.                 |
+| `value`              | `T \| null`                  | required | The selected category, or `null` for all.                                   |
+| `onChange`           | `(value: T \| null) => void` | required | Called with the chosen category, or `null` for "All".                       |
+| `count`              | `number`                     | required | Number of visible items, announced in a polite live region when it changes. |
+| `labels`             | `Partial<FilterLabels<T>>`   | English  | `group`, `all`, `category(value)` and `count(n)`.                           |
+| `classNames`         | `Partial<FilterClassNames>`  |          | Extra classes for `root`, `group`, `button` and `status`.                   |
+| `className`, `style` | `string`, `CSSProperties`    |          | On the wrapper.                                                             |
+
+```tsx
+<GalleryFilter
+  categories={trades}
+  value={trade}
+  onChange={setTrade}
+  count={shown.length}
+  labels={{
+    group: "Filtrar por ofício",
+    all: "Todos",
+    category: (id) => t(`trades.${id}`),
+    count: (n) => (n === 1 ? "1 foto" : `${n} fotos`),
+  }}
+/>
+```
+
+### Grid and filter styling
+
+These variables are read with fallbacks, so set them on the element, on any ancestor or on `:root`:
+
+| Variable                        | Default                   | Used for                      |
+| ------------------------------- | ------------------------- | ----------------------------- |
+| `--eg-grid-radius`              | `4px`                     | Image and focus ring corners  |
+| `--eg-grid-background`          | `rgb(127 127 127 / 0.15)` | Behind images while they load |
+| `--eg-grid-focus-color`         | `currentColor`            | Focus ring                    |
+| `--eg-grid-focus-width`         | `2px`                     | Focus ring                    |
+| `--eg-grid-focus-offset`        | `2px`                     | Focus ring                    |
+| `--eg-grid-hover-opacity`       | `0.85`                    | Image under the pointer       |
+| `--eg-grid-cursor`              | `zoom-in`                 | Buttons                       |
+| `--eg-grid-duration`            | `200ms`                   | Hover and filter transitions  |
+| `--eg-filter-gap`               | `8px`                     | Space between filter buttons  |
+| `--eg-filter-height`            | `44px`                    | Minimum button height         |
+| `--eg-filter-padding`           | `16px`                    | Inline padding                |
+| `--eg-filter-radius`            | `999px`                   | Button corners                |
+| `--eg-filter-font-size`         | `0.875rem`                | Button text                   |
+| `--eg-filter-color`             | `inherit`                 | Button text                   |
+| `--eg-filter-background`        | `transparent`             | Buttons at rest               |
+| `--eg-filter-border-color`      | `rgb(127 127 127 / 0.5)`  | Buttons at rest               |
+| `--eg-filter-active-background` | `CanvasText`              | Pressed button                |
+| `--eg-filter-active-color`      | `Canvas`                  | Pressed button text           |
+| `--eg-filter-focus-color`       | `currentColor`            | Focus ring                    |
+
+Classes: `eg-grid`, `eg-grid--masonry`, `eg-grid--justified`, `eg-grid--uniform`, `eg-grid-item`, `eg-grid-button`, `eg-grid-image`, `eg-filter`, `eg-filter-group`, `eg-filter-button`, `eg-filter-status`.
+
 ## Accessibility
 
 - The lightbox is a `role="dialog"` with `aria-modal="true"` and an accessible name from `labels.dialog`.
@@ -712,10 +872,12 @@ const [index, setIndex] = useLightboxHash("galeria", { count: slides.length });
 - Page scroll is locked while open. The body is padded by the scrollbar width so the page does not shift, and the previous inline styles are restored exactly.
 - `prefers-reduced-motion` is respected.
 - Controls are at least 44 × 44px and show a visible focus ring.
+- Grid items are buttons named by `labels.open` inside a list; their images have empty `alt` since the button carries the name. Without `onOpen`, items are plain images with their `alt` text. Masonry keeps the DOM order equal to the visual reading order.
+- The filter is a `role="group"` named by `labels.group`, with `aria-pressed` toggle buttons and a polite live region that announces `labels.count`.
 
 ## Content Security Policy
 
-The package loads nothing from third parties, uses no CDN and injects no inline scripts. Styles come from the stylesheet you import (`style-src 'self'` when you self-host it). Sizes, positions and drag offsets are written through the CSSOM (`element.style`), which `style-src` does not restrict, and nothing is server-rendered, so no `'unsafe-inline'` is needed.
+The package loads nothing from third parties, uses no CDN and injects no inline scripts. Styles come from the stylesheet you import (`style-src 'self'` when you self-host it). Sizes, positions and drag offsets are written through the CSSOM (`element.style`), which `style-src` does not restrict, and nothing is server-rendered, so no `'unsafe-inline'` is needed. The grids are the exception: they server-render their item positions as `style` attributes, which a strict `style-src` blocks until the client takes over. Render them on the client only, or allow `'unsafe-inline'` in `style-src`, if your policy is strict and you server-render.
 
 Images, videos and pages load from the URLs you pass. A policy for a gallery with self-hosted media plus YouTube and Vimeo slides:
 
@@ -737,16 +899,18 @@ Content-Security-Policy:
 - When `srcSet` is set and `sizes` is not, `sizes` is the rendered width, so the browser picks the smallest candidate that fills it.
 - Drags write CSS variables on the root once per animation frame, and pinch, pan and wheel zoom write the transform straight to the element; React does not re-render while a gesture moves.
 - Listeners and observers are removed on close and unmount.
+- Each grid measures itself with one `ResizeObserver` and computes its layout in plain JavaScript, with no work per image. Grid thumbnails load lazily. The grids and the filter are tree-shaken away when you only import `Lightbox`.
 
 ## Bundle size
 
-Measured with [size-limit](https://github.com/ai/size-limit) (`npm run size`) on version 1.0.0 (phase 4), minified and brotli-compressed, React excluded:
+Measured with [size-limit](https://github.com/ai/size-limit) (`npm run size`) on `main` after phase 5, minified and brotli-compressed, React excluded:
 
-| Entry                 | Size    |
-| --------------------- | ------- |
-| `import { Lightbox }` | 9.28 kB |
-| Everything            | 9.68 kB |
-| `styles.css`          | 2.25 kB |
+| Entry                                                               | Size     |
+| ------------------------------------------------------------------- | -------- |
+| `import { Lightbox }`                                               | 9.36 kB  |
+| `import { MasonryGrid, JustifiedGrid, UniformGrid, GalleryFilter }` | 1.89 kB  |
+| Everything                                                          | 11.24 kB |
+| `styles.css`                                                        | 2.73 kB  |
 
 ## Site and playground
 
@@ -757,7 +921,7 @@ npm install
 npm run dev
 ```
 
-It has three galleries of locally generated samples: the default look, driven by a panel of options and kept in the URL hash as `#galeria-N`; a customised one with Portuguese labels, replaced icons, a custom caption, an extra toolbar link and a theme set through `--eg-*` variables; and a video and slideshow gallery with a native video with captions and an iframe slide.
+It has four galleries of locally generated samples: the default look, driven by a panel of options and kept in the URL hash as `#galeria-N`; a customised one with Portuguese labels, replaced icons, a custom caption, an extra toolbar link and a theme set through `--eg-*` variables; a video and slideshow gallery with a native video with captions and an iframe slide; and a grids section that switches between justified, masonry and uniform layouts with a shape filter.
 
 `npm run build:site` builds it into `playground/dist`. It is live at [gallery-esdrassantos06.vercel.app](https://gallery-esdrassantos06.vercel.app) and deploys to Vercel as a static site with `vercel.json`, which also sends a strict Content Security Policy (`default-src 'self'`, no `'unsafe-inline'`) that the whole site, lightbox included, runs under.
 
@@ -786,10 +950,9 @@ See [PUBLISHING.md](./PUBLISHING.md) for the first manual release and the automa
 
 Planned, **not available yet**. The full plan is in [ROADMAP.md](./ROADMAP.md).
 
-1. Optional grids (masonry, justified, uniform) with a category filter.
-2. Toolbar overflow menu, idle-hiding controls, right-to-left layouts, pinch to close, flip, Web Share, pager dots.
-3. Release tooling: CI on React 18 and 19, npm Trusted Publishing.
+1. Toolbar overflow menu, idle-hiding controls, right-to-left layouts, pinch to close, flip, Web Share, pager dots.
+2. Release tooling: CI on React 18 and 19, npm Trusted Publishing.
 
 ## License
 
-[MIT](./LICENSE)
+[MIT](./LICENSE). The justified layout math is adapted from opengallery, MIT License, Copyright (c) 2026 opengallery contributors.
