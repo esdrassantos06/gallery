@@ -8,7 +8,7 @@ import { PlaygroundGallery, PolishGallery, SlideshowGallery } from "@/components
 import { npmUrl, repoUrl, siteDescription, siteUrl } from "@/lib/shared";
 
 const facts = [
-  ["11.55 kB", "lightbox, min + brotli, measured"],
+  ["13.09 kB", "lightbox, min + brotli, measured"],
   ["0", "runtime dependencies"],
   ["React 18 and 19", "SSR safe, App Router ready"],
   ["Screen readers", "focus trap, live region, reduced motion"],
