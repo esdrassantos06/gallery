@@ -2,7 +2,7 @@
 
 All notable changes are listed here. The project follows [Semantic Versioning](https://semver.org).
 
-## Unreleased
+## 1.2.0 (2026-11-02)
 
 - `captionPosition="slide"`: lay each caption over the bottom of its own image, as wide as the image, moving with the slide. New `slideCaption` class name.
 - New built-in icons from [Mynaui Icons](https://mynaui.com/icons) (MIT). Same 24px grid and 1.5px stroke, so `--eg-icon-size` and custom icons work as before.

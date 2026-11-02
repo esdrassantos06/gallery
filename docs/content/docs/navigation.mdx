@@ -28,7 +28,7 @@ Gestures use Pointer Events on the stage, so touch, pen and mouse all work. In [
 
 - **Drag sideways.** The slide follows the pointer. Releasing past `swipeThreshold` (50px by default), or flicking faster than 0.5px per ms, changes slide.
 - **Drag up or down.** The image moves and shrinks and the backdrop fades. Releasing after 20% of the viewport height, or a flick projected past 40%, closes. Short taps never close.
-- **Pinch to close.** A pinch that starts at fit, never zooms in, and is released under 90% of the fitted size closes the viewer. Below fit the image follows the fingers instead of resisting, as the cue. A pinch that zoomed in first only settles back. `pinchToClose={false}` turns it off. Pinch to close is on `main` and ships in the next release.
+- **Pinch to close.** A pinch that starts at fit, never zooms in, and is released under 90% of the fitted size closes the viewer. Below fit the image follows the fingers instead of resisting, as the cue. A pinch that zoomed in first only settles back. `pinchToClose={false}` turns it off.
 - **Zoomed in.** A one-finger drag pans the image instead. See [Zoom](/docs/zoom).
 - A drag never counts as a backdrop click.
 

@@ -15,7 +15,7 @@
 
 An accessible, themeable image lightbox for React, with optional masonry, justified and uniform grids and a category filter. The lightbox opens out of the thumbnail that was clicked and flies back into it on close. It has zero runtime dependencies, works with any grid, and every string, icon, color, size and timing can be replaced.
 
-> **Status:** version 1.0.0, phase 6 of 7. Everything listed below is implemented and tested. The grids, the filter and the phase 6 polish (flip, share, pager dots, idle controls, right-to-left, pinch to close and the toolbar overflow menu) are on `main` and ship in the next release, not in 1.0.0. Interaction polish and the rest of the release tooling are planned and **not available yet** (see the [roadmap](https://gallery-esdrassantos06.vercel.app/docs/roadmap)).
+> **Status:** version 1.2.0. Every phase of the [roadmap](https://gallery-esdrassantos06.vercel.app/docs/roadmap) is done, and everything listed below is implemented, tested and published on npm.
 
 ## Features
 
@@ -25,6 +25,7 @@ An accessible, themeable image lightbox for React, with optional masonry, justif
 - A toolbar that moves what does not fit into an accessible "More options" menu, controls that fade out when idle, and right-to-left layouts.
 - Native video with captions, YouTube and Vimeo without their player scripts, any page in an iframe, and room for [custom players](https://gallery-esdrassantos06.vercel.app/docs/custom-players) such as Video.js 10.
 - Slideshow that pauses when the user takes over.
+- Fast with thousands of images and videos: the current image loads first with its thumbnail as a placeholder, preloading adapts to slow connections, and the thumbnail strip, pager and grids render only what is in view.
 - Optional [justified, masonry and uniform grids](https://gallery-esdrassantos06.vercel.app/docs/grids) and a [category filter](https://gallery-esdrassantos06.vercel.app/docs/filter), each usable with or without the lightbox.
 - Deep links through the URL hash with `useLightboxHash`, closed by the back button.
 - Modal dialog semantics, focus trap and return, a live region, reduced motion and a scroll lock that keeps the page still.
@@ -111,14 +112,14 @@ The source of the docs lives in [`docs/`](./docs), and the prop tables there are
 
 ## Bundle size
 
-Measured with `npm run size` on `main` after phase 6, minified and brotli-compressed, React excluded:
+Measured with `npm run size` for 1.2.0, minified and brotli-compressed, React excluded:
 
 | Entry                                                               | Size     |
 | ------------------------------------------------------------------- | -------- |
-| `import { Lightbox }`                                               | 11.55 kB |
-| `import { MasonryGrid, JustifiedGrid, UniformGrid, GalleryFilter }` | 1.89 kB  |
-| Everything                                                          | 13.42 kB |
-| `styles.css`                                                        | 3.31 kB  |
+| `import { Lightbox }`                                               | 13.09 kB |
+| `import { MasonryGrid, JustifiedGrid, UniformGrid, GalleryFilter }` | 2.97 kB  |
+| Everything                                                          | 15.32 kB |
+| `styles.css`                                                        | 3.41 kB  |
 
 ## Development
 
