@@ -127,8 +127,8 @@ test("locks page scroll while open and restores it", async ({ page }) => {
 
 test("closes on a click on the empty area around the image", async ({ page }) => {
   const viewer = await open(page, 4);
-  const viewport = page.viewportSize()!;
-  await page.mouse.click(viewport.width / 2, 30);
+  const counter = (await viewer.locator(".eg-counter").boundingBox())!;
+  await page.mouse.click(counter.x + counter.width + 12, counter.y + counter.height / 2);
   await expect(viewer).toBeHidden();
 });
 

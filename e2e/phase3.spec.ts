@@ -59,7 +59,8 @@ test("shows an iframe slide only while it is current", async ({ page }) => {
 });
 
 test("runs the slideshow with a progress bar and pauses on manual navigation", async ({ page }) => {
-  await page.getByRole("slider", { name: "Interval" }).fill("1000");
+  await page.getByRole("slider", { name: "Interval" }).focus();
+  await page.keyboard.press("Home");
   await section(page).getByRole("button", { name: "Open Sample 07" }).click();
   await expect(counter(page)).toHaveText("2 / 7");
   await page.getByRole("button", { name: "Start slideshow" }).click();
@@ -74,7 +75,8 @@ test("runs the slideshow with a progress bar and pauses on manual navigation", a
 });
 
 test("holds the slideshow on an iframe slide", async ({ page }) => {
-  await page.getByRole("slider", { name: "Interval" }).fill("1000");
+  await page.getByRole("slider", { name: "Interval" }).focus();
+  await page.keyboard.press("Home");
   await section(page).getByRole("button", { name: "Open Sample 09" }).click();
   await page.getByRole("button", { name: "Start slideshow" }).click();
   await expect(counter(page)).toHaveText("5 / 7", { timeout: 3000 });
