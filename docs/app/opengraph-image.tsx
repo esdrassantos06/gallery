@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 export const dynamic = "force-static";
@@ -5,8 +7,14 @@ export const alt = "gallery, an accessible React lightbox that flies out of your
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+const fonts = join(process.cwd(), "node_modules/geist/dist/fonts/geist-sans");
+
 /** Social preview shared by every page: the flight mark, the name and the tagline. */
-export default function OpengraphImage() {
+export default async function OpengraphImage() {
+  const [regular, semibold] = await Promise.all([
+    readFile(join(fonts, "Geist-Regular.ttf")),
+    readFile(join(fonts, "Geist-SemiBold.ttf")),
+  ]);
   return new ImageResponse(
     <div
       style={{
@@ -18,6 +26,7 @@ export default function OpengraphImage() {
         padding: 80,
         background: "#f6f5f2",
         color: "#0b0b0c",
+        fontFamily: "Geist",
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
@@ -44,19 +53,25 @@ export default function OpengraphImage() {
           <rect x="11" y="42" width="11" height="11" rx="2" fill="#f6f5f2" />
         </svg>
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 64, fontWeight: 700, letterSpacing: -2 }}>gallery</span>
+          <span style={{ fontSize: 64, fontWeight: 600, letterSpacing: -1.5 }}>gallery</span>
           <span style={{ fontSize: 28, color: "#5c5f66" }}>@esdrassantos06/gallery</span>
         </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-        <span style={{ fontSize: 72, fontWeight: 700, letterSpacing: -2.5, lineHeight: 1.05 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 20, width: "100%" }}>
+        <span style={{ fontSize: 76, fontWeight: 600, letterSpacing: -1, lineHeight: 1.05 }}>
           A lightbox that flies out of your thumbnails.
         </span>
         <span style={{ fontSize: 32, color: "#5c5f66" }}>
-          Accessible React viewer with zoom, video, slideshow and grids. Zero dependencies.
+          Accessible React viewer with zoom, video and grids.
         </span>
       </div>
     </div>,
-    size,
+    {
+      ...size,
+      fonts: [
+        { name: "Geist", data: regular, weight: 400, style: "normal" },
+        { name: "Geist", data: semibold, weight: 600, style: "normal" },
+      ],
+    },
   );
 }
