@@ -9,7 +9,7 @@
 
 An accessible, themeable image lightbox for React. It has zero runtime dependencies, works with any grid, and every string, icon, color, size and timing can be replaced.
 
-> **Status:** version 1.0.0, phase 2 of 7. The core lightbox, the thumbnail strip, zoom and fullscreen described below are implemented and tested. Video, slideshow, deep linking, rotation, download and the optional grids are planned and **not available yet** (see [Roadmap](#roadmap)).
+> **Status:** version 1.0.0, phase 3 of 7. The core lightbox, thumbnails, zoom, fullscreen, video and embeds, and the slideshow described below are implemented and tested. Deep linking, rotation, download and the optional grids are planned and **not available yet** (see [Roadmap](#roadmap)).
 
 ## Contents
 
@@ -30,6 +30,8 @@ An accessible, themeable image lightbox for React. It has zero runtime dependenc
 - [Zoom](#zoom)
 - [Fullscreen](#fullscreen)
 - [Loading and errors](#loading-and-errors)
+- [Video and embeds](#video-and-embeds)
+- [Slideshow](#slideshow)
 - [Accessibility](#accessibility)
 - [Content Security Policy](#content-security-policy)
 - [Performance](#performance)
@@ -50,6 +52,8 @@ An accessible, themeable image lightbox for React. It has zero runtime dependenc
 - Zoom with the wheel, trackpad pinch, double click, double tap, touch pinch, buttons and keys, anchored to the pointer, with panning that keeps the image covering the stage.
 - Fullscreen through the Fullscreen API, kept in sync with changes made by the browser.
 - Loading indicator and an error message for images that fail.
+- Native video with posters, multiple sources and caption tracks; YouTube through `youtube-nocookie.com` and Vimeo with Do Not Track, both without player scripts; any page in an iframe.
+- Slideshow with a progress bar that pauses on manual navigation, while the page is hidden and on video slides.
 - Only the current slide and a configurable number of neighbors are mounted, so nothing else loads.
 - `srcset` and `sizes`, explicit image dimensions, and one `ResizeObserver`.
 - Modal dialog semantics, focus trap, focus return, a polite live region and scroll lock that keeps the page from shifting.
@@ -169,6 +173,8 @@ Import `@esdrassantos06/gallery/styles.css` in `app/layout.tsx` or in the client
 | `thumbnails`           | `boolean`                                             | `true`          | Show the thumbnail strip (only when there is more than one slide).                                                                                    |
 | `zoom`                 | `boolean \| ZoomOptions`                              | `true`          | Zoom with wheel, double click or tap, pinch, buttons and keys. See [Zoom](#zoom).                                                                     |
 | `fullscreen`           | `boolean`                                             | `true`          | Show a fullscreen button where the Fullscreen API is available.                                                                                       |
+| `video`                | `VideoOptions`                                        |                 | `{ autoplay }`: start the current video or embed, muted. See [Video and embeds](#video-and-embeds).                                                   |
+| `slideshow`            | `boolean \| SlideshowOptions`                         | `false`         | Add a slideshow button. See [Slideshow](#slideshow).                                                                                                  |
 | `getThumbnail`         | `(index: number) => HTMLElement \| null \| undefined` |                 | Element that opened a slide. Animations start and end there and focus returns to it. Without it, focus returns to the element focused before opening. |
 | `labels`               | `Partial<LightboxLabels>`                             | English         | See [Labels](#labels-and-translations).                                                                                                               |
 | `icons`                | `Partial<LightboxIcons>`                              | built-in        | See [Icons](#icons).                                                                                                                                  |
@@ -180,30 +186,35 @@ Import `@esdrassantos06/gallery/styles.css` in `app/layout.tsx` or in the client
 
 ### `Slide`
 
-| Field             | Type        | Description                                                                                                      |
-| ----------------- | ----------- | ---------------------------------------------------------------------------------------------------------------- |
-| `src`             | `string`    | Image URL.                                                                                                       |
-| `srcSet`          | `string`    | Responsive candidates for `<img srcset>`.                                                                        |
-| `sizes`           | `string`    | `<img sizes>` when `srcSet` is set. Defaults to the width the image is rendered at, in px.                       |
-| `width`, `height` | `number`    | Natural size in px. Recommended.                                                                                 |
-| `alt`             | `string`    | Alternative text.                                                                                                |
-| `title`           | `ReactNode` | Caption heading (`h2`).                                                                                          |
-| `description`     | `ReactNode` | Caption text.                                                                                                    |
-| `thumbnail`       | `string`    | Preview image for the thumbnail strip. Falls back to `src`, which downloads the full image, so pass a small one. |
+| Field             | Type                                         | Description                                                                                                      |
+| ----------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `src`             | `string`                                     | Image, video file, YouTube or Vimeo link, or a page with `type: "iframe"`.                                       |
+| `type`            | `"image" \| "video" \| "iframe"`             | How the slide renders. Detected from `src` when omitted.                                                         |
+| `poster`          | `string`                                     | Still image for a video, and for embeds on neighboring slides.                                                   |
+| `sources`         | `{ src, type? }[]`                           | Alternative video files, in order of preference.                                                                 |
+| `tracks`          | `{ src, srcLang, label, kind?, default? }[]` | Captions, subtitles or descriptions for a video. `kind` defaults to `captions`.                                  |
+| `srcSet`          | `string`                                     | Responsive candidates for `<img srcset>`.                                                                        |
+| `sizes`           | `string`                                     | `<img sizes>` when `srcSet` is set. Defaults to the width the image is rendered at, in px.                       |
+| `width`, `height` | `number`                                     | Natural size in px. Recommended.                                                                                 |
+| `alt`             | `string`                                     | Alternative text.                                                                                                |
+| `title`           | `ReactNode`                                  | Caption heading (`h2`).                                                                                          |
+| `description`     | `ReactNode`                                  | Caption text.                                                                                                    |
+| `thumbnail`       | `string`                                     | Preview image for the thumbnail strip. Falls back to `src`, which downloads the full image, so pass a small one. |
 
 ### `LightboxClassNames` parts
 
-`root`, `backdrop`, `topBar`, `counter`, `toolbar`, `button`, `arrow`, `stage`, `slide`, `image`, `caption`, `thumbnails`, `thumbnail`.
+`root`, `backdrop`, `topBar`, `counter`, `toolbar`, `button`, `arrow`, `stage`, `slide`, `image`, `caption`, `thumbnails`, `thumbnail`, `video`, `embed`, `progress`.
 
 ### Other exports
 
-| Export                                           | Description                                                                                                                                                   |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `defaultLabels`                                  | The English labels, to extend instead of rewriting.                                                                                                           |
-| `defaultIcons`                                   | The built-in icons.                                                                                                                                           |
-| `Icon`                                           | The SVG base used by the built-in icons (24 × 24 grid, 1.5px stroke, `currentColor`). Use it to draw matching icons.                                          |
-| `fitContain(width, height, boxWidth, boxHeight)` | The fit math the lightbox uses: scales a size into a box without upscaling.                                                                                   |
-| Types                                            | `Slide`, `Transition`, `ZoomOptions`, `LightboxProps`, `LightboxLabels`, `LightboxIcons`, `LightboxClassNames`, `LightboxRender`, `RenderSlideProps`, `Size`. |
+| Export                                           | Description                                                                                                                                                                                                                                          |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `defaultLabels`                                  | The English labels, to extend instead of rewriting.                                                                                                                                                                                                  |
+| `defaultIcons`                                   | The built-in icons.                                                                                                                                                                                                                                  |
+| `Icon`                                           | The SVG base used by the built-in icons (24 × 24 grid, 1.5px stroke, `currentColor`). Use it to draw matching icons.                                                                                                                                 |
+| `fitContain(width, height, boxWidth, boxHeight)` | The fit math the lightbox uses: scales a size into a box without upscaling.                                                                                                                                                                          |
+| `getMedia(slide, { autoplay? })`                 | How a slide renders: `image`, `video`, `youtube`, `vimeo` or `iframe`, with the embed URL.                                                                                                                                                           |
+| Types                                            | `Slide`, `VideoSource`, `VideoTrack`, `Transition`, `ZoomOptions`, `VideoOptions`, `SlideshowOptions`, `LightboxProps`, `LightboxLabels`, `LightboxIcons`, `LightboxClassNames`, `LightboxRender`, `RenderSlideProps`, `Media`, `MediaKind`, `Size`. |
 
 ## Labels and translations
 
@@ -252,10 +263,13 @@ const labels = {
 | `enterFullscreen`                     | `Enter fullscreen`                |
 | `exitFullscreen`                      | `Exit fullscreen`                 |
 | `loadError`                           | `This image could not be loaded.` |
+| `playSlideshow`                       | `Start slideshow`                 |
+| `pauseSlideshow`                      | `Pause slideshow`                 |
+| `video`                               | `Video`                           |
 
 ## Icons
 
-The built-in icons are drawn for this package: 24 × 24, 1.5px round stroke, `currentColor`. Replace any of them with any React node: `close`, `previous`, `next`, `zoomIn`, `zoomOut`, `enterFullscreen` and `exitFullscreen`. The `Icon` export gives you the same frame:
+The built-in icons are drawn for this package: 24 × 24, 1.5px round stroke, `currentColor`. Replace any of them with any React node: `close`, `previous`, `next`, `zoomIn`, `zoomOut`, `enterFullscreen`, `exitFullscreen`, `playSlideshow` and `pauseSlideshow`. The `Icon` export gives you the same frame:
 
 ```tsx
 import { Icon, Lightbox } from "@esdrassantos06/gallery";
@@ -304,7 +318,7 @@ Buttons keep their `aria-label` from `labels`, so icons should be decorative (`a
 ```
 
 - `render.slide` returns `undefined` to keep the built-in image.
-- `render.toolbar` receives the built-in buttons (zoom in, zoom out, fullscreen when available, close) plus the current slide and index.
+- `render.toolbar` receives the built-in buttons (slideshow when enabled, zoom in and out on images, fullscreen when available, close) plus the current slide and index.
 - `render.thumbnail` replaces the content of each thumbnail button; the button and its label stay.
 
 ## Styling
@@ -361,6 +375,9 @@ The lightbox is neutral by default: black backdrop, counter top left, toolbar to
 | `--eg-thumbnails-height`      | thumbnail height plus spacing                                            | Space reserved for the strip                          |
 | `--eg-spinner-size`           | `32px`                                                                   | Loading indicator                                     |
 | `--eg-spinner-delay`          | `400ms`                                                                  | How long an image may load before the indicator shows |
+| `--eg-media-background`       | `#111`                                                                   | Behind videos, embeds and posters                     |
+| `--eg-progress-height`        | `2px`                                                                    | Slideshow progress bar                                |
+| `--eg-progress-color`         | `var(--eg-color)`                                                        | Slideshow progress bar                                |
 | `--eg-button-opacity`         | `0.8`                                                                    | Buttons at rest                                       |
 | `--eg-button-opacity-hover`   | `1`                                                                      | Buttons on hover and focus                            |
 | `--eg-disabled-opacity`       | `0.32`                                                                   | Disabled arrows                                       |
@@ -371,7 +388,7 @@ The lightbox is neutral by default: black backdrop, counter top left, toolbar to
 
 ### Class names
 
-Every part has a stable class: `eg-root`, `eg-backdrop`, `eg-stage`, `eg-slide`, `eg-zoom`, `eg-image`, `eg-error`, `eg-top-bar`, `eg-counter`, `eg-toolbar`, `eg-button`, `eg-arrow`, `eg-arrow-prev`, `eg-arrow-next`, `eg-caption`, `eg-caption-title`, `eg-caption-description`, `eg-thumbnails`, `eg-thumbnails-track`, `eg-thumbnails-item`, `eg-thumbnail`, `eg-thumbnail-image`, `eg-icon`, `eg-sr-only`.
+Every part has a stable class: `eg-root`, `eg-backdrop`, `eg-stage`, `eg-slide`, `eg-zoom`, `eg-image`, `eg-video`, `eg-embed`, `eg-embed-poster`, `eg-error`, `eg-top-bar`, `eg-counter`, `eg-toolbar`, `eg-button`, `eg-arrow`, `eg-arrow-prev`, `eg-arrow-next`, `eg-caption`, `eg-caption-title`, `eg-caption-description`, `eg-thumbnails`, `eg-thumbnails-track`, `eg-thumbnails-item`, `eg-thumbnail`, `eg-thumbnail-image`, `eg-progress`, `eg-icon`, `eg-sr-only`.
 
 State is exposed as attributes you can select on:
 
@@ -385,6 +402,7 @@ State is exposed as attributes you can select on:
 | `data-thumbnails` | `.eg-root`  | present when the strip is shown                              |
 | `data-status`     | `.eg-slide` | `loading`, `loaded`, `error` (built-in images only)          |
 | `data-gesture`    | `.eg-zoom`  | present while a pinch, pan or wheel zoom follows the pointer |
+| `data-playing`    | `.eg-root`  | present while the slideshow plays                            |
 
 ## Transitions
 
@@ -415,7 +433,7 @@ With `prefers-reduced-motion: reduce`, durations become zero: the lightbox opens
 | `Escape`                   | Close                                                  |
 | `Tab` / `Shift+Tab`        | Move between the dialog's buttons (focus stays inside) |
 
-Set `keyboard={false}` to turn off every shortcut above except Tab. With `loop={false}` the gallery stops at both ends and the arrows are disabled there.
+Set `keyboard={false}` to turn off every shortcut above except Tab. Arrow keys, Home and End are left alone while a video, input or editable element has focus. With `loop={false}` the gallery stops at both ends and the arrows are disabled there.
 
 ## Gestures
 
@@ -481,6 +499,63 @@ Where the Fullscreen API is available, the toolbar shows a toggle that puts the 
 
 While a built-in image loads, its slide has `data-status="loading"` and, after `--eg-spinner-delay`, shows a spinner. If the image fails, the slide shows `labels.loadError` instead of a broken image and gets `data-status="error"`.
 
+## Video and embeds
+
+A slide can be a video file, a YouTube or Vimeo link, or any page:
+
+```tsx
+const slides: Slide[] = [
+  {
+    src: "/media/talk.mp4",
+    poster: "/media/talk.jpg",
+    width: 1920,
+    height: 1080,
+    alt: "Conference talk",
+    sources: [
+      { src: "/media/talk.webm", type: "video/webm" },
+      { src: "/media/talk.mp4", type: "video/mp4" },
+    ],
+    tracks: [{ src: "/media/talk.en.vtt", srcLang: "en", label: "English", default: true }],
+  },
+  { src: "https://www.youtube.com/watch?v=VIDEO_ID", title: "Product tour" },
+  { src: "https://vimeo.com/VIDEO_ID", alt: "Short film" },
+  { src: "https://maps.example.com/embed?q=porto", type: "iframe", title: "Map" },
+];
+
+<Lightbox slides={slides} video={{ autoplay: false }} {...props} />;
+```
+
+| Kind       | Detected from                                                                            | Renders                                                                                                 |
+| ---------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Video file | `.mp4`, `.webm`, `.ogv`, `.ogg`, `.mov`, `.m4v`, or `type: "video"`                      | Native `<video>` with `controls`, `playsInline`, `preload="metadata"`, `poster`, `sources` and `tracks` |
+| YouTube    | `youtube.com/watch`, `youtu.be`, `/embed/`, `/shorts/`, `/live/`, `youtube-nocookie.com` | Iframe on `https://www.youtube-nocookie.com/embed/ID`, keeping a `t` or `start` time                    |
+| Vimeo      | `vimeo.com/ID`, `vimeo.com/ID/HASH`, `player.vimeo.com/video/ID`                         | Iframe on `https://player.vimeo.com/video/ID` with `dnt=1` and the private hash                         |
+| Page       | `type: "iframe"`                                                                         | Iframe on `src`                                                                                         |
+
+- Videos and embeds are sized with `width` and `height` (16:9 when unknown; a video's own size once its metadata loads). An `iframe` slide without a size fills the stage.
+- When a video slide stops being current its player is paused; embeds exist only on the current slide, so leaving the slide stops them, and closing the lightbox removes everything. Neighboring embed slides show `poster` (YouTube falls back to its own thumbnail, then `thumbnail`).
+- No player scripts are loaded. YouTube and Vimeo run inside their iframes only.
+- `video.autoplay` starts the current video or embed muted, which is what browsers allow without a user gesture.
+- Players get an accessible name from `alt`, then a string `title`, then `labels.video`. Pass `tracks` for captions.
+- Gestures that start on a player are left to it, and arrow keys stay with a focused `<video>`. Zoom buttons are hidden on these slides.
+- `getMedia(slide)` is exported if you need the same detection in your own grid.
+
+## Slideshow
+
+```tsx
+<Lightbox slideshow={{ interval: 4000, autoplay: true, progress: true }} {...props} />
+```
+
+`slideshow` adds a play and pause button to the toolbar. While playing, the lightbox advances every `interval` ms and shows a progress bar along the top.
+
+| Option     | Default | Description                            |
+| ---------- | ------- | -------------------------------------- |
+| `interval` | `5000`  | Time per slide, in ms.                 |
+| `autoplay` | `false` | Start playing when the lightbox opens. |
+| `progress` | `true`  | Show the progress bar.                 |
+
+It pauses when the user navigates (arrows, keys, swipe, thumbnails), and stops on the last slide when `loop` is false. It waits while the page is hidden and starts the slide's full interval again when it comes back. On a video slide it waits for the video to end; on an embed it holds until the user moves on, because the embedded player cannot be observed without its script. The button's name switches between `labels.playSlideshow` and `labels.pauseSlideshow`, which gives users the pause control WCAG asks for on moving content.
+
 ## Accessibility
 
 - The lightbox is a `role="dialog"` with `aria-modal="true"` and an accessible name from `labels.dialog`.
@@ -488,6 +563,8 @@ While a built-in image loads, its slide has `data-status="loading"` and, after `
 - Every button has an `aria-label` from `labels`. Icons are `aria-hidden`.
 - The thumbnail strip is a `nav` named by `labels.thumbnails`; the current thumbnail has `aria-current="true"`.
 - The fullscreen toggle changes its name between `labels.enterFullscreen` and `labels.exitFullscreen`.
+- Videos and embeds are named from `alt`, a string `title` or `labels.video`; `tracks` adds captions.
+- The slideshow can always be paused from its button, and it stops on its own when the user takes over.
 - When a focused button becomes disabled (for example zoom in at the maximum), focus moves back to the dialog instead of getting lost.
 - A polite live region announces the current slide (`labels.announcement`).
 - Slides other than the current one are `aria-hidden`.
@@ -499,11 +576,18 @@ While a built-in image loads, its slide has `data-status="loading"` and, after `
 
 The package loads nothing from third parties, uses no CDN and injects no inline scripts. Styles come from the stylesheet you import (`style-src 'self'` when you self-host it). Sizes, positions and drag offsets are written through the CSSOM (`element.style`), which `style-src` does not restrict, and nothing is server-rendered, so no `'unsafe-inline'` is needed.
 
-Images are loaded from the URLs you pass, so `img-src` must allow them:
+Images, videos and pages load from the URLs you pass. A policy for a gallery with self-hosted media plus YouTube and Vimeo slides:
 
 ```
-Content-Security-Policy: img-src 'self' https://your-image-cdn.example;
+Content-Security-Policy:
+  img-src 'self' https://i.ytimg.com;
+  media-src 'self';
+  frame-src https://www.youtube-nocookie.com https://player.vimeo.com;
 ```
+
+- `img-src https://i.ytimg.com` is only needed for the YouTube posters shown on neighboring slides; drop it if every YouTube slide has its own `poster`.
+- Add the origins of any `type: "iframe"` pages to `frame-src`, and your CDN to `img-src` and `media-src`.
+- The YouTube and Vimeo players load their own scripts and images inside their frames; those requests are governed by the provider, not by your page's policy.
 
 ## Performance
 
@@ -515,13 +599,13 @@ Content-Security-Policy: img-src 'self' https://your-image-cdn.example;
 
 ## Bundle size
 
-Measured with [size-limit](https://github.com/ai/size-limit) (`npm run size`) on version 1.0.0 (phase 2), minified and brotli-compressed, React excluded:
+Measured with [size-limit](https://github.com/ai/size-limit) (`npm run size`) on version 1.0.0 (phase 3), minified and brotli-compressed, React excluded:
 
 | Entry                 | Size    |
 | --------------------- | ------- |
-| `import { Lightbox }` | 6.94 kB |
-| Everything            | 6.98 kB |
-| `styles.css`          | 2.09 kB |
+| `import { Lightbox }` | 8.47 kB |
+| Everything            | 8.55 kB |
+| `styles.css`          | 2.21 kB |
 
 ## Playground
 
@@ -530,7 +614,7 @@ npm install
 npm run dev
 ```
 
-It opens on Vite with two galleries of generated sample images: one with the default look, driven by a panel of options (transition, loop, backdrop click, keyboard, thumbnails, fullscreen, zoom and its maximum, preload, swipe threshold), and one customised with Portuguese labels, replaced icons, a custom caption, an extra toolbar link and a theme set through `--eg-*` variables.
+It opens on Vite with three galleries of locally generated samples: the default look, driven by a panel of options (transition, loop, backdrop click, keyboard, thumbnails, fullscreen, zoom and its maximum, preload, swipe threshold); a customised one with Portuguese labels, replaced icons, a custom caption, an extra toolbar link and a theme set through `--eg-*` variables; and a video and slideshow gallery with a native video with captions, an iframe slide, a slideshow interval control and muted video autoplay.
 
 ## Development
 
@@ -549,11 +633,10 @@ It opens on Vite with two galleries of generated sample images: one with the def
 
 Planned, **not available yet**. The full plan is in [ROADMAP.md](./ROADMAP.md).
 
-1. Video slides (MP4, YouTube through `youtube-nocookie.com`, Vimeo), iframe slides and slideshow.
-2. Hash deep linking, rotation and flip, download.
-3. Optional grids (masonry, justified, uniform) with a category filter.
-4. Toolbar overflow menu, idle-hiding controls, right-to-left layouts, pinch to close, Web Share, pager dots.
-5. Release tooling: CI on React 18 and 19, npm Trusted Publishing.
+1. Hash deep linking, rotation and flip, download.
+2. Optional grids (masonry, justified, uniform) with a category filter.
+3. Toolbar overflow menu, idle-hiding controls, right-to-left layouts, pinch to close, Web Share, pager dots.
+4. Release tooling: CI on React 18 and 19, npm Trusted Publishing.
 
 ## License
 
