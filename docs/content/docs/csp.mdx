@@ -1,0 +1,56 @@
+---
+title: Content Security Policy
+description: Run the lightbox under a strict CSP without unsafe-inline.
+---
+
+The package loads nothing from third parties, uses no CDN and injects no inline scripts or style tags. [Sharing](/docs/share) goes through the browser's own `navigator.share` and `navigator.clipboard`.
+
+- Styles come from the stylesheet you import, so `style-src 'self'` is enough when you serve it yourself.
+- Sizes, positions and drag offsets are written through the CSSOM (`element.style`), which `style-src` does not restrict. No `'unsafe-inline'` is needed.
+- Nothing is server-rendered inside the dialog, so there are no inline `style` attributes in the HTML either.
+
+## Media
+
+Images, videos and pages load from the URLs you pass. For a gallery with self-hosted media plus YouTube and Vimeo slides:
+
+```http
+Content-Security-Policy:
+  img-src 'self' https://i.ytimg.com;
+  media-src 'self';
+  frame-src https://www.youtube-nocookie.com https://player.vimeo.com;
+```
+
+- `img-src https://i.ytimg.com` is only needed for the YouTube posters shown on neighboring slides. Drop it if every YouTube slide has its own `poster`.
+- Add the origins of any `type: "iframe"` pages to `frame-src`, and your CDN to `img-src` and `media-src`.
+- Downloads from another origin use `fetch`, so add that origin to `connect-src` if you enable [downloads](/docs/download). If it is blocked, the file opens in a new tab instead.
+- The YouTube and Vimeo players load their own scripts and images inside their frames. Those requests follow the provider's policy, not yours.
+
+## Grids
+
+The [grids](/docs/grids) render on the server with their item positions as `style` attributes. A `style-src` without `'unsafe-inline'` blocks those attributes, so the grid looks unstyled until the client renders it again. Pick one:
+
+- Render the grid on the client only, for example behind a mounted flag.
+- Allow each attribute by hash with `'unsafe-hashes'`, if your pages are static. This site does that.
+- Allow `'unsafe-inline'` in `style-src`.
+
+`GalleryFilter` and the lightbox need none of this.
+
+## This site
+
+This site is a static Next.js export, which inlines a few scripts, style tags and style attributes in every page. Instead of `'unsafe-inline'`, a build step hashes each of them and adds a policy to every page:
+
+```http
+default-src 'self';
+script-src 'self' 'sha256-...';
+style-src 'self' 'unsafe-hashes' 'sha256-...';
+img-src 'self' data:;
+media-src 'self';
+font-src 'self';
+frame-src 'self';
+connect-src 'self';
+object-src 'none';
+base-uri 'self';
+form-action 'self'
+```
+
+The server adds `frame-ancestors 'self'`, which a `<meta>` policy cannot set. Every demo on the site, lightbox, grids, video and slideshow included, runs under it with no violations. `'unsafe-hashes'` only lets through the exact `style` attributes that were hashed, and only because the grids and Next.js render them on the server.

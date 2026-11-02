@@ -1,0 +1,155 @@
+---
+title: Grids
+description: Optional justified, masonry and uniform grids that plug into the lightbox.
+---
+
+The package has three optional grids. Each one works on its own: a grid without the lightbox is a responsive photo layout, and the lightbox keeps working with any markup you already have.
+
+<Callout>The grids are on `main` and ship in the next release. They are not in 1.0.0.</Callout>
+
+<GridsDemo switcher />
+
+## With the lightbox
+
+```tsx
+import { useRef, useState } from "react";
+import { JustifiedGrid, Lightbox, type GridHandle, type Slide } from "@esdrassantos06/gallery";
+import "@esdrassantos06/gallery/styles.css";
+
+export function Gallery({ slides }: { slides: Slide[] }) {
+  const [index, setIndex] = useState(-1);
+  const grid = useRef<GridHandle>(null);
+
+  return (
+    <>
+      <JustifiedGrid
+        ref={grid}
+        slides={slides}
+        onOpen={setIndex}
+        rowHeight={(width) => (width < 640 ? 200 : 320)}
+      />
+      <Lightbox
+        slides={slides}
+        open={index >= 0}
+        index={Math.max(index, 0)}
+        onIndexChange={setIndex}
+        onClose={() => setIndex(-1)}
+        getThumbnail={(i) => grid.current?.getThumbnail(i)}
+      />
+    </>
+  );
+}
+```
+
+`getThumbnail` from the grid's `ref` makes the lightbox fly out of the clicked photo and return focus to it on close.
+
+## Layouts
+
+<Tabs items={["justified", "masonry", "uniform"]}>
+  <Tab value="justified">
+
+`JustifiedGrid` makes rows of equal height that fill the width edge to edge. Each image keeps its aspect ratio, and each row comes as close as it can to `rowHeight`.
+
+<GridsDemo layout="justified" count={8} />
+
+  </Tab>
+  <Tab value="masonry">
+
+`MasonryGrid` makes equal-width columns. Each item goes into the shortest column, and the DOM, reading and tab order stays left to right, top to bottom.
+
+<GridsDemo layout="masonry" count={8} />
+
+  </Tab>
+  <Tab value="uniform">
+
+`UniformGrid` makes equal cells in a CSS grid, with images cropped to `aspectRatio`.
+
+<GridsDemo layout="uniform" count={8} />
+
+  </Tab>
+</Tabs>
+
+Masonry and justified items are placed from each slide's `width` and `height`. A slide without them counts as square. The layout is known before any image loads, so nothing shifts. Uniform cells take their shape from `aspectRatio`.
+
+## Without the lightbox
+
+Leave out `onOpen` and items become plain images with their `alt` text instead of buttons.
+
+<GridsDemo layout="masonry" lightbox={false} count={6} />
+
+## Responsive values
+
+`gap`, `rowHeight` and `columns` take a number or a function of the grid's measured width:
+
+```tsx
+<MasonryGrid slides={slides} columns={(width) => (width < 640 ? 2 : 4)} gap={12} />
+```
+
+Each grid measures itself with one `ResizeObserver`. On the server, and before that first measurement, it lays out for `defaultContainerWidth` (1024px by default). Set it to the width the grid usually has, and the page does not reflow on load.
+
+## Images
+
+The built-in image uses `thumbnail`, then `poster`, then `src`, plus `srcSet` with `sizes` set to the rendered width, `loading="lazy"`, `decoding="async"` and explicit `width` and `height`. Video and embed slides need a `thumbnail` or a `poster`.
+
+To use a framework image component, return it from `render.image`. The item is positioned, so `fill`-style images work:
+
+```tsx
+<JustifiedGrid
+  slides={slides}
+  onOpen={setIndex}
+  render={{
+    image: ({ slide, sizes }) => (
+      <Image fill src={slide.src} alt="" sizes={sizes} className="object-cover" />
+    ),
+  }}
+/>
+```
+
+Return `undefined` to keep the built-in image for a slide.
+
+## Props
+
+Every grid takes these:
+
+<auto-type-table path="src/types.ts" name="GridProps" />
+
+### JustifiedGrid
+
+<auto-type-table path="src/types.ts" name="JustifiedGridProps" />
+
+### MasonryGrid
+
+<auto-type-table path="src/types.ts" name="MasonryGridProps" />
+
+### UniformGrid
+
+<auto-type-table path="src/types.ts" name="UniformGridProps" />
+
+### render.image
+
+<auto-type-table path="src/types.ts" name="RenderGridImageProps" />
+
+### Labels
+
+`labels.open(index, total, slide)` names each button. It defaults to `Open {alt}`, then `Open {title}`, then `Open image {n}`, with a 1-based `n`. `defaultGridLabels` is exported.
+
+## Styling
+
+These variables are read with fallbacks, so set them on the grid, on any ancestor or on `:root`:
+
+| Variable                  | Default                   | Used for                      |
+| ------------------------- | ------------------------- | ----------------------------- |
+| `--eg-grid-radius`        | `4px`                     | Image and focus ring corners  |
+| `--eg-grid-background`    | `rgb(127 127 127 / 0.15)` | Behind images while they load |
+| `--eg-grid-focus-color`   | `currentColor`            | Focus ring                    |
+| `--eg-grid-focus-width`   | `2px`                     | Focus ring                    |
+| `--eg-grid-focus-offset`  | `2px`                     | Focus ring                    |
+| `--eg-grid-hover-opacity` | `0.85`                    | Image under the pointer       |
+| `--eg-grid-cursor`        | `zoom-in`                 | Buttons                       |
+| `--eg-grid-duration`      | `200ms`                   | Hover and filter transitions  |
+
+Classes: `eg-grid`, `eg-grid--masonry`, `eg-grid--justified`, `eg-grid--uniform`, `eg-grid-item`, `eg-grid-button` and `eg-grid-image`. `classNames` adds your own to `root`, `item`, `button` and `image`.
+
+## Server rendering and CSP
+
+Grids render on the server with their item positions as `style` attributes. A Content Security Policy without `'unsafe-inline'` in `style-src` blocks those until the client takes over. See [Content Security Policy](/docs/csp#grids) for the options.

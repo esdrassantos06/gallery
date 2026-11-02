@@ -1,0 +1,20 @@
+---
+title: Flip
+description: Mirror images horizontally or vertically, composing with rotation and zoom.
+---
+
+<Callout>Flip is on `main` and ships in the next release. It is not in 1.0.0.</Callout>
+
+```tsx
+<Lightbox flip rotate {...props} />
+```
+
+`flip` adds flip horizontally and vertically buttons for images. It is off by default.
+
+<Demo count={4} flip rotate />
+
+- A flip always mirrors across the screen axis named on the button. On a rotated image, where the image's own axes are swapped, it still reads the way the button says.
+- Flips compose with rotation and zoom, and animate on `transform`.
+- They reset on slide change, when the viewer closes and with the `0` key, which also resets zoom and rotation.
+- The buttons are named by `labels.flipHorizontal` and `labels.flipVertical`, and use `icons.flipHorizontal` and `icons.flipVertical`.
+- On a narrow screen they can move into the [overflow menu](/docs/toolbar).

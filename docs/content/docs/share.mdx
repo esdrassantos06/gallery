@@ -1,0 +1,48 @@
+---
+title: Share
+description: A share button through the Web Share API, with a copy-link fallback.
+---
+
+<Callout>Sharing is on `main` and ships in the next release. It is not in 1.0.0.</Callout>
+
+`share` adds a share button. It is off by default.
+
+<Demo count={4} share />
+
+```tsx
+<Lightbox share {...props} />
+
+<Lightbox
+  share={{ url: (slide, index) => `https://example.com/photos/${index + 1}` }}
+  {...props}
+/>
+```
+
+<auto-type-table path="src/types.ts" name="ShareOptions" />
+
+## How it works
+
+- Where the system share sheet exists, the button calls `navigator.share` with the link and the slide's string `title`, or its `alt`.
+- Where it does not, the link is copied with `navigator.clipboard`. The icon turns into `icons.linkCopied` for a moment and `labels.linkCopied` is announced.
+- Cancelling the share sheet does nothing.
+- If the link can be neither shared nor copied, `labels.shareError` is announced.
+- When neither API exists, for example over plain `http`, the button is not rendered.
+
+No third-party script, SDK or share URL is involved, so nothing changes in your [Content Security Policy](/docs/csp).
+
+## Link to the open slide
+
+The link is `window.location.href` by default. With [`useLightboxHash`](/docs/deep-linking), that URL already points at the open slide:
+
+```tsx
+const [index, setIndex] = useLightboxHash("photo", { count: slides.length });
+
+<Lightbox
+  share
+  slides={slides}
+  open={index >= 0}
+  index={Math.max(index, 0)}
+  onIndexChange={setIndex}
+  onClose={() => setIndex(-1)}
+/>;
+```

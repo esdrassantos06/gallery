@@ -1,0 +1,109 @@
+---
+title: Slides
+description: Images, video files, YouTube, Vimeo and any page in an iframe.
+---
+
+Every item in `slides` is a [`Slide`](/docs/slide). Its `src` decides how it renders unless you set `type`.
+
+| Kind       | Detected from                                                                            | Renders                                                                                                 |
+| ---------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Image      | anything else, or `type: "image"`                                                        | `<img>` with `srcset`, `sizes` and explicit dimensions                                                  |
+| Video file | `.mp4`, `.webm`, `.ogv`, `.ogg`, `.mov`, `.m4v`, or `type: "video"`                      | Native `<video>` with `controls`, `playsInline`, `preload="metadata"`, `poster`, `sources` and `tracks` |
+| YouTube    | `youtube.com/watch`, `youtu.be`, `/embed/`, `/shorts/`, `/live/`, `youtube-nocookie.com` | Iframe on `https://www.youtube-nocookie.com/embed/ID`, keeping a `t` or `start` time                    |
+| Vimeo      | `vimeo.com/ID`, `vimeo.com/ID/HASH`, `player.vimeo.com/video/ID`                         | Iframe on `https://player.vimeo.com/video/ID` with `dnt=1` and the private hash                         |
+| Page       | `type: "iframe"`                                                                         | Iframe on `src`                                                                                         |
+
+The demo below mixes a native video with captions, images and an iframe page.
+
+<Demo set="media" />
+
+## Images
+
+```ts
+{
+  src: "/photos/harbour-1600.jpg",
+  srcSet: "/photos/harbour-640.jpg 640w, /photos/harbour-1600.jpg 1600w",
+  width: 1600,
+  height: 1067,
+  alt: "Fishing boats in the harbour at dusk",
+  title: "Harbour",
+  description: "Porto, 2026",
+  thumbnail: "/photos/harbour-320.jpg",
+}
+```
+
+- `srcSet` takes the same string as `<img srcset>`. When `sizes` is not set, the lightbox fills it with the width the image is rendered at, so the browser picks the smallest file that is sharp enough.
+- `width` and `height` are the natural size. With them, the image gets its final size before it loads. Without them, it is measured once it loads.
+- `alt` is the image's text alternative. The live region also reads it when there is no string `title`.
+- `title` renders as an `h2` and `description` as text under it. Both accept React nodes.
+
+While an image loads, its slide has `data-status="loading"` and shows a spinner after `--eg-spinner-delay`. If it fails, the slide shows `labels.loadError` and gets `data-status="error"`.
+
+## Video files
+
+```ts
+{
+  src: "/media/talk.mp4",
+  poster: "/media/talk.jpg",
+  width: 1920,
+  height: 1080,
+  alt: "Conference talk",
+  sources: [
+    { src: "/media/talk.webm", type: "video/webm" },
+    { src: "/media/talk.mp4", type: "video/mp4" },
+  ],
+  tracks: [{ src: "/media/talk.en.vtt", srcLang: "en", label: "English", default: true }],
+}
+```
+
+- `sources` lists alternative files in order of preference. `src` is used when it is missing.
+- `tracks` adds `<track>` elements. `kind` defaults to `captions`.
+- Leaving a video slide pauses its player.
+
+## YouTube and Vimeo
+
+```ts
+{ src: "https://www.youtube.com/watch?v=VIDEO_ID", title: "Product tour" }
+{ src: "https://vimeo.com/VIDEO_ID", alt: "Short film" }
+```
+
+No player script is loaded on your page. YouTube runs on `youtube-nocookie.com` and Vimeo gets `dnt=1`, each inside its own iframe. Embeds exist only on the current slide, so moving on stops them. Neighboring embed slides show `poster`; YouTube falls back to its own thumbnail, then to `thumbnail`.
+
+## Any page
+
+```ts
+{ src: "https://maps.example.com/embed?q=porto", type: "iframe", title: "Map", width: 960, height: 600 }
+```
+
+Without `width` and `height`, an iframe slide fills the stage. Remember to allow its origin in your [Content Security Policy](/docs/csp).
+
+## Sizing
+
+Videos and embeds use `width` and `height` to keep their shape. When those are unknown they are 16:9, and a native video switches to its real size once its metadata loads.
+
+## Accessible names
+
+Players are named from `alt`, then a string `title`, then `labels.video`. Pass `tracks` so people who cannot hear the audio can follow along.
+
+## Autoplay
+
+```tsx
+<Lightbox video={{ autoplay: true }} {...props} />
+```
+
+Starts the current video or embed muted, which is what browsers allow without a click. It is off by default.
+
+## Detecting the kind yourself
+
+`getMedia(slide)` returns the same decision the lightbox makes, if your grid needs a play badge on video thumbnails:
+
+```ts
+import { getMedia } from "@esdrassantos06/gallery";
+
+getMedia({ src: "https://youtu.be/VIDEO_ID" });
+// {
+//   kind: "youtube",
+//   embed: "https://www.youtube-nocookie.com/embed/VIDEO_ID?rel=0&playsinline=1",
+//   poster: "https://i.ytimg.com/vi/VIDEO_ID/hqdefault.jpg",
+// }
+```

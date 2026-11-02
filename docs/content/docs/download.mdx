@@ -1,0 +1,38 @@
+---
+title: Download
+description: Save images and video files, keeping the file name across origins.
+---
+
+`download` adds a download button on images and video files. It is off by default, and embeds never get one.
+
+<Demo count={4} download />
+
+```tsx
+<Lightbox
+  download={{
+    filename: (slide, index) => `photo-${index + 1}.jpg`,
+    onError: (error, slide) => report(error, slide.src),
+  }}
+  {...props}
+/>
+```
+
+<auto-type-table path="src/types.ts" name="DownloadOptions" />
+
+## How files are saved
+
+- **Same origin.** Saved directly through a hidden `<a download>`.
+- **Another origin.** Browsers ignore the `download` attribute across origins, so the file is fetched with CORS and saved from a blob, which keeps its name.
+- **When that fails.** If the server sends no CORS headers, returns an HTTP error or the network fails, the file opens in a new tab instead. `labels.downloadError` is announced through a `role="status"` region and `onError` is called. Nothing assumes the server allows direct downloads.
+
+## Per slide
+
+```ts
+{ src: "/photos/harbour-1600.jpg", download: "/originals/harbour.tiff", downloadName: "harbour.tiff" }
+{ src: "/photos/private.jpg", download: false }
+```
+
+- `slide.download` points the button at another URL, for example the original file instead of a resized `src`.
+- `slide.download = false` hides the button on that slide.
+
+The file name comes from `slide.downloadName`, then `download.filename(slide, index)`, then the last segment of the URL.

@@ -1,0 +1,65 @@
+---
+title: Installation
+description: Add the package and import its stylesheet once.
+---
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tab value="npm">
+
+```bash
+npm install @esdrassantos06/gallery
+```
+
+  </Tab>
+  <Tab value="pnpm">
+
+```bash
+pnpm add @esdrassantos06/gallery
+```
+
+  </Tab>
+  <Tab value="yarn">
+
+```bash
+yarn add @esdrassantos06/gallery
+```
+
+  </Tab>
+  <Tab value="bun">
+
+```bash
+bun add @esdrassantos06/gallery
+```
+
+  </Tab>
+</Tabs>
+
+`react` and `react-dom` 18 or 19 are peer dependencies. Nothing else gets installed.
+
+## Stylesheet
+
+Import the CSS once, anywhere in your app. A root layout or your entry file is a good place.
+
+```ts
+import "@esdrassantos06/gallery/styles.css";
+```
+
+The package marks CSS files as side effects, so bundlers keep the import. Without it the lightbox still works, but it has no layout.
+
+## Exports
+
+```ts
+import {
+  Lightbox,
+  useLightboxHash,
+  defaultLabels,
+  defaultIcons,
+  Icon,
+  getMedia,
+  fitContain,
+  type Slide,
+  type LightboxProps,
+} from "@esdrassantos06/gallery";
+```
+
+The full list is in [Exports](/docs/exports).

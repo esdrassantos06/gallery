@@ -1,0 +1,91 @@
+---
+title: Quick start
+description: Wire your thumbnails to the lightbox in one component.
+---
+
+The lightbox is controlled. You own `open` and `index`, and it tells you when the user wants to change them. Keep it mounted next to your grid so the close animation has time to play.
+
+<Steps>
+<Step>
+
+### Describe your slides
+
+```ts
+import type { Slide } from "@esdrassantos06/gallery";
+
+const slides: Slide[] = [
+  {
+    src: "/photos/harbour-1600.jpg",
+    srcSet: "/photos/harbour-640.jpg 640w, /photos/harbour-1600.jpg 1600w",
+    width: 1600,
+    height: 1067,
+    alt: "Fishing boats in the harbour at dusk",
+    title: "Harbour",
+    description: "Porto, 2026",
+    thumbnail: "/photos/harbour-320.jpg",
+  },
+  // ...
+];
+```
+
+`width` and `height` are optional but worth passing. The image is then sized before it loads, so nothing shifts, and the open animation lands exactly.
+
+</Step>
+<Step>
+
+### Render the grid and the lightbox
+
+```tsx
+import { useRef, useState } from "react";
+import { Lightbox } from "@esdrassantos06/gallery";
+import "@esdrassantos06/gallery/styles.css";
+
+export function Gallery() {
+  const [index, setIndex] = useState(-1);
+  const thumbnails = useRef<(HTMLButtonElement | null)[]>([]);
+
+  return (
+    <>
+      {slides.map((slide, i) => (
+        <button
+          key={slide.src}
+          ref={(el) => {
+            thumbnails.current[i] = el;
+          }}
+          onClick={() => setIndex(i)}
+          aria-label={`Open ${slide.alt}`}
+        >
+          <img src={slide.thumbnail} alt="" width={200} height={133} />
+        </button>
+      ))}
+
+      <Lightbox
+        slides={slides}
+        open={index >= 0}
+        index={Math.max(index, 0)}
+        onIndexChange={setIndex}
+        onClose={() => setIndex(-1)}
+        getThumbnail={(i) => thumbnails.current[i]}
+      />
+    </>
+  );
+}
+```
+
+</Step>
+<Step>
+
+### Try it
+
+<Demo count={6} />
+
+</Step>
+</Steps>
+
+## Why `getThumbnail`
+
+It returns the element that opened a slide. The lightbox flies the image out of it, flies it back to the thumbnail of the slide on screen when closing, and returns focus there. Without it, the image zooms and fades in, and focus goes back to whatever was focused before opening.
+
+## Using `index = -1` for closed
+
+Keeping one number for both state values avoids a second `useState`. `-1` means closed, so `open={index >= 0}`, and `Math.max(index, 0)` keeps the last valid index during the close animation. [Deep linking](/docs/deep-linking) uses the same shape, so switching to it later is a one-line change.

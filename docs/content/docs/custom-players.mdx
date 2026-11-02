@@ -1,0 +1,124 @@
+---
+title: Custom players
+description: Put Video.js, Plyr, Mux or your own player in a slide.
+---
+
+`render.slide` can draw anything in a slide, including a full video player. The lightbox stays out of its way:
+
+- **Slideshow.** Set `type: "video"` on the slide. The slideshow plays and pauses the first `<video>` in the current slide, waits on it, moves on when it fires `ended` and stops when the viewer pauses it. Any player that renders a native `<video>` works without extra wiring.
+- **Gestures.** Drags that start on a `video`, `iframe`, button, link, form field, `role="slider"` or anything inside `[data-eg-no-gestures]` are left to that element, so scrubbing or changing the volume never swipes.
+- **Keyboard.** Keys your content already handled with `event.preventDefault()` are ignored, so a player's own shortcuts win while it has focus.
+- **Leaving the slide.** Native videos in other slides are paused. Unmounting does the rest, since only `preload` slides are mounted.
+
+## A tiny player
+
+The demo below replaces the built-in video with a `<video>` and one play button. The slideshow still waits for the video to end.
+
+<Demo set="player" preset="player" />
+
+```tsx
+function Player({ slide, width, height }: RenderSlideProps) {
+  const video = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+  return (
+    <div style={{ position: "relative", width, height }} data-eg-no-gestures>
+      <video
+        ref={video}
+        src={slide.src}
+        poster={slide.poster}
+        width={width}
+        height={height}
+        playsInline
+        aria-label={slide.alt}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+      >
+        {slide.tracks?.map((track) => (
+          <track
+            key={track.src}
+            kind="captions"
+            src={track.src}
+            srcLang={track.srcLang}
+            label={track.label}
+          />
+        ))}
+      </video>
+      <button
+        type="button"
+        className="eg-button"
+        aria-label={playing ? "Pause video" : "Play video"}
+        onClick={() => (video.current?.paused ? video.current.play() : video.current?.pause())}
+      >
+        {playing ? "Pause" : "Play"}
+      </button>
+    </div>
+  );
+}
+
+<Lightbox
+  slides={slides}
+  slideshow
+  render={{
+    slide: (props) => (props.slide.type === "video" ? <Player {...props} /> : undefined),
+  }}
+  {...props}
+/>;
+```
+
+`render.slide` is called like a function, not rendered as a component, so put hooks in a component such as `Player` and return it. Returning `undefined` keeps the built-in rendering for that slide.
+
+## Video.js 10
+
+[Video.js 10](https://videojs.org/docs/framework/react/llms.txt) (`@videojs/react`, 10.2.0 at the time of writing) renders a native `<video>` inside a skin you can fully customise, so it slots straight into `render.slide`:
+
+```tsx
+import "@videojs/react/video/skin.css";
+import { Video, VideoPlayer, VideoSkin } from "@videojs/react/video";
+import { Lightbox, type Slide } from "@esdrassantos06/gallery";
+
+const slides: Slide[] = [
+  {
+    src: "/media/talk.mp4",
+    type: "video",
+    poster: "/media/talk.jpg",
+    width: 1920,
+    height: 1080,
+    alt: "Talk",
+  },
+  { src: "/photos/stage.jpg", width: 1600, height: 1067, alt: "Stage" },
+];
+
+<Lightbox
+  slides={slides}
+  slideshow
+  render={{
+    slide: ({ slide, width, height }) =>
+      slide.type === "video" ? (
+        <VideoPlayer>
+          <VideoSkin style={{ width, height }}>
+            <Video src={slide.src} poster={slide.poster} playsInline preload="metadata">
+              <track
+                kind="captions"
+                src="/media/talk.en.vtt"
+                srcLang="en"
+                label="English"
+                default
+              />
+            </Video>
+          </VideoSkin>
+        </VideoPlayer>
+      ) : undefined,
+  }}
+  {...props}
+/>;
+```
+
+- **Theme.** The packaged skin reads `--media-accent-color`, `--media-accent-text-color`, `--media-border-color`, `--media-border-radius`, `--media-font-family`, `--media-object-fit`, `--media-object-position` and `--media-scale-unit`, so it can share values with your `--eg-*` variables.
+- **Full control.** `npx shadcn@latest add @videojs/video` copies the skin's source into your project, where you can add, remove or restyle controls, or build your own skin from the Video.js UI components.
+- **Content Security Policy.** Video.js documents `style-src 'unsafe-inline'` for some player UI, plus `media-src blob:`, `worker-src blob:` and `connect-src` for HLS or DASH. The lightbox itself needs none of these.
+
+The example follows the Video.js 10 docs: [installation](https://videojs.org/docs/framework/react/how-to/installation.md), [customise skins](https://videojs.org/docs/framework/react/guides/customize-skins.md), [`Video`](https://videojs.org/docs/framework/react/reference/components/video.md) and [CSP](https://videojs.org/docs/framework/react/guides/content-security-policy.md). `Video` forwards native attributes, so `poster` reaches the `<video>` element.
+
+## Players without a native video
+
+Players that draw into a canvas or an iframe, such as embedded Mux or Wistia players, still render fine and get their own gestures. The slideshow cannot see when they end, so leave `type` unset and it treats the slide like an image.

@@ -1,0 +1,17 @@
+---
+title: Server rendering
+description: What the lightbox does on the server and during hydration.
+---
+
+The lightbox is safe to render on the server and in React Server Component trees.
+
+- The bundle starts with `"use client"`.
+- Nothing reads `window`, `document` or `navigator` during render. Measurements, listeners and the portal are set up in effects.
+- The dialog is portalled into `container` (`document.body` by default) after the first client render, so server HTML and the first client render match and there is no hydration warning.
+- `useLightboxHash` reads `-1` on the server and during hydration. A page opened from a deep link renders closed, then opens right after hydration.
+
+The [grids](/docs/grids) do render on the server. They lay out for `defaultContainerWidth` until they are measured, and write item positions as `style` attributes, which matters under a [strict CSP](/docs/csp#grids).
+
+Opening a slide during server rendering is not supported, because the dialog lives in a portal. If you need the image in the HTML for search engines, render it in your grid, which you control.
+
+The test suite renders an open lightbox with `react-dom/server` in a Node environment, with no browser globals, and expects empty HTML.

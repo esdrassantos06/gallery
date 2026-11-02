@@ -1,0 +1,31 @@
+---
+title: Pager dots
+description: One dot per slide, as a lighter alternative or complement to thumbnails.
+---
+
+<Callout>Pager dots are on `main` and ship in the next release. They are not in 1.0.0.</Callout>
+
+```tsx
+<Lightbox pager thumbnails={false} {...props} />
+```
+
+`pager` adds a row of dots, one per slide, above the thumbnail strip or in its place. It is off by default, and shows only when there is more than one slide.
+
+<Demo count={6} pager thumbnails={false} />
+
+- The dots are a `nav` named by `labels.pager`.
+- Each dot is a button named by `labels.pagerItem(index, total, slide)`, with `aria-current="true"` on the current one.
+- Each button is at least 24 by 24px, even though the visible dot is smaller.
+- Dots suit short galleries. Long ones read better with [thumbnails](/docs/thumbnails).
+
+## Styling
+
+| Variable                      | Default                  | Used for                        |
+| ----------------------------- | ------------------------ | ------------------------------- |
+| `--eg-pager-height`           | `40px`                   | Space reserved for the dots     |
+| `--eg-pager-dot-size`         | `8px`                    | Visible dot                     |
+| `--eg-pager-dot-gap`          | `4px`                    | Space on each side of a dot     |
+| `--eg-pager-dot-color`        | `rgb(255 255 255 / 0.4)` | Dots other than the current one |
+| `--eg-pager-dot-active-color` | `var(--eg-color)`        | Current dot                     |
+
+Classes: `eg-pager` and `eg-pager-dot`. `classNames.pager` and `classNames.pagerDot` add your own. The root gets `data-pager` when the dots are shown.

@@ -1,0 +1,43 @@
+---
+title: Bundle size
+description: Measured size of the JavaScript and the stylesheet.
+---
+
+Measured with [size-limit](https://github.com/ai/size-limit) through `npm run size` on `main` after phase 6, minified and compressed with brotli. React and React DOM are excluded, since they are peer dependencies.
+
+| Entry                                                               | Size     |
+| ------------------------------------------------------------------- | -------- |
+| `import { Lightbox }`                                               | 11.55 kB |
+| `import { MasonryGrid, JustifiedGrid, UniformGrid, GalleryFilter }` | 1.89 kB  |
+| Everything the package exports                                      | 13.42 kB |
+| `styles.css`                                                        | 3.31 kB  |
+
+The grids and the filter are tree-shaken away when you only import `Lightbox`.
+
+There are no runtime dependencies, so these numbers are the whole cost.
+
+## Measure it yourself
+
+```bash
+npm run build
+```
+
+```bash
+npm run size
+```
+
+The entries are defined in `.size-limit.json`, and CI runs the same check on every pull request, right after the build.
+
+## Keeping it small
+
+- The package is ESM only and marks only CSS as a side effect, so bundlers can drop the hook and helpers you do not import.
+- Zoom, slideshow, rotation, flip, share, download, the overflow menu, idle controls and pager dots are part of the main component, so turning them off with props does not make the bundle smaller. The lightbox number above already includes them.
+- Load the lightbox lazily if it is not needed for first paint:
+
+```tsx
+const Lightbox = lazy(() =>
+  import("@esdrassantos06/gallery").then((m) => ({ default: m.Lightbox })),
+);
+```
+
+Keep it inside `Suspense`, and note that the first open waits for the chunk.

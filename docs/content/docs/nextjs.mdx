@@ -1,0 +1,62 @@
+---
+title: Next.js App Router
+description: Use the lightbox from Server Components without a dynamic import.
+---
+
+The published bundle starts with `"use client"`. You can import `Lightbox` from a file in the App Router tree and Next.js treats it as a Client Component.
+
+Your gallery still needs to be a Client Component, because it holds state:
+
+```tsx title="app/photos/gallery.tsx"
+"use client";
+
+import { useRef, useState } from "react";
+import { Lightbox, type Slide } from "@esdrassantos06/gallery";
+
+export function Gallery({ slides }: { slides: Slide[] }) {
+  const [index, setIndex] = useState(-1);
+  const thumbnails = useRef<(HTMLButtonElement | null)[]>([]);
+  // same grid as in the quick start
+}
+```
+
+```tsx title="app/photos/page.tsx"
+import { Gallery } from "./gallery";
+import { getPhotos } from "@/lib/photos";
+
+export default async function Page() {
+  const slides = await getPhotos();
+  return <Gallery slides={slides} />;
+}
+```
+
+Slides are plain objects, so a Server Component can fetch them and pass them down. `title` and `description` accept React nodes, which also serialize as long as they are plain elements.
+
+## The stylesheet
+
+Import it once in `app/layout.tsx`, or in the client component:
+
+```tsx title="app/layout.tsx"
+import "@esdrassantos06/gallery/styles.css";
+```
+
+## No `ssr: false` needed
+
+The lightbox does not touch `window` or `document` while rendering. The dialog is portalled only after hydration, so `dynamic(() => import(...), { ssr: false })` is not needed and only delays the code. See [SSR](/docs/ssr) for what happens on the server.
+
+## `next/image` thumbnails
+
+Use `next/image` for the grid if you like. Forward its ref the same way, since `getThumbnail` only needs an element:
+
+```tsx
+<button
+  ref={(el) => {
+    thumbnails.current[i] = el;
+  }}
+  onClick={() => setIndex(i)}
+>
+  <Image src={slide.thumbnail!} alt="" width={200} height={133} />
+</button>
+```
+
+For the slides themselves, pass plain URLs. If you want the Next.js image optimizer, build `src` and `srcSet` from its loader URLs.

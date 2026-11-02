@@ -1,0 +1,28 @@
+---
+title: Slideshow
+description: Advance on a timer, with a progress bar and a pause button.
+---
+
+`slideshow` adds a play and pause button to the toolbar. While it plays, the lightbox moves on every `interval` ms and shows a progress bar along the top.
+
+<Demo count={6} slideshow={{ interval: 2500 }} />
+
+```tsx
+<Lightbox slideshow={{ interval: 4000, autoplay: true, progress: true }} {...props} />
+```
+
+<auto-type-table path="src/types.ts" name="SlideshowOptions" />
+
+## When it pauses
+
+- When the user navigates by hand: arrows, keys, swipes or thumbnails.
+- On the last slide when `loop` is false.
+- While the page is hidden. When the tab comes back, the slide gets its full interval again.
+- On a video slide, it plays the video and waits for it to end. If the viewer pauses the video, the slideshow stops. This works for the built-in player and for [custom players](/docs/custom-players).
+- On a YouTube, Vimeo or iframe slide, it holds until the user moves on, because the embedded player cannot be observed without its script.
+
+The root gets `data-playing` while it plays, and the progress bar is `.eg-progress`, styled by `--eg-progress-height` and `--eg-progress-color`.
+
+## Accessibility
+
+The button is named by `labels.playSlideshow` and `labels.pauseSlideshow`. It gives users the pause control that WCAG 2.2.2 asks for on content that moves on its own.

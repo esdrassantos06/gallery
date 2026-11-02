@@ -1,0 +1,27 @@
+---
+title: Lightbox props
+description: Every prop of the Lightbox component, generated from its source.
+---
+
+This table is generated from `src/types.ts` when the docs are built, so it always matches the code. Expand a row for its full type and default.
+
+<auto-type-table path="src/types.ts" name="LightboxProps" />
+
+## Required props
+
+`slides`, `open` and `onClose`. Everything else has a default.
+
+## Controlled state
+
+`open` and `index` are yours. The lightbox calls `onIndexChange` and `onClose` when the user wants to change them, and you pass the new values back. Changing `index` while open moves to that slide with the current transition.
+
+## Grouped options
+
+Some props take either `true` or an options object:
+
+| Prop        | Options                                             |
+| ----------- | --------------------------------------------------- |
+| `zoom`      | [`ZoomOptions`](/docs/zoom#options)                 |
+| `slideshow` | [`SlideshowOptions`](/docs/slideshow)               |
+| `download`  | [`DownloadOptions`](/docs/download)                 |
+| `video`     | `{ autoplay }`, see [Slides](/docs/slides#autoplay) |

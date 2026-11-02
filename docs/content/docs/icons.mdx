@@ -1,0 +1,48 @@
+---
+title: Icons
+description: Replace any built-in icon with your own React node.
+---
+
+The built-in icons are drawn for this package on a 24 by 24 grid, with a 1.5px round stroke in `currentColor`. Replace any of them through `icons`:
+
+```tsx
+import { Icon, Lightbox } from "@esdrassantos06/gallery";
+import { X } from "lucide-react";
+
+<Lightbox
+  icons={{
+    previous: (
+      <Icon>
+        <path d="M19.5 12h-15M10.5 6l-6 6 6 6" />
+      </Icon>
+    ),
+    next: (
+      <Icon>
+        <path d="M4.5 12h15M13.5 6l6 6-6 6" />
+      </Icon>
+    ),
+    close: <X aria-hidden="true" />,
+  }}
+  {...props}
+/>;
+```
+
+The demo below swaps the arrows for thin ones.
+
+<Demo count={4} preset="icons" />
+
+## The `Icon` frame
+
+`Icon` is the SVG wrapper the built-in icons use. It sets the view box, stroke, `currentColor`, `aria-hidden` and the `eg-icon` class, so your icons match the rest and pick up `--eg-icon-size`. It accepts any SVG prop.
+
+## Keep them decorative
+
+Buttons get their accessible name from `labels`, not from the icon. Mark custom icons `aria-hidden="true"`, as in the `close` example above.
+
+## Icon keys
+
+<auto-type-table path="src/types.ts" name="LightboxIcons" />
+
+Arrow icons are mirrored in [right-to-left](/docs/rtl) layouts. `linkCopied` replaces the share icon for a moment after a link is copied.
+
+`defaultIcons` holds the built-in set, if you want to reuse one somewhere else in your UI.

@@ -1,0 +1,51 @@
+---
+title: Thumbnails
+description: The strip of previews at the bottom of the viewer.
+---
+
+The strip lists every slide as a button. It shows when there is more than one slide.
+
+<Demo count={10} />
+
+- The current thumbnail has `aria-current="true"` and an outline, and the strip scrolls to center it whenever the slide changes.
+- The strip scrolls natively with touch, the wheel and the keyboard.
+- Images use `slide.thumbnail`, falling back to `slide.src`, with `loading="lazy"`. The fallback downloads the full image, so pass a small file.
+- The strip is a `nav` named by `labels.thumbnails`. Each button is named by `labels.thumbnail(index, total, slide)`.
+
+## Turning it off
+
+```tsx
+<Lightbox thumbnails={false} {...props} />
+```
+
+## Custom content
+
+`render.thumbnail` replaces what is inside each button. The button and its accessible name stay.
+
+```tsx
+<Lightbox
+  labels={{ thumbnails: "Miniaturas", thumbnail: (i) => `Ver imagem ${i}` }}
+  render={{
+    thumbnail: (slide, index, current) => (
+      <img src={slide.thumbnail} alt="" data-current={current || undefined} />
+    ),
+  }}
+  {...props}
+/>
+```
+
+## Styling
+
+Size and look come from these variables:
+
+| Variable                      | Default                       |
+| ----------------------------- | ----------------------------- |
+| `--eg-thumbnail-width`        | `72px` (`56px` under 640px)   |
+| `--eg-thumbnail-height`       | `54px` (`42px` under 640px)   |
+| `--eg-thumbnail-gap`          | `6px`                         |
+| `--eg-thumbnail-radius`       | `var(--eg-radius)`            |
+| `--eg-thumbnail-opacity`      | `0.5`                         |
+| `--eg-thumbnail-active-color` | `var(--eg-color)`             |
+| `--eg-thumbnails-height`      | thumbnail height plus spacing |
+
+`classNames.thumbnails` and `classNames.thumbnail` add your own classes.

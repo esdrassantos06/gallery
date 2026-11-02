@@ -1,0 +1,67 @@
+---
+title: Render overrides
+description: Replace the slide, caption, counter, toolbar or thumbnail content.
+---
+
+`render` takes functions that replace one built-in part each. Anything you leave out keeps its default.
+
+```tsx
+<Lightbox
+  render={{
+    caption: (slide, index) => (
+      <p>
+        <strong>{slide.title}</strong> · photo {index + 1}
+      </p>
+    ),
+    counter: (current, total) => (
+      <span>
+        <b>{current}</b> of {total}
+      </span>
+    ),
+    toolbar: (buttons, slide) => (
+      <>
+        <a className="eg-button" href={slide.src} target="_blank" rel="noreferrer">
+          Original
+        </a>
+        {buttons}
+      </>
+    ),
+  }}
+  {...props}
+/>
+```
+
+<Demo count={4} preset="render" />
+
+<auto-type-table path="src/types.ts" name="LightboxRender" />
+
+## `render.slide`
+
+Return a node to draw the slide yourself, or `undefined` to keep the built-in image or video for that slide. It receives:
+
+<auto-type-table path="src/types.ts" name="RenderSlideProps" />
+
+```tsx
+render={{
+  slide: ({ slide, width, height }) =>
+    slide.src.endsWith(".svg") ? (
+      <img src={slide.src} width={width} height={height} alt={slide.alt ?? ""} />
+    ) : undefined,
+}}
+```
+
+Slides you draw do not zoom or rotate. For a full video player, see [Custom players](/docs/custom-players).
+
+## `render.toolbar`
+
+Receives the built-in buttons, in this order: slideshow when enabled; zoom, rotate and flip on images when enabled; share and download when enabled; fullscreen when available; the overflow menu button when some buttons do not fit; close. Your own content stays in the row, and the [overflow menu](/docs/toolbar) accounts for its width. Wrap them, reorder your own actions around them, or leave some out by not rendering `buttons` and drawing your own.
+
+Give extra controls the `eg-button` class to match the size, focus ring and hover of the built-in ones.
+
+## `render.caption`
+
+Return `null` to hide the caption for a slide.
+
+## `render.thumbnail`
+
+Replaces the content of each thumbnail button. The button keeps its accessible name from `labels.thumbnail`.
