@@ -6,7 +6,7 @@ import { Provider } from "@/components/provider";
 import "./global.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://gallery-docs-esdrassantos06.vercel.app"),
+  metadataBase: new URL("https://gallery-esdrassantos06.vercel.app"),
   title: { default: "gallery, an accessible React lightbox", template: "%s | gallery" },
   description:
     "Accessible React lightbox with zoom, thumbnails, video, slideshow and deep links. Zero runtime dependencies, themeable with CSS variables.",

@@ -110,6 +110,26 @@ const presets = {
     labels: ptLabels,
     icons: thinIcons,
     style: brandTheme,
+    render: {
+      caption: (slide, i) => (
+        <p className="m-0">
+          <strong>{slide.title}</strong> · foto {i + 1}
+        </p>
+      ),
+      toolbar: (buttons, slide) => (
+        <>
+          <a
+            className="eg-button w-auto px-3 no-underline"
+            href={slide.src}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Original
+          </a>
+          {buttons}
+        </>
+      ),
+    },
   },
   player: {
     slideshow: true,
@@ -119,7 +139,8 @@ const presets = {
   },
 } satisfies Record<string, Partial<LightboxProps>>;
 
-type DemoOptions = Omit<
+/** Lightbox props a demo can set: everything except its state and slides. */
+export type DemoOptions = Omit<
   Partial<LightboxProps>,
   "slides" | "open" | "index" | "onClose" | "onIndexChange" | "getThumbnail"
 >;
@@ -134,12 +155,16 @@ export interface DemoProps extends DemoOptions {
   preset?: keyof typeof presets;
 }
 
-interface GridProps extends DemoOptions {
+/** Props of {@link Grid}. */
+export interface GridProps extends DemoOptions {
   slides: Slide[];
   state: [number, (index: number) => void];
+  /** Show the "Live demo" hint under the thumbnails. */
+  hint?: boolean;
 }
 
-function Grid({ slides, state: [index, setIndex], ...options }: GridProps) {
+/** A square thumbnail grid wired to the lightbox. */
+export function Grid({ slides, state: [index, setIndex], hint = true, ...options }: GridProps) {
   const thumbnails = useRef<(HTMLButtonElement | null)[]>([]);
   return (
     <div className="not-prose bg-fd-card my-6 rounded-xl border p-3">
@@ -168,9 +193,11 @@ function Grid({ slides, state: [index, setIndex], ...options }: GridProps) {
           </li>
         ))}
       </ul>
-      <p className="text-fd-muted-foreground mt-3 px-1 text-xs">
-        Live demo. Click a thumbnail to open it.
-      </p>
+      {hint && (
+        <p className="text-fd-muted-foreground mt-3 px-1 text-xs">
+          Live demo. Click a thumbnail to open it.
+        </p>
+      )}
       <Lightbox
         slides={slides}
         open={index >= 0}

@@ -1,26 +1,75 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { CopyCommand } from "@/components/copy-command";
 import { Demo } from "@/components/demo";
-import { npmUrl } from "@/lib/shared";
+import { GridsDemo } from "@/components/grids-demo";
+import { PlaygroundGallery, SlideshowGallery } from "@/components/home";
+import { npmUrl, repoUrl } from "@/lib/shared";
 
 const facts = [
-  ["9.4 kB", "min + brotli, measured"],
+  ["9.36 kB", "lightbox, min + brotli, measured"],
   ["0", "runtime dependencies"],
   ["React 18 and 19", "SSR safe, App Router ready"],
   ["Screen readers", "focus trap, live region, reduced motion"],
 ] as const;
 
-const features = [
-  [
-    "Flies from the thumbnail",
-    "Opens out of the image that was clicked and lands back in it on close.",
-  ],
-  ["Zoom that feels native", "Wheel, trackpad and touch pinch, double tap, buttons and keys."],
-  ["Video and embeds", "Native video with captions, YouTube and Vimeo without their scripts."],
-  ["Slideshow", "Pauses when the user takes over, while the tab is hidden and during videos."],
-  ["Deep links", "Share #gallery-3 and the back button closes the viewer."],
-  ["Yours to restyle", "Every string, icon, color, size and timing can be replaced."],
-] as const;
+const usage = `import { useRef } from "react";
+import { Lightbox, useLightboxHash, type Slide } from "@esdrassantos06/gallery";
+import "@esdrassantos06/gallery/styles.css";
+
+export function Gallery({ slides }: { slides: Slide[] }) {
+  const thumbnails = useRef<(HTMLButtonElement | null)[]>([]);
+  const [index, setIndex] = useLightboxHash("galeria", { count: slides.length });
+
+  return (
+    <>
+      {slides.map((slide, i) => (
+        <button
+          key={slide.src}
+          ref={(el) => {
+            thumbnails.current[i] = el;
+          }}
+          onClick={() => setIndex(i)}
+          aria-label={\`Open \${slide.alt}\`}
+        >
+          <img src={slide.thumbnail} alt="" />
+        </button>
+      ))}
+      <Lightbox
+        slides={slides}
+        open={index >= 0}
+        index={Math.max(index, 0)}
+        onIndexChange={setIndex}
+        onClose={() => setIndex(-1)}
+        getThumbnail={(i) => thumbnails.current[i]}
+      />
+    </>
+  );
+}`;
+
+function Section({
+  id,
+  title,
+  description,
+  children,
+}: {
+  id: string;
+  title: string;
+  description: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <section aria-labelledby={id} className="scroll-mt-20 border-t py-14">
+      <div className="mb-6 max-w-2xl">
+        <h2 id={id} className="text-2xl font-semibold tracking-[-0.02em] text-balance">
+          {title}
+        </h2>
+        <p className="text-fd-muted-foreground mt-2 text-pretty">{description}</p>
+      </div>
+      {children}
+    </section>
+  );
+}
 
 export default function HomePage() {
   return (
@@ -31,8 +80,9 @@ export default function HomePage() {
             A lightbox that flies out of your thumbnails.
           </h1>
           <p className="text-fd-muted-foreground mt-6 max-w-[56ch] text-lg text-pretty">
-            Accessible React gallery viewer with zoom, video, slideshow and deep links. It ships
-            without a single runtime dependency.
+            Accessible React gallery viewer with zoom, video, slideshow, deep links and optional
+            grids. Every string, icon and color is yours to replace, and it ships without a single
+            runtime dependency.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
@@ -42,10 +92,16 @@ export default function HomePage() {
               Read the docs
             </Link>
             <a
-              href={npmUrl}
+              href="#demo"
               className="hover:bg-fd-accent inline-flex h-11 items-center rounded-lg border px-5 font-medium"
             >
-              View on npm
+              Try the demo
+            </a>
+            <a
+              href={npmUrl}
+              className="text-fd-muted-foreground hover:text-fd-foreground inline-flex h-11 items-center px-2 font-medium"
+            >
+              npm
             </a>
           </div>
         </div>
@@ -62,36 +118,68 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section aria-labelledby="try" className="border-t py-12">
-        <h2 id="try" className="text-2xl font-semibold tracking-[-0.02em]">
-          Try it
-        </h2>
-        <p className="text-fd-muted-foreground mt-2 max-w-2xl">
-          Open a photo, swipe or use the arrow keys, pinch or double click to zoom, press Escape to
-          fly back.
-        </p>
-        <Demo count={8} rotate download slideshow />
-      </section>
+      <div id="demo">
+        <Section
+          id="default-look"
+          title="Default look"
+          description="The built-in theme, driven by the options beside it. The open photo is kept in the URL as #galeria-3, so you can share it, and the back button closes the viewer."
+        >
+          <PlaygroundGallery />
+        </Section>
+      </div>
 
-      <section aria-labelledby="features" className="border-t py-12">
-        <h2 id="features" className="sr-only">
-          Features
-        </h2>
-        <ul className="grid gap-px overflow-hidden rounded-xl border sm:grid-cols-2 lg:grid-cols-3">
-          {features.map(([title, text]) => (
-            <li key={title} className="bg-fd-card p-5 outline outline-fd-border">
-              <h3 className="font-semibold tracking-tight">{title}</h3>
-              <p className="text-fd-muted-foreground mt-1 text-sm">{text}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <Section
+        id="customised"
+        title="Customised"
+        description="Portuguese labels, replaced arrow icons, a custom caption, an extra toolbar link and a brand theme set only through --eg-* variables."
+      >
+        <Demo count={6} preset="customised" />
+      </Section>
+
+      <Section
+        id="video"
+        title="Video and slideshow"
+        description="A native video with captions, an iframe slide and images. Press play in the toolbar to run the slideshow. It pauses on manual navigation, while the tab is hidden and on video slides until the video ends."
+      >
+        <SlideshowGallery />
+      </Section>
+
+      <Section
+        id="grids"
+        title="Grids and filter"
+        description="Justified rows, masonry columns or uniform cells, with a category filter. The grids work without the lightbox and the lightbox works without them. Here they share the filtered list, so indices always match."
+      >
+        <GridsDemo switcher filter />
+      </Section>
+
+      <Section
+        id="usage"
+        title="Usage"
+        description={
+          <>
+            Keep the lightbox mounted next to your grid and drive it with an index. The{" "}
+            <Link href="/docs/quick-start" className="text-fd-foreground underline">
+              quick start
+            </Link>{" "}
+            walks through it.
+          </>
+        }
+      >
+        <pre className="bg-fd-foreground text-fd-background overflow-x-auto rounded-xl p-5 font-mono text-[0.8125rem] leading-relaxed">
+          <code>{usage}</code>
+        </pre>
+      </Section>
 
       <footer className="text-fd-muted-foreground flex flex-wrap items-center justify-between gap-4 border-t py-8 text-sm">
         <span>MIT licensed. Sample images and video are generated, not real photos.</span>
-        <Link href="/docs/changelog" className="hover:text-fd-foreground">
-          Changelog
-        </Link>
+        <span className="flex gap-4">
+          <Link href="/docs/changelog" className="hover:text-fd-foreground">
+            Changelog
+          </Link>
+          <a href={repoUrl} className="hover:text-fd-foreground">
+            esdrassantos06/gallery
+          </a>
+        </span>
       </footer>
     </main>
   );
