@@ -13,6 +13,22 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
 
+test("lays the caption over the bottom of its own image", async ({ page }) => {
+  const options = page.getByRole("form", { name: "Polish options" });
+  await options.getByRole("switch", { name: "Caption inside the slide" }).click();
+  await options.getByRole("switch", { name: "Thumbnail strip" }).click();
+  await open(page);
+  const current = page.locator(".eg-slide[data-current]");
+  const caption = current.locator(".eg-caption");
+  await expect(caption).toContainText("Sample 01");
+  await expect(page.locator(".eg-root > .eg-caption")).toHaveCount(0);
+  const image = (await current.locator(".eg-image").boundingBox())!;
+  const box = (await caption.boundingBox())!;
+  expect(Math.abs(box.x - image.x)).toBeLessThan(1);
+  expect(Math.abs(box.width - image.width)).toBeLessThan(1);
+  expect(Math.abs(box.y + box.height - (image.y + image.height))).toBeLessThan(1);
+});
+
 test("starts the flight cropped like the square thumbnail it leaves", async ({ page }) => {
   await page.addInitScript(() => {
     const animate = Element.prototype.animate;

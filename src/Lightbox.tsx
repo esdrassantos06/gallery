@@ -205,6 +205,7 @@ export function Lightbox({
   onAfterClose,
   loop = true,
   transition = "slide",
+  captionPosition = "bar",
   preload = 2,
   closeOnBackdropClick = true,
   swipe = true,
@@ -941,20 +942,22 @@ export function Lightbox({
     </button>
   );
 
-  const defaultCaption =
-    slide.title || slide.description ? (
+  const captionOf = (item: Slide, i: number): ReactNode =>
+    render.caption ? (
+      render.caption(item, i)
+    ) : item.title || item.description ? (
       <>
-        {slide.title ? <h2 className="eg-caption-title">{slide.title}</h2> : null}
-        {slide.description ? <p className="eg-caption-description">{slide.description}</p> : null}
+        {item.title ? <h2 className="eg-caption-title">{item.title}</h2> : null}
+        {item.description ? <p className="eg-caption-description">{item.description}</p> : null}
       </>
     ) : null;
-  const caption: ReactNode = render.caption ? render.caption(slide, active) : defaultCaption;
+  const caption = captionPosition === "bar" ? captionOf(slide, active) : null;
 
   const renderMedia = (
     item: Slide,
     i: number,
     isCurrent: boolean,
-  ): { node: ReactNode; builtIn: boolean } => {
+  ): { node: ReactNode; builtIn: boolean; frame?: CSSProperties | undefined } => {
     const naturalSize =
       item.width && item.height ? { width: item.width, height: item.height } : natural[item.src];
     const size =
@@ -968,7 +971,8 @@ export function Lightbox({
       width: size?.width ?? box?.width ?? 0,
       height: size?.height ?? box?.height ?? 0,
     });
-    if (custom !== undefined) return { node: custom, builtIn: false };
+    if (custom !== undefined)
+      return { node: custom, builtIn: false, frame: size ?? box ?? undefined };
     const media = getMedia(item, { autoplay: video?.autoplay });
     if (media.kind !== "image") {
       const frame =
@@ -1019,6 +1023,7 @@ export function Lightbox({
             </video>
           ),
           builtIn: false,
+          frame: frameStyle,
         };
       }
       const poster = item.poster ?? media.poster ?? item.thumbnail;
@@ -1045,6 +1050,7 @@ export function Lightbox({
           <div className="eg-embed-poster" style={frameStyle} />
         ),
         builtIn: false,
+        frame: frameStyle,
       };
     }
     if (status[item.src] === "error") {
@@ -1119,6 +1125,7 @@ export function Lightbox({
         framed
       ),
       builtIn: true,
+      frame: footprint,
     };
   };
 
@@ -1389,6 +1396,19 @@ export function Lightbox({
 
   const showPager = pager && total > 1;
 
+  const slideCaption = (item: Slide, i: number, frame: CSSProperties | undefined) => {
+    if (captionPosition !== "slide") return null;
+    const content = captionOf(item, i);
+    if (content == null || content === false) return null;
+    return (
+      <div className={cn("slideCaption", "eg-slide-caption")} style={frame}>
+        <div className={cn("caption", "eg-caption")} dir="auto">
+          {content}
+        </div>
+      </div>
+    );
+  };
+
   const dialog = (
     <div
       ref={rootRef}
@@ -1434,6 +1454,7 @@ export function Lightbox({
             onClick={onSlideClick}
           >
             {media.node}
+            {slideCaption(slides[i] as Slide, i, media.frame)}
           </div>
         ))}
       </div>
