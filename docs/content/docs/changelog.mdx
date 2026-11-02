@@ -5,6 +5,13 @@ description: Notable changes in each release.
 
 The project follows [Semantic Versioning](https://semver.org). The source of this page is [`CHANGELOG.md`](https://github.com/esdrassantos06/gallery/blob/main/CHANGELOG.md).
 
+## Unreleased
+
+- `captionPosition="slide"`: lay each caption over the bottom of its own image, as wide as the image, moving with the slide. New `slideCaption` class name.
+- New built-in icons from [Mynaui Icons](https://mynaui.com/icons) (MIT). Same 24px grid and 1.5px stroke, so `--eg-icon-size` and custom icons work as before.
+- Fix: the caption covered the controls of videos, iframes and custom players such as Video.js. Those slides now fit above the caption.
+- The open and close flight now clips the image to its thumbnail, so thumbnails cropped with `object-fit: cover` grow into the full image without a jump.
+
 ## 1.1.0 (2026-11-02)
 
 - Fix: in right-to-left layouts the counter read "12 / 1" and English captions moved their full stop to the start. The counter and caption now take their direction from their own text (`dir="auto"`).
