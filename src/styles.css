@@ -42,6 +42,17 @@
   --eg-media-background: #111;
   --eg-progress-height: 2px;
   --eg-progress-color: var(--eg-color);
+  --eg-menu-background: rgb(24 24 24 / 0.96);
+  --eg-menu-color: var(--eg-color);
+  --eg-menu-radius: 8px;
+  --eg-menu-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+  --eg-menu-item-height: 44px;
+  --eg-menu-item-hover-background: rgb(255 255 255 / 0.1);
+  --eg-pager-height: 40px;
+  --eg-pager-dot-size: 8px;
+  --eg-pager-dot-gap: 4px;
+  --eg-pager-dot-color: rgb(255 255 255 / 0.4);
+  --eg-pager-dot-active-color: var(--eg-color);
 
   --eg-button-opacity: 0.8;
   --eg-button-opacity-hover: 1;
@@ -93,7 +104,7 @@
 }
 
 .eg-slide {
-  --eg-x: calc(var(--eg-offset, 0) * (100% + var(--eg-gap)));
+  --eg-x: calc(var(--eg-offset, 0) * (100% + var(--eg-gap)) * var(--eg-direction, 1));
   position: absolute;
   inset: 0;
   padding: inherit;
@@ -136,6 +147,15 @@
 .eg-root[data-thumbnails] {
   --eg-stage-padding: var(--eg-top-bar-height) calc(var(--eg-arrow-size) + var(--eg-spacing) * 2)
     var(--eg-thumbnails-height);
+}
+
+.eg-root[data-thumbnails][data-pager] {
+  --eg-stage-padding: var(--eg-top-bar-height) calc(var(--eg-arrow-size) + var(--eg-spacing) * 2)
+    calc(var(--eg-thumbnails-height) + var(--eg-pager-height));
+}
+
+.eg-root[dir="rtl"] {
+  --eg-direction: -1;
 }
 
 .eg-zoom {
@@ -216,6 +236,10 @@
   pointer-events: none;
 }
 
+.eg-root[dir="rtl"] .eg-progress {
+  transform-origin: right;
+}
+
 .eg-error {
   max-width: 32ch;
   margin: 0;
@@ -228,6 +252,7 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+  transition: transform var(--eg-duration) var(--eg-easing);
   -webkit-user-drag: none;
 }
 
@@ -248,7 +273,9 @@
 }
 
 .eg-counter {
+  flex: none;
   padding-inline: calc(var(--eg-spacing) / 2);
+  white-space: nowrap;
   color: var(--eg-color-muted);
   font-size: var(--eg-counter-font-size);
   font-variant-numeric: tabular-nums;
@@ -293,6 +320,76 @@
   cursor: default;
 }
 
+.eg-button[hidden] {
+  display: none;
+}
+
+.eg-more {
+  position: relative;
+  display: flex;
+}
+
+.eg-menu-scrim {
+  position: fixed;
+  inset: 0;
+}
+
+.eg-root[data-menu] .eg-top-bar {
+  z-index: 1;
+}
+
+.eg-menu {
+  position: absolute;
+  top: 100%;
+  inset-inline-end: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 12rem;
+  max-height: calc(100vh - var(--eg-top-bar-height) - var(--eg-spacing));
+  margin-top: 4px;
+  padding: 4px;
+  overflow-y: auto;
+  border-radius: var(--eg-menu-radius);
+  background: var(--eg-menu-background);
+  color: var(--eg-menu-color);
+  box-shadow: var(--eg-menu-shadow);
+  animation: eg-fade-in var(--eg-duration) var(--eg-easing);
+}
+
+.eg-menu-item {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--eg-menu-item-height);
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: calc(var(--eg-menu-radius) - 4px);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.eg-menu-item:hover,
+.eg-menu-item:focus-visible {
+  background: var(--eg-menu-item-hover-background);
+  outline: none;
+}
+
+.eg-menu-item:focus-visible {
+  outline: 2px solid var(--eg-focus-color);
+  outline-offset: -2px;
+}
+
+.eg-menu-item[aria-disabled="true"] {
+  opacity: var(--eg-disabled-opacity);
+  cursor: default;
+}
+
 .eg-icon {
   width: var(--eg-icon-size);
   height: var(--eg-icon-size);
@@ -308,11 +405,15 @@
 }
 
 .eg-arrow-prev {
-  left: var(--eg-spacing);
+  inset-inline-start: var(--eg-spacing);
 }
 
 .eg-arrow-next {
-  right: var(--eg-spacing);
+  inset-inline-end: var(--eg-spacing);
+}
+
+.eg-root[dir="rtl"] .eg-arrow > * {
+  transform: scaleX(-1);
 }
 
 .eg-caption {
@@ -418,6 +519,92 @@
   padding-bottom: calc(var(--eg-spacing) / 2);
 }
 
+.eg-pager {
+  position: absolute;
+  bottom: env(safe-area-inset-bottom, 0px);
+  inset-inline: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--eg-pager-height);
+  padding-inline: var(--eg-spacing);
+  pointer-events: none;
+}
+
+.eg-root[data-thumbnails] .eg-pager {
+  bottom: var(--eg-thumbnails-height);
+}
+
+.eg-pager-dot {
+  display: grid;
+  place-items: center;
+  width: calc(var(--eg-pager-dot-size) + var(--eg-pager-dot-gap) * 2);
+  min-width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.eg-pager-dot::before {
+  content: "";
+  width: var(--eg-pager-dot-size);
+  height: var(--eg-pager-dot-size);
+  border-radius: 50%;
+  background: var(--eg-pager-dot-color);
+  transition:
+    opacity var(--eg-duration) var(--eg-easing),
+    transform var(--eg-duration) var(--eg-easing);
+}
+
+.eg-pager-dot:hover::before {
+  background: var(--eg-pager-dot-active-color);
+  opacity: 0.7;
+}
+
+.eg-pager-dot[aria-current="true"]::before {
+  background: var(--eg-pager-dot-active-color);
+  opacity: 1;
+  transform: scale(1.25);
+}
+
+.eg-pager-dot:focus-visible {
+  outline: 2px solid var(--eg-focus-color);
+  outline-offset: -2px;
+  border-radius: var(--eg-radius);
+}
+
+.eg-root[data-pager] .eg-caption {
+  bottom: var(--eg-pager-height);
+  padding-bottom: 0;
+}
+
+.eg-root[data-thumbnails][data-pager] .eg-caption {
+  bottom: calc(var(--eg-thumbnails-height) + var(--eg-pager-height));
+}
+
+.eg-root :is(.eg-top-bar, .eg-arrow, .eg-caption, .eg-thumbnails, .eg-pager) {
+  transition: opacity var(--eg-duration) var(--eg-easing);
+}
+
+.eg-root[data-idle] :is(.eg-top-bar, .eg-arrow, .eg-caption, .eg-thumbnails, .eg-pager) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.eg-root[data-idle] .eg-top-bar > * {
+  pointer-events: none;
+}
+
+.eg-root[data-idle],
+.eg-root[data-idle] .eg-stage * {
+  cursor: none;
+}
+
 .eg-sr-only {
   position: absolute;
   width: 1px;
@@ -431,12 +618,12 @@
 }
 
 .eg-root[data-state="opening"]
-  :is(.eg-backdrop, .eg-top-bar, .eg-arrow, .eg-caption, .eg-thumbnails) {
+  :is(.eg-backdrop, .eg-top-bar, .eg-arrow, .eg-caption, .eg-thumbnails, .eg-pager) {
   animation: eg-fade-in var(--eg-duration) var(--eg-easing) backwards;
 }
 
 .eg-root[data-state="closing"]
-  :is(.eg-backdrop, .eg-top-bar, .eg-arrow, .eg-caption, .eg-thumbnails) {
+  :is(.eg-backdrop, .eg-top-bar, .eg-arrow, .eg-caption, .eg-thumbnails, .eg-pager) {
   animation: eg-fade-out var(--eg-duration) var(--eg-easing) forwards;
 }
 
@@ -444,7 +631,8 @@
   pointer-events: none;
 }
 
-.eg-root[data-dragging="vertical"] :is(.eg-top-bar, .eg-arrow, .eg-caption, .eg-thumbnails) {
+.eg-root[data-dragging="vertical"]
+  :is(.eg-top-bar, .eg-arrow, .eg-caption, .eg-thumbnails, .eg-pager) {
   opacity: 0;
   transition: opacity var(--eg-duration) var(--eg-easing);
 }
@@ -493,6 +681,11 @@
 
   .eg-root[data-thumbnails] {
     --eg-stage-padding: var(--eg-top-bar-height) 0 var(--eg-thumbnails-height);
+  }
+
+  .eg-root[data-thumbnails][data-pager] {
+    --eg-stage-padding: var(--eg-top-bar-height) 0
+      calc(var(--eg-thumbnails-height) + var(--eg-pager-height));
   }
 }
 

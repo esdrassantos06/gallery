@@ -125,6 +125,22 @@ export interface LightboxLabels {
   download: string;
   /** Announced when a file could not be saved directly and opened in a new tab instead. */
   downloadError: string;
+  /** Accessible name of the button and menu that hold the toolbar buttons that do not fit. */
+  more: string;
+  /** Accessible name of the flip horizontally button. */
+  flipHorizontal: string;
+  /** Accessible name of the flip vertically button. */
+  flipVertical: string;
+  /** Accessible name of the share button. */
+  share: string;
+  /** Announced when the link was copied because the share sheet is not available. */
+  linkCopied: string;
+  /** Announced when the link could neither be shared nor copied. */
+  shareError: string;
+  /** Accessible name of the pager dots. */
+  pager: string;
+  /** Accessible name of one pager dot. Numbers are 1-based. */
+  pagerItem: (index: number, total: number, slide: Slide) => string;
 }
 
 /** Icons of the built-in buttons. Each one can be replaced by any React node. */
@@ -153,6 +169,16 @@ export interface LightboxIcons {
   rotateRight: ReactNode;
   /** Icon of the download button. */
   download: ReactNode;
+  /** Icon of the button that opens the overflow menu. */
+  more: ReactNode;
+  /** Icon of the flip horizontally button. */
+  flipHorizontal: ReactNode;
+  /** Icon of the flip vertically button. */
+  flipVertical: ReactNode;
+  /** Icon of the share button. */
+  share: ReactNode;
+  /** Icon of the share button for a moment after the link was copied. */
+  linkCopied: ReactNode;
 }
 
 /** Extra class names, added next to the built-in `eg-*` class of each part. */
@@ -189,6 +215,14 @@ export interface LightboxClassNames {
   embed: string;
   /** The slideshow progress bar, `.eg-progress`. */
   progress: string;
+  /** The overflow menu, `.eg-menu`. */
+  menu: string;
+  /** Each item of the overflow menu, `.eg-menu-item`. */
+  menuItem: string;
+  /** The pager dots, `.eg-pager`. */
+  pager: string;
+  /** Each pager dot, `.eg-pager-dot`. */
+  pagerDot: string;
 }
 
 /** Arguments given to {@link LightboxRender.slide}. */
@@ -240,6 +274,16 @@ export interface DownloadOptions {
    * HTTP error). The file is then opened in a new tab instead.
    */
   onError?: ((error: unknown, slide: Slide) => void) | undefined;
+}
+
+/** Options for the `share` prop. */
+export interface ShareOptions {
+  /**
+   * Link to share for a slide. Pair the default with `useLightboxHash` so the
+   * link opens this slide.
+   * @defaultValue the page URL, `window.location.href`
+   */
+  url?: ((slide: Slide, index: number) => string) | undefined;
 }
 
 /** Options for the `slideshow` prop. */
@@ -301,7 +345,7 @@ export interface LightboxProps {
    * @defaultValue 0
    */
   index?: number | undefined;
-  /** Called when the user asks to close: Escape, the close button, a backdrop click or a downward swipe. Set `open` to false in response. */
+  /** Called when the user asks to close: Escape, the close button, a backdrop click, a downward swipe or a pinch to close. Set `open` to false in response. */
   onClose: () => void;
   /** Called with the new index whenever the user changes slide. */
   onIndexChange?: ((index: number) => void) | undefined;
@@ -343,7 +387,7 @@ export interface LightboxProps {
    */
   swipeThreshold?: number | undefined;
   /**
-   * Arrow keys, Home and End navigate; Escape closes; `+`, `-` and `0` zoom.
+   * Arrow keys, Home and End navigate (mirrored in `rtl`); Escape closes; `+`, `-` and `0` zoom.
    * @defaultValue true
    */
   keyboard?: boolean | undefined;
@@ -377,6 +421,51 @@ export interface LightboxProps {
    * @defaultValue false
    */
   download?: boolean | DownloadOptions | undefined;
+  /**
+   * Add flip horizontally and vertically buttons for images. Flips mirror the
+   * image across the screen axis, also when rotated, keep working with zoom and
+   * reset on slide change and with the `0` key.
+   * @defaultValue false
+   */
+  flip?: boolean | undefined;
+  /**
+   * Add a share button. It opens the system share sheet through `navigator.share`
+   * where available and copies the link otherwise. No third-party script is loaded.
+   * The button is hidden where neither is possible, for example over plain `http`.
+   * @defaultValue false
+   */
+  share?: boolean | ShareOptions | undefined;
+  /**
+   * Move toolbar buttons that do not fit beside the counter into a "More options"
+   * menu. Zoom goes first, as gestures do the same; close always stays visible.
+   * @defaultValue true
+   */
+  toolbarOverflow?: boolean | undefined;
+  /**
+   * Hide the top bar, arrows, caption, thumbnails and pager after this many ms
+   * without pointer, touch or keyboard input (`true` means 3000). They stay while
+   * a control has keyboard focus or the pointer rests on one.
+   * @defaultValue false
+   */
+  idle?: boolean | number | undefined;
+  /**
+   * Show a row of dots, one per slide, as a lighter alternative or complement
+   * to the thumbnails. Best for short galleries.
+   * @defaultValue false
+   */
+  pager?: boolean | undefined;
+  /**
+   * Close when a pinch shrinks the image under its fitted size and lets go. A
+   * pinch that zoomed in first never closes. Needs `zoom`.
+   * @defaultValue true
+   */
+  pinchToClose?: boolean | undefined;
+  /**
+   * Text direction. In `rtl` the arrows, swipes, arrow keys, thumbnails, pager
+   * and toolbar are mirrored, so the next slide comes from the left.
+   * @defaultValue the direction of `container`, usually inherited from `<html dir>`
+   */
+  dir?: "ltr" | "rtl" | undefined;
   /** Options for video slides. See {@link VideoOptions}. */
   video?: VideoOptions | undefined;
   /**
