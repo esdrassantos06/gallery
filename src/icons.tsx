@@ -65,4 +65,14 @@ export const defaultIcons: LightboxIcons = {
       <path d="M8.25 3.75v4.5h-4.5M20.25 8.25h-4.5v-4.5M15.75 20.25v-4.5h4.5M3.75 15.75h4.5v4.5" />
     </Icon>
   ),
+  playSlideshow: (
+    <Icon>
+      <path d="M7.5 5.25v13.5L18.75 12z" />
+    </Icon>
+  ),
+  pauseSlideshow: (
+    <Icon>
+      <path d="M8.25 5.25v13.5M15.75 5.25v13.5" />
+    </Icon>
+  ),
 };

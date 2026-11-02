@@ -34,6 +34,7 @@ import {
 } from "./gestures";
 import { defaultIcons } from "./icons";
 import { defaultLabels } from "./labels";
+import { getMedia } from "./media";
 import { Thumbnails } from "./Thumbnails";
 import type { LightboxClassNames, LightboxProps, Slide } from "./types";
 import { useFullscreen } from "./useFullscreen";
@@ -147,6 +148,8 @@ export function Lightbox({
   thumbnails = true,
   zoom: zoomProp,
   fullscreen = true,
+  video,
+  slideshow,
   getThumbnail,
   labels: labelOverrides,
   icons: iconOverrides,
@@ -159,6 +162,15 @@ export function Lightbox({
   const total = slides.length;
   const clamp = (i: number) => Math.min(Math.max(Math.trunc(i) || 0, 0), Math.max(total - 1, 0));
 
+  const slideshowConfig = slideshow
+    ? {
+        interval: Math.max((slideshow === true ? undefined : slideshow.interval) ?? 5000, 16),
+        autoplay: (slideshow === true ? undefined : slideshow.autoplay) ?? false,
+        progress: (slideshow === true ? undefined : slideshow.progress) ?? true,
+      }
+    : null;
+  const [playing, setPlaying] = useState(() => open && (slideshowConfig?.autoplay ?? false));
+  const [pageHidden, setPageHidden] = useState(false);
   const [phase, setPhase] = useState<Phase>(open ? "opening" : "closed");
   const [current, setCurrent] = useState(() => clamp(index));
   const [lastOpen, setLastOpen] = useState(open);
@@ -166,6 +178,7 @@ export function Lightbox({
   if (open !== lastOpen) {
     setLastOpen(open);
     if (open) {
+      setPlaying(slideshowConfig?.autoplay ?? false);
       setPhase("opening");
       setCurrent(clamp(index));
     } else if (phase !== "closed") {
@@ -223,13 +236,56 @@ export function Lightbox({
   const hasPrev = loop ? total > 1 : active > 0;
   const hasNext = loop ? total > 1 : active < total - 1;
 
-  const go = (target: number) => {
+  const advance = (target: number) => {
     if (total === 0) return;
     const next = loop ? wrapIndex(target, total) : clamp(target);
     if (next === active) return;
     setCurrent(next);
     onIndexChange?.(next);
   };
+
+  const go = (target: number) => {
+    setPlaying(false);
+    advance(target);
+  };
+
+  const currentKind = total > 0 ? getMedia(slides[active] as Slide).kind : "image";
+  const holding = currentKind !== "image";
+
+  const advanceSlideshow = () => {
+    if (hasNext) advance(active + 1);
+    else setPlaying(false);
+  };
+  const advanceRef = useRef(advanceSlideshow);
+  useIsoLayoutEffect(() => {
+    advanceRef.current = advanceSlideshow;
+  });
+
+  const interval = slideshowConfig?.interval ?? 0;
+  useEffect(() => {
+    if (!playing || !shown || phase === "closing" || pageHidden || holding || !interval) return;
+    const timer = window.setTimeout(() => advanceRef.current(), interval);
+    return () => window.clearTimeout(timer);
+  }, [playing, shown, phase, pageHidden, holding, interval, active]);
+
+  useEffect(() => {
+    if (!shown) return;
+    const onVisibility = () => setPageHidden(document.visibilityState === "hidden");
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, [shown]);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!shown || !stage) return;
+    stage
+      .querySelectorAll<HTMLVideoElement>(".eg-slide:not([data-current]) video")
+      .forEach((el) => {
+        el.pause();
+      });
+    const currentVideo = stage.querySelector<HTMLVideoElement>(".eg-slide[data-current] video");
+    if (currentVideo && video?.autoplay) currentVideo.play()?.catch(() => {});
+  }, [shown, active, video?.autoplay]);
 
   useEffect(() => {
     if (!shown) return;
@@ -353,6 +409,7 @@ export function Lightbox({
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     draggedRef.current = false;
     if (e.pointerType === "mouse" && e.button !== 0) return;
+    if (e.target instanceof Element && e.target.closest("video, iframe")) return;
     const pointers = pointersRef.current;
     const point = { x: e.clientX, y: e.clientY };
     pointers.set(e.pointerId, point);
@@ -533,6 +590,16 @@ export function Lightbox({
       return;
     }
     if (!keyboard || phase === "closing" || e.metaKey || e.ctrlKey || e.altKey) return;
+    const target = e.target;
+    if (
+      e.key !== "Escape" &&
+      target instanceof HTMLElement &&
+      (target instanceof HTMLMediaElement ||
+        target.isContentEditable ||
+        /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
+    ) {
+      return;
+    }
     const actions: Record<string, () => void> = {
       Escape: onClose,
       ArrowLeft: () => go(active - 1),
@@ -641,6 +708,87 @@ export function Lightbox({
       height: size?.height ?? box?.height ?? 0,
     });
     if (custom !== undefined) return { node: custom, builtIn: false };
+    const media = getMedia(item, { autoplay: video?.autoplay });
+    if (media.kind !== "image") {
+      const frame =
+        box &&
+        fitContain(naturalSize?.width ?? 1280, naturalSize?.height ?? 720, box.width, box.height);
+      const frameStyle =
+        media.kind === "iframe" && !naturalSize
+          ? { width: box?.width, height: box?.height }
+          : frame
+            ? { width: frame.width, height: frame.height }
+            : undefined;
+      const name = item.alt ?? (typeof item.title === "string" ? item.title : labels.video);
+      if (media.kind === "video") {
+        return {
+          node: (
+            // Captions come from slide.tracks below; the rule cannot see through the map.
+            // eslint-disable-next-line jsx-a11y/media-has-caption
+            <video
+              className={cn("video", "eg-video")}
+              src={item.sources ? undefined : item.src}
+              poster={item.poster}
+              aria-label={name}
+              style={frameStyle}
+              controls
+              playsInline
+              preload="metadata"
+              muted={video?.autoplay ?? false}
+              onLoadedMetadata={(e) => {
+                const { videoWidth: width, videoHeight: height } = e.currentTarget;
+                if (!naturalSize && width && height) {
+                  setNatural((prev) => ({ ...prev, [item.src]: { width, height } }));
+                }
+              }}
+              onEnded={() => {
+                if (isCurrent && playing) advanceRef.current();
+              }}
+            >
+              {item.sources?.map((source) => (
+                <source key={source.src} src={source.src} type={source.type} />
+              ))}
+              {item.tracks?.map((track) => (
+                <track
+                  key={track.src}
+                  src={track.src}
+                  kind={track.kind ?? "captions"}
+                  srcLang={track.srcLang}
+                  label={track.label}
+                  default={track.default}
+                />
+              ))}
+            </video>
+          ),
+          builtIn: false,
+        };
+      }
+      const poster = item.poster ?? media.poster ?? item.thumbnail;
+      return {
+        node: isCurrent ? (
+          <iframe
+            className={cn("embed", "eg-embed")}
+            src={media.embed}
+            title={name}
+            style={frameStyle}
+            allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        ) : poster ? (
+          <img
+            className="eg-embed-poster"
+            src={poster}
+            alt=""
+            style={frameStyle}
+            draggable={false}
+          />
+        ) : (
+          <div className="eg-embed-poster" style={frameStyle} />
+        ),
+        builtIn: false,
+      };
+    }
     if (status[item.src] === "error") {
       return { node: <p className="eg-error">{labels.loadError}</p>, builtIn: false };
     }
@@ -699,6 +847,16 @@ export function Lightbox({
 
   const toolbarButtons = (
     <>
+      {slideshowConfig && total > 1 ? (
+        <button
+          type="button"
+          className={button("button", "")}
+          aria-label={playing ? labels.pauseSlideshow : labels.playSlideshow}
+          onClick={() => setPlaying((value) => !value)}
+        >
+          {playing ? icons.pauseSlideshow : icons.playSlideshow}
+        </button>
+      ) : null}
       {zoomConfig && currentIsImage ? (
         <>
           <button
@@ -747,6 +905,7 @@ export function Lightbox({
       data-state={phase}
       data-transition={transition}
       data-zoomed={zoom.scale > 1 || undefined}
+      data-playing={playing || undefined}
       data-thumbnails={showThumbnails || undefined}
     >
       <div className={cn("backdrop", "eg-backdrop")} />
@@ -810,6 +969,14 @@ export function Lightbox({
       ) : null}
       {caption != null && caption !== false ? (
         <div className={cn("caption", "eg-caption")}>{caption}</div>
+      ) : null}
+      {slideshowConfig?.progress && playing && !holding && !pageHidden ? (
+        <div
+          key={active}
+          className={cn("progress", "eg-progress")}
+          style={{ "--eg-slideshow-interval": `${slideshowConfig.interval}ms` } as CSSProperties}
+          aria-hidden="true"
+        />
       ) : null}
       {showThumbnails ? (
         <Thumbnails

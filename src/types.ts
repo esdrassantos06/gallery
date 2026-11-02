@@ -1,9 +1,49 @@
 import type { CSSProperties, ReactNode } from "react";
 
-/** One item shown in the lightbox. */
-export interface Slide {
-  /** Image URL. Used as `<img src>` and as the fallback when `srcSet` has no better match. */
+/** One source of a video slide, for `<source>`. */
+export interface VideoSource {
+  /** File URL. */
   src: string;
+  /** MIME type, for example `video/webm`, so the browser can skip formats it cannot play. */
+  type?: string | undefined;
+}
+
+/** A text track of a video slide, for `<track>`. */
+export interface VideoTrack {
+  /** WebVTT file URL. */
+  src: string;
+  /** Language of the track, for example `pt`. */
+  srcLang: string;
+  /** Name shown in the player's track menu. */
+  label: string;
+  /**
+   * What the track contains.
+   * @defaultValue "captions"
+   */
+  kind?: "captions" | "subtitles" | "descriptions" | "chapters" | undefined;
+  /** Turn this track on unless the user picked another one. */
+  default?: boolean | undefined;
+}
+
+/** One item shown in the lightbox: an image, a video file, a YouTube or Vimeo link, or any page in an iframe. */
+export interface Slide {
+  /**
+   * What to show. An image URL by default; a video file (`.mp4`, `.webm`, `.ogv`,
+   * `.mov`, `.m4v`); a YouTube or Vimeo link, embedded without third-party scripts;
+   * or, with `type: "iframe"`, any page.
+   */
+  src: string;
+  /**
+   * How the slide renders. When omitted it is detected from `src`: YouTube and
+   * Vimeo links embed, video file extensions play natively, anything else is an image.
+   */
+  type?: "image" | "video" | "iframe" | undefined;
+  /** Still image shown before a video plays, and in place of embeds on neighboring slides. */
+  poster?: string | undefined;
+  /** Alternative files for a video slide, in order of preference. `src` is used when omitted. */
+  sources?: VideoSource[] | undefined;
+  /** Captions, subtitles or descriptions for a video slide. */
+  tracks?: VideoTrack[] | undefined;
   /** Responsive candidates for `<img srcset>`, for example `"a-640.jpg 640w, a-1280.jpg 1280w"`. */
   srcSet?: string | undefined;
   /**
@@ -64,6 +104,12 @@ export interface LightboxLabels {
   exitFullscreen: string;
   /** Message shown in place of an image that failed to load. */
   loadError: string;
+  /** Accessible name of the slideshow button while stopped. */
+  playSlideshow: string;
+  /** Accessible name of the slideshow button while playing. */
+  pauseSlideshow: string;
+  /** Accessible name for a video or embed whose slide has no `alt` or string `title`. */
+  video: string;
 }
 
 /** Icons of the built-in buttons. Each one can be replaced by any React node. */
@@ -82,6 +128,10 @@ export interface LightboxIcons {
   enterFullscreen: ReactNode;
   /** Icon of the fullscreen button while in fullscreen. */
   exitFullscreen: ReactNode;
+  /** Icon of the slideshow button while stopped. */
+  playSlideshow: ReactNode;
+  /** Icon of the slideshow button while playing. */
+  pauseSlideshow: ReactNode;
 }
 
 /** Extra class names, added next to the built-in `eg-*` class of each part. */
@@ -112,6 +162,12 @@ export interface LightboxClassNames {
   thumbnails: string;
   /** Each thumbnail button, `.eg-thumbnail`. */
   thumbnail: string;
+  /** Each native video, `.eg-video`. */
+  video: string;
+  /** Each YouTube, Vimeo or custom iframe, `.eg-embed`. */
+  embed: string;
+  /** The slideshow progress bar, `.eg-progress`. */
+  progress: string;
 }
 
 /** Arguments given to {@link LightboxRender.slide}. */
@@ -143,6 +199,34 @@ export interface LightboxRender {
   toolbar?: ((buttons: ReactNode, slide: Slide, index: number) => ReactNode) | undefined;
   /** Content of one thumbnail button. Its accessible name still comes from `labels.thumbnail`. */
   thumbnail?: ((slide: Slide, index: number, current: boolean) => ReactNode) | undefined;
+}
+
+/** Options for video slides. */
+export interface VideoOptions {
+  /**
+   * Start the current video or embed on its own, muted, as browsers require.
+   * @defaultValue false
+   */
+  autoplay?: boolean | undefined;
+}
+
+/** Options for the `slideshow` prop. */
+export interface SlideshowOptions {
+  /**
+   * Time each slide stays on screen, in ms.
+   * @defaultValue 5000
+   */
+  interval?: number | undefined;
+  /**
+   * Start playing as soon as the lightbox opens.
+   * @defaultValue false
+   */
+  autoplay?: boolean | undefined;
+  /**
+   * Show a progress bar for the time left on the current slide.
+   * @defaultValue true
+   */
+  progress?: boolean | undefined;
 }
 
 /** Fine-tuning for the `zoom` prop. Scales are relative to the fitted image. */
@@ -248,6 +332,15 @@ export interface LightboxProps {
    * @defaultValue true
    */
   fullscreen?: boolean | undefined;
+  /** Options for video slides. See {@link VideoOptions}. */
+  video?: VideoOptions | undefined;
+  /**
+   * Add a slideshow button that advances on a timer. It pauses when the user
+   * navigates by hand, while the page is hidden, and on video slides until the
+   * video ends. Pass options to tune it.
+   * @defaultValue false
+   */
+  slideshow?: boolean | SlideshowOptions | undefined;
   /**
    * Returns the element that opened a slide, usually its thumbnail. The open and
    * close animations start and end there, and focus goes back to it on close.

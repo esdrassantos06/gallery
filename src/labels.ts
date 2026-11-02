@@ -18,4 +18,7 @@ export const defaultLabels: LightboxLabels = {
   enterFullscreen: "Enter fullscreen",
   exitFullscreen: "Exit fullscreen",
   loadError: "This image could not be loaded.",
+  playSlideshow: "Start slideshow",
+  pauseSlideshow: "Pause slideshow",
+  video: "Video",
 };
