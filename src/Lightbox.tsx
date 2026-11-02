@@ -1428,7 +1428,7 @@ export function Lightbox({
         ))}
       </div>
       <div ref={topBarRef} className={cn("topBar", "eg-top-bar")}>
-        <div className={cn("counter", "eg-counter")}>
+        <div className={cn("counter", "eg-counter")} dir="auto">
           {render.counter ? render.counter(active + 1, total) : labels.counter(active + 1, total)}
         </div>
         <div ref={toolbarRef} className={cn("toolbar", "eg-toolbar")}>
@@ -1458,7 +1458,9 @@ export function Lightbox({
         </>
       ) : null}
       {caption != null && caption !== false ? (
-        <div className={cn("caption", "eg-caption")}>{caption}</div>
+        <div className={cn("caption", "eg-caption")} dir="auto">
+          {caption}
+        </div>
       ) : null}
       {slideshowConfig?.progress && playing && !holding && !pageHidden ? (
         <div
