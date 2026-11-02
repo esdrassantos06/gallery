@@ -7,6 +7,7 @@ import {
   getPointerDistance,
   getPointZoomPan,
   getWheelFactor,
+  shouldCloseOnPinch,
 } from "./zoom";
 
 describe("clampScale", () => {
@@ -83,5 +84,27 @@ describe("getWheelFactor", () => {
 
   it("normalises line-based deltas", () => {
     expect(getWheelFactor(-3, 1, false)).toBeCloseTo(getWheelFactor(-48, 0, false), 10);
+  });
+});
+
+describe("pinch to close", () => {
+  it("follows the fingers below the minimum while armed", () => {
+    expect(getPinchScale(100, 50, 1, 1, 3, true)).toBe(0.5);
+    expect(getPinchScale(100, 500, 1, 1, 3, true)).toBeCloseTo(3.1, 10);
+  });
+
+  it("closes only a release below the minimum after a gesture that never went past fit", () => {
+    expect(shouldCloseOnPinch(0.6, 1, 1)).toBe(true);
+    expect(shouldCloseOnPinch(0.6, 1.4, 1)).toBe(false);
+    expect(shouldCloseOnPinch(1, 1, 1)).toBe(false);
+  });
+
+  it("ignores the small wobble of fingers resting on the glass", () => {
+    expect(shouldCloseOnPinch(0.97, 1, 1)).toBe(false);
+  });
+
+  it("measures from the minimum scale when it is under fit", () => {
+    expect(shouldCloseOnPinch(0.6, 1, 0.5)).toBe(false);
+    expect(shouldCloseOnPinch(0.4, 1, 0.5)).toBe(true);
   });
 });

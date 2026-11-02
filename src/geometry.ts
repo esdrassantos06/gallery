@@ -90,3 +90,26 @@ export function getSlideWindow(
     .map(([index, offset]) => ({ index, offset }))
     .sort((a, b) => a.index - b.index);
 }
+
+/** Mirroring of the media along its own axes: 1 as is, -1 mirrored. */
+export interface Flip {
+  x: 1 | -1;
+  y: 1 | -1;
+}
+
+/**
+ * Mirrors the media across the screen axis the user asked for. On quarter
+ * turns the image's own axes are swapped on screen, so the other one flips.
+ */
+export function flipMedia(flip: Flip, rotation: number, axis: "horizontal" | "vertical"): Flip {
+  const sideways = Math.abs(rotation % 180) === 90;
+  const own = (axis === "horizontal") !== sideways ? "x" : "y";
+  return { ...flip, [own]: -flip[own] as 1 | -1 };
+}
+
+/** CSS transform for a rotation in degrees and a flip, or an empty string at rest. */
+export function getMediaTransform(rotation: number, flip: Flip): string {
+  const turn = rotation ? `rotate(${rotation}deg)` : "";
+  const mirror = flip.x !== 1 || flip.y !== 1 ? `scale(${flip.x}, ${flip.y})` : "";
+  return [turn, mirror].filter(Boolean).join(" ");
+}

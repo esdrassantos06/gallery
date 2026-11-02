@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   fitContain,
+  flipMedia,
   getFlipTransform,
+  getMediaTransform,
   getSlideWindow,
   relativeOffset,
   wrapIndex,
@@ -91,5 +93,36 @@ describe("getSlideWindow", () => {
 
   it("is empty for an empty gallery", () => {
     expect(getSlideWindow(0, 0, 2, true)).toEqual([]);
+  });
+});
+
+describe("flipMedia", () => {
+  const none = { x: 1, y: 1 } as const;
+
+  it("flips the requested axis when upright or upside down", () => {
+    expect(flipMedia(none, 0, "horizontal")).toEqual({ x: -1, y: 1 });
+    expect(flipMedia(none, 180, "vertical")).toEqual({ x: 1, y: -1 });
+  });
+
+  it("flips the other image axis on quarter turns, so the flip still reads on screen", () => {
+    expect(flipMedia(none, 90, "horizontal")).toEqual({ x: 1, y: -1 });
+    expect(flipMedia(none, -90, "vertical")).toEqual({ x: -1, y: 1 });
+    expect(flipMedia(none, 450, "horizontal")).toEqual({ x: 1, y: -1 });
+  });
+
+  it("undoes itself", () => {
+    expect(flipMedia(flipMedia(none, 0, "horizontal"), 0, "horizontal")).toEqual(none);
+  });
+});
+
+describe("getMediaTransform", () => {
+  it("is empty at rest", () => {
+    expect(getMediaTransform(0, { x: 1, y: 1 })).toBe("");
+  });
+
+  it("rotates first, then mirrors in the image's own axes", () => {
+    expect(getMediaTransform(90, { x: -1, y: 1 })).toBe("rotate(90deg) scale(-1, 1)");
+    expect(getMediaTransform(0, { x: 1, y: -1 })).toBe("scale(1, -1)");
+    expect(getMediaTransform(-180, { x: 1, y: 1 })).toBe("rotate(-180deg)");
   });
 });

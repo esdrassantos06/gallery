@@ -55,6 +55,8 @@ export function getPointerDistance(a: Point, b: Point): number {
 /**
  * Scale while pinching: proportional to the finger distance, with friction
  * instead of a hard stop past either limit. The release then settles inside.
+ * With `free` set, going under the minimum follows the fingers, as the cue for
+ * pinch to close.
  */
 export function getPinchScale(
   startDistance: number,
@@ -62,10 +64,11 @@ export function getPinchScale(
   startScale: number,
   min: number,
   max: number,
+  free: boolean = false,
 ): number {
   if (startDistance <= 0) return startScale;
   const scale = (distance / startDistance) * startScale;
-  if (scale < min) return min + (scale - min) * PINCH_UNDER_FRICTION;
+  if (scale < min && !free) return min + (scale - min) * PINCH_UNDER_FRICTION;
   if (scale > max) return max + (scale - max) * PINCH_OVER_FRICTION;
   return scale;
 }
@@ -89,4 +92,16 @@ export function clampPanAxis(pan: number, size: number, stage: number, offset: n
 export function getWheelFactor(deltaY: number, deltaMode: number, ctrlKey: boolean): number {
   const pixels = deltaMode === 1 ? deltaY * 16 : deltaMode === 2 ? deltaY * 400 : deltaY;
   return Math.exp(-pixels * (ctrlKey ? 0.01 : 0.002));
+}
+
+/** Share of the minimum scale a pinch must release under to close, so resting fingers never do. */
+export const PINCH_CLOSE_RATIO = 0.9;
+
+/**
+ * Whether a released pinch closes the lightbox: it ended well under the
+ * minimum scale and never went past fit on the way, so an over-then-under
+ * pinch is read as a zoom correction.
+ */
+export function shouldCloseOnPinch(scale: number, peak: number, minScale: number): boolean {
+  return peak <= 1 && scale < Math.min(minScale, 1) * PINCH_CLOSE_RATIO;
 }
