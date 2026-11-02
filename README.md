@@ -141,4 +141,4 @@ Contributions are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) and the [Co
 
 ## License
 
-[MIT](./LICENSE). The justified layout math is adapted from opengallery, MIT License, Copyright (c) 2026 opengallery contributors.
+[MIT](./LICENSE). The justified layout math is adapted from opengallery, MIT License, Copyright (c) 2026 opengallery contributors. The built-in icons are from [Mynaui Icons](https://mynaui.com/icons), MIT License, Copyright (c) Praveen Juge.

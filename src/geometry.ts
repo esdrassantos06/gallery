@@ -62,6 +62,17 @@ export function getFlipTransform(from: Rect, to: Rect): FlipTransform {
   };
 }
 
+/**
+ * `clip-path` that trims `media`, scaled by `scale`, down to the `window` it is
+ * seen through, so a flight from a cropped thumbnail starts with the same crop.
+ * Both sizes are along the media's own axes.
+ */
+export function getCropInset(media: Size, window: Size, scale: number): string {
+  const x = Math.max((media.width - window.width / scale) / 2, 0);
+  const y = Math.max((media.height - window.height / scale) / 2, 0);
+  return `inset(${y}px ${x}px)`;
+}
+
 /** One mounted slide and its position relative to the current one. */
 export interface WindowSlide {
   index: number;

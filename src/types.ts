@@ -205,6 +205,8 @@ export interface LightboxClassNames {
   image: string;
   /** The caption of the current slide, `.eg-caption`. */
   caption: string;
+  /** With `captionPosition="slide"`, the box laid over each media that holds its caption, `.eg-slide-caption`. */
+  slideCaption: string;
   /** The thumbnail strip, `.eg-thumbnails`. */
   thumbnails: string;
   /** Each thumbnail button, `.eg-thumbnail`. */
@@ -243,7 +245,10 @@ export interface RenderSlideProps {
 export interface LightboxRender {
   /** Content of one slide. Return `undefined` to keep the built-in image. */
   slide?: ((props: RenderSlideProps) => ReactNode) | undefined;
-  /** Caption of the current slide. Return `null` to hide it. */
+  /**
+   * Caption of the current slide, or of every mounted slide with
+   * `captionPosition="slide"`. Return `null` to hide it.
+   */
   caption?: ((slide: Slide, index: number) => ReactNode) | undefined;
   /** Counter in the top left corner. Numbers are 1-based. */
   counter?: ((current: number, total: number) => ReactNode) | undefined;
@@ -364,6 +369,13 @@ export interface LightboxProps {
    * @defaultValue "slide"
    */
   transition?: Transition | undefined;
+  /**
+   * Where captions go. `"bar"` is a band across the bottom of the viewer.
+   * `"slide"` lays each caption over the bottom of its own media, so it moves
+   * with the slide.
+   * @defaultValue "bar"
+   */
+  captionPosition?: "bar" | "slide" | undefined;
   /**
    * How many slides on each side of the current one are mounted, and therefore
    * loaded. Slides outside this window are not in the DOM.

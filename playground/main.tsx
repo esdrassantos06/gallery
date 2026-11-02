@@ -370,14 +370,15 @@ function PolishGallery() {
     idle: false,
     rtl: false,
     pinchToClose: true,
+    captionInSlide: false,
   });
   const set = (key: keyof typeof polish) => (value: boolean) =>
     setPolish((prev) => ({ ...prev, [key]: value }));
-  const { rtl, idle, ...flags } = polish;
+  const { rtl, idle, captionInSlide, ...flags } = polish;
   return (
     <Gallery
       title="Interaction polish"
-      description="Flip, share and every other button: on a narrow screen the ones that do not fit move into a More menu, zoom first. Pager dots, controls that fade out when idle, right-to-left and pinch to close are each one prop."
+      description="Flip, share and every other button: on a narrow screen the ones that do not fit move into a More menu, zoom first. Pager dots, controls that fade out when idle, right-to-left, pinch to close and captions laid over the image are each one prop."
       slides={samples}
       lightbox={{
         ...flags,
@@ -385,6 +386,7 @@ function PolishGallery() {
         download: true,
         idle: idle && 2000,
         dir: rtl ? "rtl" : "ltr",
+        captionPosition: captionInSlide ? "slide" : "bar",
       }}
       aside={
         <form
@@ -407,6 +409,11 @@ function PolishGallery() {
               label="Pinch to close"
               checked={polish.pinchToClose}
               onChange={set("pinchToClose")}
+            />
+            <ToggleField
+              label="Caption inside the slide"
+              checked={captionInSlide}
+              onChange={set("captionInSlide")}
             />
           </Panel>
         </form>

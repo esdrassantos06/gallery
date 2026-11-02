@@ -119,6 +119,10 @@
     opacity var(--eg-duration) var(--eg-easing);
 }
 
+.eg-slide > :first-child {
+  margin-bottom: var(--eg-caption-space, 0px);
+}
+
 .eg-slide[data-current] {
   --eg-y: var(--eg-drag-y, 0px);
   --eg-scale: calc(1 - var(--eg-drag-progress, 0) * var(--eg-drag-shrink));
@@ -585,6 +589,18 @@
 
 .eg-root[data-thumbnails][data-pager] .eg-caption {
   bottom: calc(var(--eg-thumbnails-height) + var(--eg-pager-height));
+}
+
+.eg-slide-caption {
+  position: absolute;
+  inset: var(--eg-stage-padding);
+  margin: auto;
+  pointer-events: none;
+}
+
+.eg-root .eg-slide .eg-slide-caption > .eg-caption {
+  bottom: 0;
+  padding: calc(var(--eg-spacing) * 2) var(--eg-spacing) var(--eg-spacing);
 }
 
 .eg-root :is(.eg-top-bar, .eg-arrow, .eg-caption, .eg-thumbnails, .eg-pager) {

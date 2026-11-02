@@ -37,6 +37,18 @@ The demo below mixes a native video with captions, images and an iframe page.
 - `alt` is the image's text alternative. The live region also reads it when there is no string `title`.
 - `title` renders as an `h2` and `description` as text under it. Both accept React nodes.
 
+## Caption position
+
+By default the caption is a band across the bottom of the viewer. `captionPosition="slide"` lays each caption over the bottom of its own image instead, as wide as the image, so it moves with the slide when you swipe:
+
+```tsx
+<Lightbox captionPosition="slide" slides={slides} open={open} onClose={close} />
+```
+
+`render.caption` then runs for every mounted slide, not just the current one. Video and iframe slides keep their caption in the bar either way, below the player.
+
+Under a video or iframe, the bar never covers the player: the slide is fitted into the room left above the caption, so the controls stay visible and clickable. A custom player from `render.slide` gets that smaller `width` and `height` too.
+
 While an image loads, its slide has `data-status="loading"` and shows a spinner after `--eg-spinner-delay`. If it fails, the slide shows `labels.loadError` and gets `data-status="error"`.
 
 ## Video files

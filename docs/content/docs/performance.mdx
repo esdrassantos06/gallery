@@ -19,7 +19,7 @@ When `srcSet` is set and `sizes` is not, `sizes` becomes the rendered width, so 
 
 Drags write CSS variables on the root once per animation frame. Pinch, pan and wheel zoom write the transform straight to the element. React does not re-render while a gesture moves.
 
-Every animation uses `transform` and `opacity` only, so nothing triggers layout while it runs.
+Every animation uses `transform` and `opacity`, plus `clip-path` for the crop of the open and close flight, so nothing triggers layout while it runs.
 
 ## Grids
 

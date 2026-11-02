@@ -31,7 +31,7 @@ Own code, MIT, zero runtime dependencies, fully themeable by CSS variables, ever
 - The lightbox must work with any grid, not only the bundled one.
 - Next.js App Router safe: `"use client"`, no `window`/`document` outside effects.
 - CSP friendly: no CDN, no inline scripts. YouTube via youtube-nocookie.com.
-- Animations only on transform and opacity; `prefers-reduced-motion` disables them; offscreen images do not load.
+- Animations only on transform and opacity (plus clip-path for the cropped open and close flight); `prefers-reduced-motion` disables them; offscreen images do not load.
 - Full customisation: CSS variables for every color, font, radius, spacing and duration; render slots, replaceable icons, i18n labels, class names.
 - Icons are drawn for this package. No third-party icon code.
 

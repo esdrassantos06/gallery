@@ -335,7 +335,9 @@ describe("Lightbox motion", () => {
     expect(call).toBeDefined();
     const [keyframes, options] = call!.args as [Keyframe[], KeyframeAnimationOptions];
     expect(keyframes[0]?.transform).toBe("translate(-540px, -290px) scale(0.2)");
+    expect(keyframes[0]?.clipPath).toBe("inset(0px 150px)");
     expect(keyframes.at(-1)?.transform).toBe("none");
+    expect(keyframes.at(-1)?.clipPath).toBe("inset(0px 0px)");
     expect(options.duration).toBe(250);
   });
 
@@ -344,6 +346,7 @@ describe("Lightbox motion", () => {
     await openAt(2, { getThumbnail: () => null });
     const [keyframes] = callOn(".eg-image")!.args as [Keyframe[]];
     expect(keyframes[0]).toMatchObject({ opacity: 0 });
+    expect(keyframes[0]).not.toHaveProperty("clipPath");
     expect(String(keyframes[0]?.transform)).toContain("scale(");
   });
 

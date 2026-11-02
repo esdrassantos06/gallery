@@ -151,7 +151,7 @@ test("closes with a downward swipe", async ({ page }) => {
   await expect(viewer).toBeHidden();
 });
 
-test("animates the image out of its thumbnail with transform only", async ({ page }) => {
+test("animates the image out of its thumbnail without touching layout", async ({ page }) => {
   await gallery(page).getByRole("button", { name: "Open Sample 02" }).click();
   const keyframes = await page
     .locator(".eg-slide[data-current] .eg-image")
@@ -162,9 +162,15 @@ test("animates the image out of its thumbnail with transform only", async ({ pag
   expect(String(keyframes[0]?.transform)).toMatch(/^translate\(.+\) scale\(.+\)$/);
   const props = new Set(keyframes.flatMap((k) => Object.keys(k)));
   for (const prop of props)
-    expect(["transform", "opacity", "offset", "easing", "composite", "computedOffset"]).toContain(
-      prop,
-    );
+    expect([
+      "transform",
+      "opacity",
+      "clipPath",
+      "offset",
+      "easing",
+      "composite",
+      "computedOffset",
+    ]).toContain(prop);
 });
 
 test("skips the animations with prefers-reduced-motion", async ({ page }) => {
