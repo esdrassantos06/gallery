@@ -181,7 +181,7 @@ function Controls({ value, onChange }: { value: Options; onChange: (next: Option
           {(["slide", "fade", "zoom"] as Transition[]).map((t) => (
             <Label
               key={t}
-              className="has-[[data-state=checked]]:border-foreground flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 font-normal capitalize"
+              className="has-data-[state=checked]:border-foreground flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 font-normal capitalize"
             >
               <RadioGroupItem value={t} aria-label={t} />
               {t}
@@ -361,6 +361,60 @@ function SlideshowGallery() {
   );
 }
 
+function PolishGallery() {
+  const [polish, setPolish] = useState({
+    flip: true,
+    share: true,
+    pager: true,
+    thumbnails: false,
+    idle: false,
+    rtl: false,
+    pinchToClose: true,
+  });
+  const set = (key: keyof typeof polish) => (value: boolean) =>
+    setPolish((prev) => ({ ...prev, [key]: value }));
+  const { rtl, idle, ...flags } = polish;
+  return (
+    <Gallery
+      title="Interaction polish"
+      description="Flip, share and every other button: on a narrow screen the ones that do not fit move into a More menu, zoom first. Pager dots, controls that fade out when idle, right-to-left and pinch to close are each one prop."
+      slides={samples}
+      lightbox={{
+        ...flags,
+        rotate: true,
+        download: true,
+        idle: idle && 2000,
+        dir: rtl ? "rtl" : "ltr",
+      }}
+      aside={
+        <form
+          aria-label="Polish options"
+          className="bg-card flex flex-col gap-2 rounded-xl border p-5"
+          onSubmit={(e) => e.preventDefault()}
+        >
+          <Panel title="Polish">
+            <ToggleField label="Flip buttons" checked={polish.flip} onChange={set("flip")} />
+            <ToggleField label="Share button" checked={polish.share} onChange={set("share")} />
+            <ToggleField label="Pager dots" checked={polish.pager} onChange={set("pager")} />
+            <ToggleField
+              label="Thumbnail strip"
+              checked={polish.thumbnails}
+              onChange={set("thumbnails")}
+            />
+            <ToggleField label="Hide controls when idle" checked={idle} onChange={set("idle")} />
+            <ToggleField label="Right to left" checked={rtl} onChange={set("rtl")} />
+            <ToggleField
+              label="Pinch to close"
+              checked={polish.pinchToClose}
+              onChange={set("pinchToClose")}
+            />
+          </Panel>
+        </form>
+      }
+    />
+  );
+}
+
 type Layout = "justified" | "masonry" | "uniform";
 type Shape = "Landscape" | "Portrait" | "Square";
 
@@ -412,7 +466,7 @@ function GridsGallery() {
           {(["justified", "masonry", "uniform"] as Layout[]).map((l) => (
             <Label
               key={l}
-              className="has-[[data-state=checked]]:border-foreground flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 font-normal capitalize"
+              className="has-data-[state=checked]:border-foreground flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 font-normal capitalize"
             >
               <RadioGroupItem value={l} aria-label={l} />
               {l}
@@ -466,7 +520,7 @@ export function Gallery({ slides }) {
 }`;
 
 const facts = [
-  ["9.4 kB", "min + brotli, measured"],
+  ["11.6 kB", "min + brotli, measured"],
   ["0", "runtime dependencies"],
   ["React 18 and 19", "SSR safe, App Router ready"],
   ["WCAG 2.2 AA", "focus trap, live region, reduced motion"],
@@ -607,6 +661,10 @@ function App() {
           <Separator />
 
           <SlideshowGallery />
+
+          <Separator />
+
+          <PolishGallery />
 
           <Separator />
 
