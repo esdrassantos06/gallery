@@ -45,7 +45,9 @@ By default the caption is a band across the bottom of the viewer. `captionPositi
 <Lightbox captionPosition="slide" slides={slides} open={open} onClose={close} />
 ```
 
-`render.caption` then runs for every mounted slide, not just the current one. Native video controls sit at the bottom of the frame, so return `null` for video slides if the caption would cover them.
+`render.caption` then runs for every mounted slide, not just the current one. Video and iframe slides keep their caption in the bar either way, below the player.
+
+Under a video or iframe, the bar never covers the player: the slide is fitted into the room left above the caption, so the controls stay visible and clickable. A custom player from `render.slide` gets that smaller `width` and `height` too.
 
 While an image loads, its slide has `data-status="loading"` and shows a spinner after `--eg-spinner-delay`. If it fails, the slide shows `labels.loadError` and gets `data-status="error"`.
 

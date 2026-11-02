@@ -315,6 +315,8 @@ export function Lightbox({
   const tapRef = useRef<Tap | null>(null);
   const lastTapRef = useRef<{ x: number; y: number; t: number } | null>(null);
   const [box, setBox] = useState<Size | null>(null);
+  const [captionSpace, setCaptionSpace] = useState(0);
+  const captionRef = useRef<HTMLDivElement>(null);
   const [natural, setNatural] = useState<Record<string, Size>>({});
   const [status, setStatus] = useState<Record<string, ImageStatus>>({});
 
@@ -503,6 +505,20 @@ export function Lightbox({
     observer.observe(stage);
     return () => observer.disconnect();
   }, [shown]);
+
+  useIsoLayoutEffect(() => {
+    const caption = captionRef.current;
+    if (!shown || !caption) {
+      setCaptionSpace(0);
+      return;
+    }
+    const measure = () => setCaptionSpace(caption.offsetHeight);
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(caption);
+    return () => observer.disconnect();
+  }, [shown, active, captionPosition]);
 
   const measured = box !== null;
   const zoomReset = zoom.reset;
@@ -951,36 +967,45 @@ export function Lightbox({
         {item.description ? <p className="eg-caption-description">{item.description}</p> : null}
       </>
     ) : null;
-  const caption = captionPosition === "bar" ? captionOf(slide, active) : null;
+  const caption = captionPosition === "bar" || holding ? captionOf(slide, active) : null;
 
   const renderMedia = (
     item: Slide,
     i: number,
     isCurrent: boolean,
-  ): { node: ReactNode; builtIn: boolean; frame?: CSSProperties | undefined } => {
+  ): {
+    node: ReactNode;
+    builtIn: boolean;
+    frame?: CSSProperties | undefined;
+    reserved?: boolean;
+  } => {
+    const media = getMedia(item, { autoplay: video?.autoplay });
+    const reserved = !!box && media.kind !== "image" && captionSpace > 0;
+    const fit = reserved
+      ? { width: box.width, height: Math.max(box.height - captionSpace, 0) }
+      : box;
     const naturalSize =
       item.width && item.height ? { width: item.width, height: item.height } : natural[item.src];
     const size =
-      box && naturalSize
-        ? fitContain(naturalSize.width, naturalSize.height, box.width, box.height)
+      fit && naturalSize
+        ? fitContain(naturalSize.width, naturalSize.height, fit.width, fit.height)
         : undefined;
     const custom = render.slide?.({
       slide: item,
       index: i,
       current: isCurrent,
-      width: size?.width ?? box?.width ?? 0,
-      height: size?.height ?? box?.height ?? 0,
+      width: size?.width ?? fit?.width ?? 0,
+      height: size?.height ?? fit?.height ?? 0,
     });
     if (custom !== undefined)
-      return { node: custom, builtIn: false, frame: size ?? box ?? undefined };
-    const media = getMedia(item, { autoplay: video?.autoplay });
+      return { node: custom, builtIn: false, frame: size ?? fit ?? undefined, reserved };
     if (media.kind !== "image") {
       const frame =
-        box &&
-        fitContain(naturalSize?.width ?? 1280, naturalSize?.height ?? 720, box.width, box.height);
+        fit &&
+        fitContain(naturalSize?.width ?? 1280, naturalSize?.height ?? 720, fit.width, fit.height);
       const frameStyle =
         media.kind === "iframe" && !naturalSize
-          ? { width: box?.width, height: box?.height }
+          ? { width: fit?.width, height: fit?.height }
           : frame
             ? { width: frame.width, height: frame.height }
             : undefined;
@@ -1024,6 +1049,7 @@ export function Lightbox({
           ),
           builtIn: false,
           frame: frameStyle,
+          reserved,
         };
       }
       const poster = item.poster ?? media.poster ?? item.thumbnail;
@@ -1051,6 +1077,7 @@ export function Lightbox({
         ),
         builtIn: false,
         frame: frameStyle,
+        reserved,
       };
     }
     if (status[item.src] === "error") {
@@ -1397,7 +1424,7 @@ export function Lightbox({
   const showPager = pager && total > 1;
 
   const slideCaption = (item: Slide, i: number, frame: CSSProperties | undefined) => {
-    if (captionPosition !== "slide") return null;
+    if (captionPosition !== "slide" || getMedia(item).kind !== "image") return null;
     const content = captionOf(item, i);
     if (content == null || content === false) return null;
     return (
@@ -1441,7 +1468,12 @@ export function Lightbox({
           <div
             key={i}
             className={cn("slide", "eg-slide")}
-            style={{ "--eg-offset": offset } as CSSProperties}
+            style={
+              {
+                "--eg-offset": offset,
+                "--eg-caption-space": media.reserved ? `${captionSpace}px` : undefined,
+              } as CSSProperties
+            }
             data-current={isCurrent || undefined}
             data-jump={jumps.has(i) || undefined}
             data-status={
@@ -1489,7 +1521,7 @@ export function Lightbox({
         </>
       ) : null}
       {caption != null && caption !== false ? (
-        <div className={cn("caption", "eg-caption")} dir="auto">
+        <div ref={captionRef} className={cn("caption", "eg-caption")} dir="auto">
           {caption}
         </div>
       ) : null}

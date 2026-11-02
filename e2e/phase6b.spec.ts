@@ -55,3 +55,15 @@ test("starts the flight cropped like the square thumbnail it leaves", async ({ p
   expect(top).toBe(0);
   expect((image.width - side! * 2) * scale).toBeCloseTo(thumbnail.width, 0);
 });
+
+test("keeps the caption below a video's controls", async ({ page }) => {
+  await page
+    .getByRole("region", { name: "Video and slideshow" })
+    .getByRole("button")
+    .first()
+    .click();
+  await expect(page.locator(".eg-root")).toHaveAttribute("data-state", "open");
+  const player = (await page.locator(".eg-slide[data-current] video").boundingBox())!;
+  const caption = (await page.locator(".eg-caption").boundingBox())!;
+  expect(player.y + player.height).toBeLessThanOrEqual(caption.y + 1);
+});

@@ -85,3 +85,60 @@ describe("cropped-thumbnail flight", () => {
     expect(keyframes.at(-1)?.clipPath).toBe("inset(0px 150px)");
   });
 });
+
+describe("caption next to a player", () => {
+  const video = {
+    src: "/clip.mp4",
+    type: "video" as const,
+    width: 1920,
+    height: 1080,
+    title: "Clip",
+  };
+
+  function layOut() {
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return this.classList.contains("eg-stage") ? 1600 : 0;
+    });
+    vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return this.classList.contains("eg-stage") ? 800 : 0;
+    });
+    vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return this.classList.contains("eg-caption") ? 100 : 0;
+    });
+  }
+
+  it("fits a video above the caption so the caption never covers its controls", async () => {
+    layOut();
+    await openAt(0, { slides: [video, slides[0]!] });
+    const player = current().querySelector<HTMLElement>("video")!;
+    await waitFor(() => expect(player.style.height).toBe("700px"));
+    expect(current().style.getPropertyValue("--eg-caption-space")).toBe("100px");
+  });
+
+  it("gives a custom player the room left above the caption", async () => {
+    layOut();
+    const slide = ({ slide, height }: { slide: (typeof slides)[number]; height: number }) =>
+      slide.type === "video" ? <div data-testid="player">{height}</div> : undefined;
+    await openAt(0, { slides: [video, slides[0]!], render: { slide } });
+    await waitFor(() => expect(screen.getByTestId("player")).toHaveTextContent("700"));
+  });
+
+  it("leaves images at full size", async () => {
+    layOut();
+    await openAt(1, { slides: [video, slides[0]!] });
+    expect(current().style.getPropertyValue("--eg-caption-space")).toBe("");
+    expect(current().querySelector<HTMLElement>(".eg-image")!.style.height).toBe("800px");
+  });
+
+  it("keeps a player's caption in the bar with captionPosition slide", async () => {
+    await openAt(0, { slides: [video, slides[0]!], captionPosition: "slide" });
+    expect(document.querySelector(".eg-root > .eg-caption")).toHaveTextContent("Clip");
+    expect(current().querySelector(".eg-slide-caption")).toBeNull();
+  });
+});

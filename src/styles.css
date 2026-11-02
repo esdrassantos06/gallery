@@ -119,6 +119,10 @@
     opacity var(--eg-duration) var(--eg-easing);
 }
 
+.eg-slide > :first-child {
+  margin-bottom: var(--eg-caption-space, 0px);
+}
+
 .eg-slide[data-current] {
   --eg-y: var(--eg-drag-y, 0px);
   --eg-scale: calc(1 - var(--eg-drag-progress, 0) * var(--eg-drag-shrink));
