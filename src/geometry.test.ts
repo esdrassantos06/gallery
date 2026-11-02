@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   fitContain,
   flipMedia,
+  getCropInset,
   getFlipTransform,
   getMediaTransform,
   getSlideWindow,
@@ -124,5 +125,25 @@ describe("getMediaTransform", () => {
     expect(getMediaTransform(90, { x: -1, y: 1 })).toBe("rotate(90deg) scale(-1, 1)");
     expect(getMediaTransform(0, { x: 1, y: -1 })).toBe("scale(1, -1)");
     expect(getMediaTransform(-180, { x: 1, y: 1 })).toBe("rotate(-180deg)");
+  });
+});
+
+describe("getCropInset", () => {
+  it("trims the sides of a landscape image seen through a square", () => {
+    expect(getCropInset({ width: 800, height: 500 }, { width: 100, height: 100 }, 0.2)).toBe(
+      "inset(0px 150px)",
+    );
+  });
+
+  it("trims the top and bottom of an image seen through a wide strip", () => {
+    expect(getCropInset({ width: 800, height: 500 }, { width: 100, height: 40 }, 0.125)).toBe(
+      "inset(90px 0px)",
+    );
+  });
+
+  it("never clips when the window is larger than the media", () => {
+    expect(getCropInset({ width: 100, height: 100 }, { width: 300, height: 300 }, 1)).toBe(
+      "inset(0px 0px)",
+    );
   });
 });

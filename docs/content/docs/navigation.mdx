@@ -66,7 +66,7 @@ All three animate `transform` and `opacity` only. Their length is `--eg-duration
 
 ## Open and close
 
-The open animation flies the image out of the element returned by `getThumbnail(index)`, scaled evenly so it covers that element. Closing flies it back to the thumbnail of the slide on screen. When there is no thumbnail, or it is scrolled out of view, the image zooms from 92% and fades in instead.
+The open animation flies the image out of the element returned by `getThumbnail(index)`, scaled evenly so it covers that element and clipped to it, so a thumbnail cropped with `object-fit: cover` grows into the full image without a jump. Closing flies it back to the thumbnail of the slide on screen. When there is no thumbnail, or it is scrolled out of view, the image zooms from 92% and fades in instead.
 
 `onAfterOpen` runs when the open animation ends. `onAfterClose` runs when the close animation ends and focus is back on the page.
 

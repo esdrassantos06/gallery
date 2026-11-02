@@ -17,6 +17,7 @@ import { cx, getFocusable, lockScroll, readDuration, readEasing, useIsoLayoutEff
 import {
   fitContain,
   flipMedia,
+  getCropInset,
   getFlipTransform,
   getMediaTransform,
   getSlideWindow,
@@ -119,14 +120,16 @@ function contentBox(el: HTMLElement): Size {
 }
 
 /**
- * Keyframes that grow `media` out of `origin`, or a zoom and fade when there is
- * no usable origin. `transform` is the media's own rotation and flip. `start`,
- * when given, is where the media is seen at rest instead of its layout box.
+ * Keyframes that grow `media` out of `origin`, cropped like the origin at the
+ * start, or a zoom and fade when there is no usable origin. `transform` is the
+ * media's own rotation and flip, and `sideways` says it is turned a quarter.
+ * `start`, when given, is where the media is seen at rest instead of its layout box.
  */
 function openKeyframes(
   media: HTMLElement,
   origin: HTMLElement | null | undefined,
   transform: string,
+  sideways: boolean,
   start?: Rect,
 ): Keyframe[] {
   const to = media.getBoundingClientRect();
@@ -139,7 +142,13 @@ function openKeyframes(
   };
   const rest = start && fits ? toward(start) : transform || "none";
   if (from && isOnScreen(from) && fits) {
-    return [{ transform: toward(from) }, { transform: rest }];
+    const { scale } = getFlipTransform(from, to);
+    const axes = (rect: Rect): Size =>
+      sideways ? { width: rect.height, height: rect.width } : rect;
+    return [
+      { transform: toward(from), clipPath: getCropInset(axes(to), axes(from), scale) },
+      { transform: rest, clipPath: "inset(0px 0px)" },
+    ];
   }
   return [
     { opacity: 0, transform: `scale(${FALLBACK_SCALE})${own}` },
@@ -538,6 +547,7 @@ export function Lightbox({
       media,
       getThumbnail?.(active),
       media.matches(".eg-image") ? mediaTransform : "",
+      media.matches(".eg-image") && rotate && rotation % 180 !== 0,
       start,
     );
     const animation = media.animate(phase === "opening" ? keyframes : [...keyframes].reverse(), {
