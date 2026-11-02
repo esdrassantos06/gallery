@@ -92,4 +92,30 @@ export const defaultIcons: LightboxIcons = {
       <path d="M12 3.75v11.25M7.5 10.5 12 15l4.5-4.5M4.5 19.5h15" />
     </Icon>
   ),
+  more: (
+    <Icon>
+      <path d="M6 12h.01M12 12h.01M18 12h.01" strokeWidth="2.5" />
+    </Icon>
+  ),
+  flipHorizontal: (
+    <Icon>
+      <path d="M12 3v18M9 6.75 3.75 17.25H9zM15 6.75l5.25 10.5H15z" />
+    </Icon>
+  ),
+  flipVertical: (
+    <Icon>
+      <path d="M3 12h18M6.75 9 17.25 3.75V9zM6.75 15l10.5 5.25V15z" />
+    </Icon>
+  ),
+  share: (
+    <Icon>
+      <path d="M12 14.25V3.75M8.25 7.5 12 3.75l3.75 3.75" />
+      <path d="M8.25 10.5H6.75a1.5 1.5 0 0 0-1.5 1.5v6.75a1.5 1.5 0 0 0 1.5 1.5h10.5a1.5 1.5 0 0 0 1.5-1.5V12a1.5 1.5 0 0 0-1.5-1.5h-1.5" />
+    </Icon>
+  ),
+  linkCopied: (
+    <Icon>
+      <path d="M4.5 12.75 9.75 18 19.5 6" />
+    </Icon>
+  ),
 };

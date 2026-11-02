@@ -26,6 +26,7 @@ export type {
   RenderGridImageProps,
   Responsive,
   RenderSlideProps,
+  ShareOptions,
   Slide,
   SlideshowOptions,
   Transition,

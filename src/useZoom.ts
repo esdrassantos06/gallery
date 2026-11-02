@@ -7,6 +7,7 @@ import {
   getPinchScale,
   getPointerDistance,
   getPointZoomPan,
+  shouldCloseOnPinch,
   type Point,
 } from "./zoom";
 
@@ -49,7 +50,7 @@ interface Metrics {
 }
 
 type Gesture =
-  | { type: "pinch"; distance: number; mid: Point; start: Transform }
+  | { type: "pinch"; distance: number; mid: Point; start: Transform; free: boolean; peak: number }
   | { type: "pan"; point: Point; start: Transform };
 
 const IDENTITY: Transform = { scale: 1, x: 0, y: 0 };
@@ -66,11 +67,13 @@ export interface ZoomController {
   zoomBy: (factor: number, client?: Point, animate?: boolean) => void;
   toggle: (client: Point) => void;
   reset: () => void;
-  pinchStart: (a: Point, b: Point) => void;
+  /** Starts a pinch. With `closable`, a pinch from fit may shrink freely and close on release. */
+  pinchStart: (a: Point, b: Point, closable?: boolean) => void;
   pinchMove: (a: Point, b: Point) => void;
   panStart: (point: Point) => void;
   panMove: (point: Point) => void;
-  end: () => void;
+  /** Settles the gesture. Returns true when a pinch asks to close the lightbox instead. */
+  end: () => boolean;
 }
 
 /**
@@ -172,14 +175,17 @@ export function useZoom(
     [config, zoomTo],
   );
 
-  const pinchStart = (a: Point, b: Point) => {
+  const pinchStart = (a: Point, b: Point, closable = false) => {
     const metrics = measure();
     if (!config || !metrics) return;
+    const start = current.current;
     gesture.current = {
       type: "pinch",
       distance: getPointerDistance(a, b),
       mid: { x: (a.x + b.x) / 2 - metrics.center.x, y: (a.y + b.y) / 2 - metrics.center.y },
-      start: current.current,
+      start,
+      free: closable && start.scale <= 1,
+      peak: start.scale,
     };
   };
 
@@ -193,7 +199,9 @@ export function useZoom(
       g.start.scale,
       config.minScale,
       config.maxScale,
+      g.free,
     );
+    g.peak = Math.max(g.peak, scale);
     const mid = { x: (a.x + b.x) / 2 - metrics.center.x, y: (a.y + b.y) / 2 - metrics.center.y };
     write({ scale, ...getPinchPan(mid, g.mid, g.start, g.start.scale, scale) }, false);
   };
@@ -214,15 +222,19 @@ export function useZoom(
     write(clamp(next, metrics), false);
   };
 
-  const end = () => {
+  const end = (): boolean => {
     const g = gesture.current;
     gesture.current = null;
     const metrics = measure();
-    if (!config || !metrics || !g) return;
+    if (!config || !metrics || !g) return false;
     const { scale, x, y } = current.current;
+    if (g.type === "pinch" && g.free && shouldCloseOnPinch(scale, g.peak, config.minScale)) {
+      return true;
+    }
     const settled = clampScale(scale, config.minScale, config.maxScale);
-    if (Math.abs(settled - 1) < 0.01) return commit(IDENTITY, true);
-    commit(clamp({ scale: settled, x, y }, metrics), true);
+    if (Math.abs(settled - 1) < 0.01) commit(IDENTITY, true);
+    else commit(clamp({ scale: settled, x, y }, metrics), true);
+    return false;
   };
 
   return {

@@ -1,10 +1,12 @@
 import {
   useCallback,
   useEffect,
+  useId,
   useRef,
   useState,
   useSyncExternalStore,
   type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent,
   type PointerEvent,
   type ReactElement,
@@ -14,10 +16,13 @@ import { createPortal } from "react-dom";
 import { cx, getFocusable, lockScroll, readDuration, readEasing, useIsoLayoutEffect } from "./dom";
 import {
   fitContain,
+  flipMedia,
   getFlipTransform,
+  getMediaTransform,
   getSlideWindow,
   relativeOffset,
   wrapIndex,
+  type Flip,
   type Rect,
   type Size,
 } from "./geometry";
@@ -35,6 +40,7 @@ import { defaultIcons } from "./icons";
 import { defaultLabels } from "./labels";
 import { getMedia } from "./media";
 import { Thumbnails } from "./Thumbnails";
+import { getToolbarOverflow, TOOLBAR_PRIORITY, type ToolKey } from "./toolbar";
 import type { LightboxClassNames, LightboxProps, Slide } from "./types";
 import { useFullscreen } from "./useFullscreen";
 import { resolveZoom, useZoom } from "./useZoom";
@@ -73,6 +79,23 @@ interface Drag {
 
 const FALLBACK_SCALE = 0.92;
 
+const NO_FLIP: Flip = { x: 1, y: 1 };
+
+const DEFAULT_IDLE_MS = 3000;
+
+const COPIED_MS = 2000;
+
+/** Parts that idle hiding fades out. */
+const CONTROLS = [".eg-top-bar", ".eg-arrow", ".eg-caption", ".eg-thumbnails", ".eg-pager"];
+
+interface Tool {
+  key: ToolKey;
+  label: string;
+  icon: ReactNode;
+  onClick: (e: MouseEvent<HTMLElement>) => void;
+  disabled?: boolean;
+}
+
 const subscribeNothing = () => () => {};
 
 function isOnScreen(rect: Rect): boolean {
@@ -95,22 +118,31 @@ function contentBox(el: HTMLElement): Size {
   };
 }
 
-/** Keyframes that grow `media` out of `origin`, or a zoom and fade when there is no usable origin. */
+/**
+ * Keyframes that grow `media` out of `origin`, or a zoom and fade when there is
+ * no usable origin. `transform` is the media's own rotation and flip. `start`,
+ * when given, is where the media is seen at rest instead of its layout box.
+ */
 function openKeyframes(
   media: HTMLElement,
   origin: HTMLElement | null | undefined,
-  rotation: number,
+  transform: string,
+  start?: Rect,
 ): Keyframe[] {
   const to = media.getBoundingClientRect();
   const from = origin?.getBoundingClientRect();
-  const turn = rotation ? ` rotate(${rotation}deg)` : "";
-  const rest = turn ? turn.trim() : "none";
-  if (from && isOnScreen(from) && to.width > 0 && to.height > 0) {
-    const { x, y, scale } = getFlipTransform(from, to);
-    return [{ transform: `translate(${x}px, ${y}px) scale(${scale})${turn}` }, { transform: rest }];
+  const own = transform ? ` ${transform}` : "";
+  const fits = to.width > 0 && to.height > 0;
+  const toward = (rect: Rect) => {
+    const { x, y, scale } = getFlipTransform(rect, to);
+    return `translate(${x}px, ${y}px) scale(${scale})${own}`;
+  };
+  const rest = start && fits ? toward(start) : transform || "none";
+  if (from && isOnScreen(from) && fits) {
+    return [{ transform: toward(from) }, { transform: rest }];
   }
   return [
-    { opacity: 0, transform: `scale(${FALLBACK_SCALE})${turn}` },
+    { opacity: 0, transform: `scale(${FALLBACK_SCALE})${own}` },
     { opacity: 1, transform: rest },
   ];
 }
@@ -175,6 +207,13 @@ export function Lightbox({
   video,
   slideshow,
   rotate = false,
+  flip = false,
+  share,
+  toolbarOverflow = true,
+  idle = false,
+  pager = false,
+  pinchToClose = true,
+  dir,
   download,
   getThumbnail,
   labels: labelOverrides,
@@ -218,12 +257,14 @@ export function Lightbox({
   const active = clamp(current);
 
   const [rotation, setRotation] = useState(0);
+  const [flipped, setFlipped] = useState<Flip>(NO_FLIP);
   const [notice, setNotice] = useState("");
   const [lastActive, setLastActive] = useState(active);
   const [jumps, setJumps] = useState<ReadonlySet<number>>(() => new Set());
   if (active !== lastActive) {
     setLastActive(active);
     setRotation(0);
+    setFlipped(NO_FLIP);
     setNotice("");
     setJumps(
       new Set(
@@ -243,6 +284,18 @@ export function Lightbox({
 
   const rootRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const topBarRef = useRef<HTMLDivElement>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const moreRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const widthsRef = useRef(new Map<string, number>());
+  const wokeRef = useRef(false);
+  const menuId = useId();
+  const [overflow, setOverflow] = useState<readonly string[]>([]);
+  const [menuOpen, setMenuOpen] = useState<false | "first" | "last">(false);
+  const [idleNow, setIdleNow] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [inheritedRtl, setInheritedRtl] = useState(false);
   const openerRef = useRef<HTMLElement | null>(null);
   const dragRef = useRef<Drag | null>(null);
   const draggedRef = useRef(false);
@@ -262,6 +315,11 @@ export function Lightbox({
   const labels = { ...defaultLabels, ...labelOverrides };
   const icons = { ...defaultIcons, ...iconOverrides };
   const cn = (part: keyof LightboxClassNames, base: string) => cx(base, classNames[part]);
+
+  const rtl = dir ? dir === "rtl" : inheritedRtl;
+  const sign = rtl ? -1 : 1;
+  const idleDelay = idle === true ? DEFAULT_IDLE_MS : typeof idle === "number" ? idle : 0;
+  const mediaTransform = getMediaTransform(rotate ? rotation : 0, flip ? flipped : NO_FLIP);
 
   const hasPrev = loop ? total > 1 : active > 0;
   const hasNext = loop ? total > 1 : active < total - 1;
@@ -298,11 +356,13 @@ export function Lightbox({
     return () => window.clearTimeout(timer);
   }, [playing, shown, phase, pageHidden, holding, interval, active]);
 
-  const currentVideo = () =>
-    stageRef.current?.querySelector<HTMLVideoElement>(".eg-slide[data-current] video") ?? null;
-
-  const toggleSlideshow = () => {
-    if (playing) currentVideo()?.pause();
+  const toggleSlideshow = (e: MouseEvent<HTMLElement>) => {
+    if (playing) {
+      e.currentTarget
+        .closest(".eg-root")
+        ?.querySelector<HTMLVideoElement>(".eg-slide[data-current] video")
+        ?.pause();
+    }
     setPlaying(!playing);
   };
 
@@ -363,6 +423,53 @@ export function Lightbox({
   }, [shown]);
 
   useIsoLayoutEffect(() => {
+    if (!shown || dir) return;
+    setInheritedRtl(window.getComputedStyle(container ?? document.body).direction === "rtl");
+  }, [shown, dir, container]);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!shown || !root || idleDelay <= 0) return;
+    let timer = 0;
+    let keyboard = false;
+    const busy = () => {
+      if (root.hasAttribute("data-menu")) return true;
+      if (root.querySelector(CONTROLS.map((part) => `${part}:hover`).join(", "))) return true;
+      const focused = document.activeElement;
+      return keyboard && focused instanceof HTMLElement && !!focused.closest(CONTROLS.join(", "));
+    };
+    const schedule = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        if (busy()) schedule();
+        else setIdleNow(true);
+      }, idleDelay);
+    };
+    const wake = (e: Event) => {
+      if (e.type === "pointerdown") wokeRef.current = root.hasAttribute("data-idle");
+      if (e.type !== "pointermove") keyboard = e.type === "keydown";
+      setIdleNow(false);
+      schedule();
+    };
+    const events = ["pointermove", "pointerdown", "wheel"] as const;
+    for (const type of events) root.addEventListener(type, wake, { capture: true, passive: true });
+    document.addEventListener("keydown", wake, true);
+    schedule();
+    return () => {
+      window.clearTimeout(timer);
+      for (const type of events) root.removeEventListener(type, wake, true);
+      document.removeEventListener("keydown", wake, true);
+      setIdleNow(false);
+    };
+  }, [shown, idleDelay]);
+
+  useEffect(() => {
+    if (!copied) return;
+    const timer = window.setTimeout(() => setCopied(false), COPIED_MS);
+    return () => window.clearTimeout(timer);
+  }, [copied]);
+
+  useIsoLayoutEffect(() => {
     if (!shown) return;
     const active = document.activeElement;
     openerRef.current = active instanceof HTMLElement ? active : null;
@@ -411,13 +518,17 @@ export function Lightbox({
     const root = rootRef.current;
     if (!shown || !root || !measured || (phase !== "opening" && phase !== "closing")) return;
     const finish = phase === "opening" ? finishOpen : finishClose;
+    const media =
+      root.querySelector<HTMLElement>(".eg-slide[data-current] .eg-image") ??
+      root.querySelector<HTMLElement>(".eg-slide[data-current] > *");
+    const start =
+      phase === "closing" && zoom.targetRef.current?.style.transform
+        ? media?.getBoundingClientRect()
+        : undefined;
     if (phase === "closing") {
       zoom.reset();
       fs.exit();
     }
-    const media =
-      root.querySelector<HTMLElement>(".eg-slide[data-current] .eg-image") ??
-      root.querySelector<HTMLElement>(".eg-slide[data-current] > *");
     const duration = readDuration(root);
     if (!media || duration === 0 || typeof media.animate !== "function") {
       finish();
@@ -426,7 +537,8 @@ export function Lightbox({
     const keyframes = openKeyframes(
       media,
       getThumbnail?.(active),
-      media.matches(".eg-image") ? rotation : 0,
+      media.matches(".eg-image") ? mediaTransform : "",
+      start,
     );
     const animation = media.animate(phase === "opening" ? keyframes : [...keyframes].reverse(), {
       duration,
@@ -503,7 +615,7 @@ export function Lightbox({
       modeRef.current = "pinch";
       capture(pointers.keys());
       const [a, b] = [...pointers.values()];
-      if (a && b) zoom.pinchStart(a, b);
+      if (a && b) zoom.pinchStart(a, b, pinchToClose);
       return;
     }
     if (pointers.size > 1) return;
@@ -560,8 +672,9 @@ export function Lightbox({
       rootRef.current?.setAttribute("data-dragging", axis);
       capture([e.pointerId]);
     }
-    if (axis === "horizontal") setDragStyle(getEdgeFrictionedDelta(dx, hasPrev, hasNext), 0, 0);
-    else setDragStyle(0, dy, Math.min(Math.abs(dy) / window.innerHeight, 1));
+    if (axis === "horizontal") {
+      setDragStyle(getEdgeFrictionedDelta(dx * sign, hasPrev, hasNext) * sign, 0, 0);
+    } else setDragStyle(0, dy, Math.min(Math.abs(dy) / window.innerHeight, 1));
   };
 
   const releaseSwipe = (e: PointerEvent<HTMLDivElement>) => {
@@ -578,8 +691,8 @@ export function Lightbox({
     endDrag();
     if (axis === "horizontal") {
       const verdict = getSwipeReleaseVerdict({
-        deltaX: dx,
-        velocityX: velocity.x,
+        deltaX: dx * sign,
+        velocityX: velocity.x * sign,
         threshold: swipeThreshold,
         viewportWidth: box?.width ?? window.innerWidth,
       });
@@ -621,8 +734,12 @@ export function Lightbox({
     const mode = modeRef.current;
     if (mode === "pinch") {
       if (pointers.size >= 2) return;
-      zoom.end();
+      const close = zoom.end();
       modeRef.current = null;
+      if (close) {
+        onClose();
+        return;
+      }
       const rest = [...pointers.values()][0];
       if (rest && zoom.isZoomed()) {
         modeRef.current = "pan";
@@ -685,8 +802,8 @@ export function Lightbox({
     }
     const actions: Record<string, () => void> = {
       Escape: onClose,
-      ArrowLeft: () => go(active - 1),
-      ArrowRight: () => go(active + 1),
+      ArrowLeft: () => go(active - sign),
+      ArrowRight: () => go(active + sign),
       Home: () => go(0),
       End: () => go(total - 1),
     };
@@ -696,6 +813,7 @@ export function Lightbox({
       actions["0"] = () => {
         zoom.zoomTo(1);
         setRotation(0);
+        setFlipped(NO_FLIP);
       };
     }
     const action = actions[e.key];
@@ -746,8 +864,55 @@ export function Lightbox({
 
   const onSlideClick = (e: MouseEvent<HTMLDivElement>) => {
     if (e.target !== e.currentTarget || draggedRef.current || !closeOnBackdropClick) return;
+    if (wokeRef.current) {
+      wokeRef.current = false;
+      return;
+    }
     onClose();
   };
+
+  useIsoLayoutEffect(() => {
+    const bar = topBarRef.current;
+    const toolbar = toolbarRef.current;
+    if (!bar || !toolbar) return;
+    const items = [...toolbar.querySelectorAll<HTMLElement>("[data-eg-tool]")];
+    const keys = items.map((el) => el.dataset.egTool as ToolKey);
+    let next: string[] = [];
+    if (toolbarOverflow) {
+      const widths = widthsRef.current;
+      const gap = parseFloat(window.getComputedStyle(toolbar).columnGap) || 0;
+      let visible = 0;
+      for (const el of items) {
+        if (el.hidden) continue;
+        const width = el.offsetWidth + gap;
+        widths.set(el.dataset.egTool as string, width);
+        visible += width;
+      }
+      const more = toolbar.querySelector<HTMLElement>(".eg-more");
+      if (more) widths.set("more", more.offsetWidth + gap);
+      const moreWidth = widths.get("more") ?? widths.values().next().value ?? 0;
+      const style = window.getComputedStyle(bar);
+      const padding = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0);
+      const counter = bar.querySelector<HTMLElement>(".eg-counter")?.offsetWidth ?? 0;
+      next = getToolbarOverflow({
+        available: bar.clientWidth - padding,
+        reserved: counter + toolbar.offsetWidth - visible - (more ? moreWidth : 0),
+        moreWidth,
+        items: keys.map((key) => ({
+          width: widths.get(key) ?? 0,
+          priority: TOOLBAR_PRIORITY[key],
+        })),
+      }).map((i) => keys[i] as string);
+    }
+    if (next.join() !== overflow.join()) setOverflow(next);
+    if (!next.length && menuOpen) setMenuOpen(false);
+  });
+
+  useIsoLayoutEffect(() => {
+    if (!menuOpen) return;
+    const items = menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+    (menuOpen === "first" ? items?.[0] : items?.[items.length - 1])?.focus();
+  }, [menuOpen]);
 
   if (!shown) return null;
 
@@ -876,6 +1041,7 @@ export function Lightbox({
       return { node: <p className="eg-error">{labels.loadError}</p>, builtIn: false };
     }
     const turn = rotate && isCurrent ? rotation : 0;
+    const transform = isCurrent ? mediaTransform : "";
     const sideways = turn % 180 !== 0;
     const footprint =
       sideways && box && naturalSize
@@ -901,11 +1067,11 @@ export function Lightbox({
         width={imageSize?.width}
         height={imageSize?.height}
         style={
-          imageSize || turn
+          imageSize || transform
             ? {
                 width: imageSize?.width,
                 height: imageSize?.height,
-                transform: turn ? `rotate(${turn}deg)` : undefined,
+                transform: transform || undefined,
               }
             : undefined
         }
@@ -981,83 +1147,237 @@ export function Lightbox({
     }
   };
 
+  const shareOptions = typeof share === "object" ? share : {};
+  const canShare =
+    !!share &&
+    (typeof navigator.share === "function" || typeof navigator.clipboard?.writeText === "function");
+
+  const shareCurrent = async () => {
+    const url = shareOptions.url?.(slide, active) ?? window.location.href;
+    const title = typeof slide.title === "string" ? slide.title : slide.alt;
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share(title ? { url, title } : { url });
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setNotice(labels.linkCopied);
+      setCopied(true);
+    } catch {
+      setNotice(labels.shareError);
+    }
+  };
+
+  const tools: Tool[] = [];
+  if (slideshowConfig && total > 1) {
+    tools.push({
+      key: "slideshow",
+      label: playing ? labels.pauseSlideshow : labels.playSlideshow,
+      icon: playing ? icons.pauseSlideshow : icons.playSlideshow,
+      onClick: toggleSlideshow,
+    });
+  }
+  if (zoomConfig && currentIsImage) {
+    tools.push(
+      {
+        key: "zoomIn",
+        label: labels.zoomIn,
+        icon: icons.zoomIn,
+        disabled: zoom.scale >= zoomConfig.maxScale,
+        onClick: () => zoom.zoomBy(zoomConfig.step),
+      },
+      {
+        key: "zoomOut",
+        label: labels.zoomOut,
+        icon: icons.zoomOut,
+        disabled: zoom.scale <= zoomConfig.minScale,
+        onClick: () => zoom.zoomBy(1 / zoomConfig.step),
+      },
+    );
+  }
+  if (rotate && currentIsImage) {
+    tools.push(
+      {
+        key: "rotateLeft",
+        label: labels.rotateLeft,
+        icon: icons.rotateLeft,
+        onClick: () => setRotation((value) => value - 90),
+      },
+      {
+        key: "rotateRight",
+        label: labels.rotateRight,
+        icon: icons.rotateRight,
+        onClick: () => setRotation((value) => value + 90),
+      },
+    );
+  }
+  if (flip && currentIsImage) {
+    tools.push(
+      {
+        key: "flipHorizontal",
+        label: labels.flipHorizontal,
+        icon: icons.flipHorizontal,
+        onClick: () => setFlipped((value) => flipMedia(value, rotation, "horizontal")),
+      },
+      {
+        key: "flipVertical",
+        label: labels.flipVertical,
+        icon: icons.flipVertical,
+        onClick: () => setFlipped((value) => flipMedia(value, rotation, "vertical")),
+      },
+    );
+  }
+  if (canShare) {
+    tools.push({
+      key: "share",
+      label: labels.share,
+      icon: copied ? icons.linkCopied : icons.share,
+      onClick: () => void shareCurrent(),
+    });
+  }
+  if (downloadUrl) {
+    tools.push({
+      key: "download",
+      label: labels.download,
+      icon: icons.download,
+      onClick: () => void saveCurrent(downloadUrl),
+    });
+  }
+  if (fullscreen && fs.supported) {
+    tools.push({
+      key: "fullscreen",
+      label: fs.active ? labels.exitFullscreen : labels.enterFullscreen,
+      icon: fs.active ? icons.exitFullscreen : icons.enterFullscreen,
+      onClick: fs.toggle,
+    });
+  }
+  const overflowTools = tools.filter((tool) => overflow.includes(tool.key));
+  const menuShown = !!menuOpen && overflowTools.length > 0;
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+    moreRef.current?.focus();
+  };
+
+  const openMenu = (which: "first" | "last") => {
+    const items = menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+    if (menuShown && items) (which === "first" ? items[0] : items[items.length - 1])?.focus();
+    else setMenuOpen(which);
+  };
+
+  const onMenuKeyDown = (e: ReactKeyboardEvent<HTMLElement>) => {
+    const items = [...(menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])];
+    const at = items.indexOf(document.activeElement as HTMLElement);
+    if (at < 0) {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        openMenu(e.key === "ArrowDown" ? "first" : "last");
+      } else if (e.key === "Escape" && menuShown) {
+        e.preventDefault();
+        setMenuOpen(false);
+      }
+      return;
+    }
+    const moves: Record<string, number> = {
+      ArrowDown: at + 1,
+      ArrowUp: at - 1,
+      Home: 0,
+      End: items.length - 1,
+    };
+    const move = moves[e.key];
+    if (move !== undefined) {
+      e.preventDefault();
+      items[wrapIndex(move, items.length)]?.focus();
+    } else if (e.key === "Escape" || e.key === "Tab") {
+      e.preventDefault();
+      closeMenu();
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      e.preventDefault();
+    }
+  };
+
   const toolbarButtons = (
     <>
-      {slideshowConfig && total > 1 ? (
+      {tools.map((tool) => (
         <button
+          key={tool.key}
           type="button"
           className={button("button", "")}
-          aria-label={playing ? labels.pauseSlideshow : labels.playSlideshow}
-          onClick={toggleSlideshow}
+          aria-label={tool.label}
+          disabled={tool.disabled}
+          hidden={overflow.includes(tool.key)}
+          data-eg-tool={tool.key}
+          onClick={tool.onClick}
         >
-          {playing ? icons.pauseSlideshow : icons.playSlideshow}
+          {tool.icon}
         </button>
-      ) : null}
-      {zoomConfig && currentIsImage ? (
-        <>
+      ))}
+      {overflowTools.length ? (
+        <div className="eg-more">
           <button
+            ref={moreRef}
             type="button"
             className={button("button", "")}
-            aria-label={labels.zoomIn}
-            disabled={zoom.scale >= zoomConfig.maxScale}
-            onClick={() => zoom.zoomBy(zoomConfig.step)}
+            aria-label={labels.more}
+            aria-haspopup="menu"
+            aria-expanded={menuShown}
+            aria-controls={menuShown ? menuId : undefined}
+            onClick={() => (menuShown ? setMenuOpen(false) : setMenuOpen("first"))}
+            onKeyDown={onMenuKeyDown}
           >
-            {icons.zoomIn}
+            {icons.more}
           </button>
-          <button
-            type="button"
-            className={button("button", "")}
-            aria-label={labels.zoomOut}
-            disabled={zoom.scale <= zoomConfig.minScale}
-            onClick={() => zoom.zoomBy(1 / zoomConfig.step)}
-          >
-            {icons.zoomOut}
-          </button>
-        </>
-      ) : null}
-      {rotate && currentIsImage ? (
-        <>
-          <button
-            type="button"
-            className={button("button", "")}
-            aria-label={labels.rotateLeft}
-            onClick={() => setRotation((value) => value - 90)}
-          >
-            {icons.rotateLeft}
-          </button>
-          <button
-            type="button"
-            className={button("button", "")}
-            aria-label={labels.rotateRight}
-            onClick={() => setRotation((value) => value + 90)}
-          >
-            {icons.rotateRight}
-          </button>
-        </>
-      ) : null}
-      {downloadUrl ? (
-        <button
-          type="button"
-          className={button("button", "")}
-          aria-label={labels.download}
-          onClick={() => void saveCurrent(downloadUrl)}
-        >
-          {icons.download}
-        </button>
-      ) : null}
-      {fullscreen && fs.supported ? (
-        <button
-          type="button"
-          className={button("button", "")}
-          aria-label={fs.active ? labels.exitFullscreen : labels.enterFullscreen}
-          onClick={fs.toggle}
-        >
-          {fs.active ? icons.exitFullscreen : icons.enterFullscreen}
-        </button>
+          {menuShown ? (
+            <>
+              <div
+                className="eg-menu-scrim"
+                aria-hidden="true"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  closeMenu();
+                }}
+              />
+              <div
+                ref={menuRef}
+                id={menuId}
+                role="menu"
+                aria-label={labels.more}
+                tabIndex={-1}
+                className={cn("menu", "eg-menu")}
+                onKeyDown={onMenuKeyDown}
+              >
+                {overflowTools.map((tool) => (
+                  <button
+                    key={tool.key}
+                    type="button"
+                    role="menuitem"
+                    tabIndex={-1}
+                    className={cn("menuItem", "eg-menu-item")}
+                    aria-disabled={tool.disabled || undefined}
+                    onClick={(e) => {
+                      if (tool.disabled) return;
+                      tool.onClick(e);
+                      closeMenu();
+                    }}
+                  >
+                    {tool.icon}
+                    <span>{tool.label}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : null}
+        </div>
       ) : null}
       {closeButton}
     </>
   );
+
+  const showPager = pager && total > 1;
 
   const dialog = (
     <div
@@ -1073,6 +1393,10 @@ export function Lightbox({
       data-zoomed={zoom.scale > 1 || undefined}
       data-playing={playing || undefined}
       data-thumbnails={showThumbnails || undefined}
+      data-pager={showPager || undefined}
+      data-idle={idleNow || undefined}
+      data-menu={menuShown || undefined}
+      dir={rtl ? "rtl" : "ltr"}
     >
       <div className={cn("backdrop", "eg-backdrop")} />
       <div
@@ -1103,11 +1427,11 @@ export function Lightbox({
           </div>
         ))}
       </div>
-      <div className={cn("topBar", "eg-top-bar")}>
+      <div ref={topBarRef} className={cn("topBar", "eg-top-bar")}>
         <div className={cn("counter", "eg-counter")}>
           {render.counter ? render.counter(active + 1, total) : labels.counter(active + 1, total)}
         </div>
-        <div className={cn("toolbar", "eg-toolbar")}>
+        <div ref={toolbarRef} className={cn("toolbar", "eg-toolbar")}>
           {render.toolbar ? render.toolbar(toolbarButtons, slide, active) : toolbarButtons}
         </div>
       </div>
@@ -1143,6 +1467,20 @@ export function Lightbox({
           style={{ "--eg-slideshow-interval": `${slideshowConfig.interval}ms` } as CSSProperties}
           aria-hidden="true"
         />
+      ) : null}
+      {showPager ? (
+        <nav className={cn("pager", "eg-pager")} aria-label={labels.pager}>
+          {slides.map((item, i) => (
+            <button
+              key={i}
+              type="button"
+              className={cn("pagerDot", "eg-pager-dot")}
+              aria-label={labels.pagerItem(i + 1, total, item)}
+              aria-current={i === active || undefined}
+              onClick={() => go(i)}
+            />
+          ))}
+        </nav>
       ) : null}
       {showThumbnails ? (
         <Thumbnails

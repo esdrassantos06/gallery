@@ -25,6 +25,14 @@ export const defaultLabels: LightboxLabels = {
   rotateRight: "Rotate right",
   download: "Download",
   downloadError: "This file could not be downloaded here, so it opened in a new tab.",
+  more: "More options",
+  flipHorizontal: "Flip horizontally",
+  flipVertical: "Flip vertically",
+  share: "Share",
+  linkCopied: "Link copied",
+  shareError: "This link could not be shared.",
+  pager: "Slides",
+  pagerItem: (index) => `Go to image ${index}`,
 };
 
 /** English defaults of the grids. */
