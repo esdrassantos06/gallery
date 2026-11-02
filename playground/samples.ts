@@ -1,0 +1,133 @@
+import type { Slide } from "../src";
+
+/** Generated sample images (ImageMagick plasma), clearly labelled as samples. */
+export const samples: Slide[] = [
+  {
+    src: "/samples/sample-01-full.jpg",
+    srcSet:
+      "/samples/sample-01-640.jpg 640w, /samples/sample-01-1280.jpg 1280w, /samples/sample-01-full.jpg 1600w",
+    width: 1600,
+    height: 1067,
+    alt: "Sample 01: abstract colour field",
+    title: "Sample 01 · Harbour at dusk",
+    description: "Wide 3:2 frame. Tests a landscape fit.",
+    thumbnail: "/samples/sample-01-thumb.jpg",
+  },
+  {
+    src: "/samples/sample-02-full.jpg",
+    srcSet: "/samples/sample-02-640.jpg 640w, /samples/sample-02-1280.jpg 1067w",
+    width: 1067,
+    height: 1600,
+    alt: "Sample 02: abstract colour field",
+    title: "Sample 02 · Teal column",
+    description: "Tall 2:3 frame. Tests a portrait fit.",
+    thumbnail: "/samples/sample-02-thumb.jpg",
+  },
+  {
+    src: "/samples/sample-03-full.jpg",
+    srcSet:
+      "/samples/sample-03-640.jpg 640w, /samples/sample-03-1280.jpg 1280w, /samples/sample-03-full.jpg 1600w",
+    width: 1600,
+    height: 1600,
+    alt: "Sample 03: abstract colour field",
+    title: "Sample 03 · Square study",
+    description: "1:1 frame.",
+    thumbnail: "/samples/sample-03-thumb.jpg",
+  },
+  {
+    src: "/samples/sample-04-full.jpg",
+    srcSet:
+      "/samples/sample-04-640.jpg 640w, /samples/sample-04-1280.jpg 1280w, /samples/sample-04-full.jpg 1600w",
+    width: 1600,
+    height: 900,
+    alt: "Sample 04: abstract colour field",
+    title: "Sample 04 · Orange horizon",
+    description: "16:9 frame, the widest in the set.",
+    thumbnail: "/samples/sample-04-thumb.jpg",
+  },
+  {
+    src: "/samples/sample-05-full.jpg",
+    srcSet: "/samples/sample-05-640.jpg 640w, /samples/sample-05-1280.jpg 1280w",
+    width: 1280,
+    height: 1600,
+    alt: "Sample 05: abstract colour field",
+    title: "Sample 05 · Olive portrait",
+    description: "4:5 frame.",
+    thumbnail: "/samples/sample-05-thumb.jpg",
+  },
+  {
+    src: "/samples/sample-06-full.jpg",
+    srcSet:
+      "/samples/sample-06-640.jpg 640w, /samples/sample-06-1280.jpg 1280w, /samples/sample-06-full.jpg 1600w",
+    width: 1600,
+    height: 1067,
+    alt: "Sample 06: abstract colour field",
+    title: "Sample 06 · Clay field",
+    description: "3:2 frame without a description override.",
+    thumbnail: "/samples/sample-06-thumb.jpg",
+  },
+  {
+    src: "/samples/sample-07-full.jpg",
+    srcSet:
+      "/samples/sample-07-640.jpg 640w, /samples/sample-07-1280.jpg 1280w, /samples/sample-07-full.jpg 1600w",
+    width: 1600,
+    height: 1200,
+    alt: "Sample 07: abstract colour field",
+    title: "Sample 07 · Night water",
+    description: "4:3 frame.",
+    thumbnail: "/samples/sample-07-thumb.jpg",
+  },
+  {
+    src: "/samples/sample-08-full.jpg",
+    srcSet: "/samples/sample-08-640.jpg 640w, /samples/sample-08-1280.jpg 1067w",
+    width: 1067,
+    height: 1600,
+    alt: "Sample 08: abstract colour field",
+    title: "Sample 08 · Rust tower",
+    description: "2:3 frame.",
+    thumbnail: "/samples/sample-08-thumb.jpg",
+  },
+  {
+    src: "/samples/sample-09-full.jpg",
+    srcSet:
+      "/samples/sample-09-640.jpg 640w, /samples/sample-09-1280.jpg 1280w, /samples/sample-09-full.jpg 1600w",
+    width: 1600,
+    height: 900,
+    alt: "Sample 09: abstract colour field",
+    title: "Sample 09 · Lavender band",
+    description: "16:9 frame.",
+    thumbnail: "/samples/sample-09-thumb.jpg",
+  },
+  {
+    src: "/samples/sample-10-full.jpg",
+    srcSet:
+      "/samples/sample-10-640.jpg 640w, /samples/sample-10-1280.jpg 1280w, /samples/sample-10-full.jpg 1600w",
+    width: 1600,
+    height: 1067,
+    alt: "Sample 10: abstract colour field",
+    title: "Sample 10 · Green slope",
+    description: "3:2 frame.",
+    thumbnail: "/samples/sample-10-thumb.jpg",
+  },
+  {
+    src: "/samples/sample-11-full.jpg",
+    srcSet: "/samples/sample-11-640.jpg 640w, /samples/sample-11-1280.jpg 1200w",
+    width: 1200,
+    height: 1600,
+    alt: "Sample 11: abstract colour field",
+    title: "Sample 11 · Ember column",
+    description: "3:4 frame.",
+    thumbnail: "/samples/sample-11-thumb.jpg",
+  },
+  {
+    src: "/samples/sample-12-full.jpg",
+    srcSet:
+      "/samples/sample-12-640.jpg 640w, /samples/sample-12-1280.jpg 1280w, /samples/sample-12-full.jpg 1600w",
+    width: 1600,
+    height: 1067,
+    alt: "Sample 12: abstract colour field",
+    title: "Sample 12 · Grey sea",
+    description: "3:2 frame.",
+    thumbnail: "/samples/sample-12-thumb.jpg",
+  },
+];
