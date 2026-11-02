@@ -3,6 +3,7 @@ name: Publish
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -35,5 +36,6 @@ jobs:
         run: npx playwright install-deps chromium
       - run: npm run lint
       - run: npm run e2e
+      - run: npm run build
       - run: npm run check:package
       - run: npm publish
