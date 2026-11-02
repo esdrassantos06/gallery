@@ -8,6 +8,7 @@
     "dev": "next dev",
     "prebuild": "npm run assets",
     "build": "next build",
+    "postbuild": "node scripts/csp.js",
     "start": "serve out",
     "typecheck": "next typegen && tsc --noEmit"
   },

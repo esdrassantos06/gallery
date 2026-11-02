@@ -25,6 +25,32 @@ Content-Security-Policy:
 - Downloads from another origin use `fetch`, so add that origin to `connect-src` if you enable [downloads](/docs/download). If it is blocked, the file opens in a new tab instead.
 - The YouTube and Vimeo players load their own scripts and images inside their frames. Those requests follow the provider's policy, not yours.
 
-## Tested under a strict policy
+## Grids
 
-The project's demo site is served with `default-src 'self'`, no `'unsafe-inline'`, and the whole site runs under it, lightbox included.
+The [grids](/docs/grids) render on the server with their item positions as `style` attributes. A `style-src` without `'unsafe-inline'` blocks those attributes, so the grid looks unstyled until the client renders it again. Pick one:
+
+- Render the grid on the client only, for example behind a mounted flag.
+- Allow each attribute by hash with `'unsafe-hashes'`, if your pages are static. This site does that.
+- Allow `'unsafe-inline'` in `style-src`.
+
+`GalleryFilter` and the lightbox need none of this.
+
+## This site
+
+This site is a static Next.js export, which inlines a few scripts, style tags and style attributes in every page. Instead of `'unsafe-inline'`, a build step hashes each of them and adds a policy to every page:
+
+```http
+default-src 'self';
+script-src 'self' 'sha256-...';
+style-src 'self' 'unsafe-hashes' 'sha256-...';
+img-src 'self' data:;
+media-src 'self';
+font-src 'self';
+frame-src 'self';
+connect-src 'self';
+object-src 'none';
+base-uri 'self';
+form-action 'self'
+```
+
+The server adds `frame-ancestors 'self'`, which a `<meta>` policy cannot set. Every demo on the site, lightbox, grids, video and slideshow included, runs under it with no violations. `'unsafe-hashes'` only lets through the exact `style` attributes that were hashed, and only because the grids and Next.js render them on the server.
