@@ -13,11 +13,11 @@ updates:
     # Majors wait until eslint-plugin-jsx-a11y and typescript-eslint support them.
     ignore:
       - dependency-name: eslint
-        update-types: ['version-update:semver-major']
-      - dependency-name: '@eslint/js'
-        update-types: ['version-update:semver-major']
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@eslint/js"
+        update-types: ["version-update:semver-major"]
       - dependency-name: typescript
-        update-types: ['version-update:semver-major']
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
