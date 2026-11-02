@@ -42,6 +42,12 @@ An accessible, themeable image lightbox for React, with optional masonry, justif
 - [Deep linking](#deep-linking)
 - [Rotation](#rotation)
 - [Download](#download)
+- [Flip](#flip)
+- [Share](#share)
+- [Toolbar overflow menu](#toolbar-overflow-menu)
+- [Idle controls](#idle-controls)
+- [Pager dots](#pager-dots)
+- [Right-to-left](#right-to-left)
 - [Grids and filter](#grids-and-filter)
 - [Accessibility](#accessibility)
 - [Content Security Policy](#content-security-policy)
@@ -68,6 +74,13 @@ An accessible, themeable image lightbox for React, with optional masonry, justif
 - Deep links through the URL hash (`#galeria-3`) with back-button close and exact URL restore.
 - Rotation in quarter turns that keeps fitting and zoom correct.
 - Downloads that keep the file name across origins and fall back to a new tab when the server refuses.
+- Horizontal and vertical flip that read correctly on rotated images.
+- A share button through the Web Share API, with a copy-link fallback and no third-party scripts.
+- Toolbar buttons that do not fit on a narrow screen move into an accessible "More options" menu, zoom first.
+- Controls that fade out after a moment of inactivity and come back on any input.
+- Pager dots as a lighter alternative or complement to the thumbnail strip.
+- Right-to-left layouts: arrows, swipes, arrow keys, thumbnails, dots and toolbar mirror.
+- Pinch to close: pinching the image under its fitted size and letting go closes the viewer.
 - Optional masonry, justified and uniform grids and a category filter, each usable with or without the lightbox.
 - Only the current slide and a configurable number of neighbors are mounted, so nothing else loads.
 - `srcset` and `sizes`, explicit image dimensions, and one `ResizeObserver`.
@@ -173,7 +186,7 @@ Import `@esdrassantos06/gallery/styles.css` in `app/layout.tsx` or in the client
 | ---------------------- | ----------------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `slides`               | `Slide[]`                                             | required        | Items to show, in order.                                                                                                                              |
 | `open`                 | `boolean`                                             | required        | Whether the lightbox is shown. Setting it to `false` plays the exit animation before unmounting.                                                      |
-| `onClose`              | `() => void`                                          | required        | Called when the user asks to close (Escape, close button, backdrop click, downward swipe). Set `open` to `false` in response.                         |
+| `onClose`              | `() => void`                                          | required        | Called when the user asks to close (Escape, close button, backdrop click, downward swipe, pinch to close). Set `open` to `false` in response.         |
 | `index`                | `number`                                              | `0`             | Current slide. Read when opening and whenever it changes while open.                                                                                  |
 | `onIndexChange`        | `(index: number) => void`                             |                 | Called with the new index whenever the user changes slide.                                                                                            |
 | `onAfterOpen`          | `() => void`                                          |                 | Called once the open animation has finished.                                                                                                          |
@@ -192,6 +205,13 @@ Import `@esdrassantos06/gallery/styles.css` in `app/layout.tsx` or in the client
 | `slideshow`            | `boolean \| SlideshowOptions`                         | `false`         | Add a slideshow button. See [Slideshow](#slideshow).                                                                                                  |
 | `rotate`               | `boolean`                                             | `false`         | Add rotate left and right buttons for images. See [Rotation](#rotation).                                                                              |
 | `download`             | `boolean \| DownloadOptions`                          | `false`         | Add a download button for images and video files. See [Download](#download).                                                                          |
+| `flip`                 | `boolean`                                             | `false`         | Add flip horizontally and vertically buttons for images. See [Flip](#flip).                                                                           |
+| `share`                | `boolean \| ShareOptions`                             | `false`         | Add a share button. See [Share](#share).                                                                                                              |
+| `toolbarOverflow`      | `boolean`                                             | `true`          | Move toolbar buttons that do not fit into a "More options" menu. See [Toolbar overflow menu](#toolbar-overflow-menu).                                 |
+| `idle`                 | `boolean \| number`                                   | `false`         | Fade the controls out after this many ms without input (`true` is 3000). See [Idle controls](#idle-controls).                                         |
+| `pager`                | `boolean`                                             | `false`         | Show one dot per slide. See [Pager dots](#pager-dots).                                                                                                |
+| `pinchToClose`         | `boolean`                                             | `true`          | Close when a pinch shrinks the image under its fitted size and lets go. Needs `zoom`.                                                                 |
+| `dir`                  | `"ltr" \| "rtl"`                                      | inherited       | Text direction. Read from `container` (usually `<html dir>`) when omitted. See [Right-to-left](#right-to-left).                                       |
 | `getThumbnail`         | `(index: number) => HTMLElement \| null \| undefined` |                 | Element that opened a slide. Animations start and end there and focus returns to it. Without it, focus returns to the element focused before opening. |
 | `labels`               | `Partial<LightboxLabels>`                             | English         | See [Labels](#labels-and-translations).                                                                                                               |
 | `icons`                | `Partial<LightboxIcons>`                              | built-in        | See [Icons](#icons).                                                                                                                                  |
@@ -222,22 +242,22 @@ Import `@esdrassantos06/gallery/styles.css` in `app/layout.tsx` or in the client
 
 ### `LightboxClassNames` parts
 
-`root`, `backdrop`, `topBar`, `counter`, `toolbar`, `button`, `arrow`, `stage`, `slide`, `image`, `caption`, `thumbnails`, `thumbnail`, `video`, `embed`, `progress`.
+`root`, `backdrop`, `topBar`, `counter`, `toolbar`, `button`, `arrow`, `stage`, `slide`, `image`, `caption`, `thumbnails`, `thumbnail`, `video`, `embed`, `progress`, `menu`, `menuItem`, `pager`, `pagerDot`.
 
 ### Other exports
 
-| Export                                           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `MasonryGrid`, `JustifiedGrid`, `UniformGrid`    | Optional thumbnail grids. See [Grids and filter](#grids-and-filter).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `GalleryFilter`                                  | Optional category filter. See [Grids and filter](#grids-and-filter).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `defaultGridLabels`, `defaultFilterLabels`       | The English labels of the grids and the filter.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `defaultLabels`                                  | The English labels, to extend instead of rewriting.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `defaultIcons`                                   | The built-in icons.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `Icon`                                           | The SVG base used by the built-in icons (24 × 24 grid, 1.5px stroke, `currentColor`). Use it to draw matching icons.                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `fitContain(width, height, boxWidth, boxHeight)` | The fit math the lightbox uses: scales a size into a box without upscaling.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `getMedia(slide, { autoplay? })`                 | How a slide renders: `image`, `video`, `youtube`, `vimeo` or `iframe`, with the embed URL.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| `useLightboxHash(prefix, { count? })`            | `[index, setIndex]` kept in the URL hash. See [Deep linking](#deep-linking).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Types                                            | `Slide`, `VideoSource`, `VideoTrack`, `Transition`, `ZoomOptions`, `VideoOptions`, `SlideshowOptions`, `DownloadOptions`, `LightboxHashOptions`, `LightboxProps`, `LightboxLabels`, `LightboxIcons`, `LightboxClassNames`, `LightboxRender`, `RenderSlideProps`, `Media`, `MediaKind`, `Size`, and for the grids and filter `GridProps`, `MasonryGridProps`, `JustifiedGridProps`, `UniformGridProps`, `GridHandle`, `GridComponent`, `GridLabels`, `GridClassNames`, `GridRender`, `RenderGridImageProps`, `Responsive`, `GalleryFilterProps`, `FilterLabels`, `FilterClassNames`. |
+| Export                                           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MasonryGrid`, `JustifiedGrid`, `UniformGrid`    | Optional thumbnail grids. See [Grids and filter](#grids-and-filter).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `GalleryFilter`                                  | Optional category filter. See [Grids and filter](#grids-and-filter).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `defaultGridLabels`, `defaultFilterLabels`       | The English labels of the grids and the filter.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `defaultLabels`                                  | The English labels, to extend instead of rewriting.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `defaultIcons`                                   | The built-in icons.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `Icon`                                           | The SVG base used by the built-in icons (24 × 24 grid, 1.5px stroke, `currentColor`). Use it to draw matching icons.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `fitContain(width, height, boxWidth, boxHeight)` | The fit math the lightbox uses: scales a size into a box without upscaling.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `getMedia(slide, { autoplay? })`                 | How a slide renders: `image`, `video`, `youtube`, `vimeo` or `iframe`, with the embed URL.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `useLightboxHash(prefix, { count? })`            | `[index, setIndex]` kept in the URL hash. See [Deep linking](#deep-linking).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Types                                            | `Slide`, `VideoSource`, `VideoTrack`, `Transition`, `ZoomOptions`, `VideoOptions`, `SlideshowOptions`, `DownloadOptions`, `ShareOptions`, `LightboxHashOptions`, `LightboxProps`, `LightboxLabels`, `LightboxIcons`, `LightboxClassNames`, `LightboxRender`, `RenderSlideProps`, `Media`, `MediaKind`, `Size`, and for the grids and filter `GridProps`, `MasonryGridProps`, `JustifiedGridProps`, `UniformGridProps`, `GridHandle`, `GridComponent`, `GridLabels`, `GridClassNames`, `GridRender`, `RenderGridImageProps`, `Responsive`, `GalleryFilterProps`, `FilterLabels`, `FilterClassNames`. |
 
 ## Labels and translations
 
@@ -293,10 +313,18 @@ const labels = {
 | `rotateRight`                         | `Rotate right`                                                       |
 | `download`                            | `Download`                                                           |
 | `downloadError`                       | `This file could not be downloaded here, so it opened in a new tab.` |
+| `more`                                | `More options`                                                       |
+| `flipHorizontal`                      | `Flip horizontally`                                                  |
+| `flipVertical`                        | `Flip vertically`                                                    |
+| `share`                               | `Share`                                                              |
+| `linkCopied`                          | `Link copied`                                                        |
+| `shareError`                          | `This link could not be shared.`                                     |
+| `pager`                               | `Slides`                                                             |
+| `pagerItem(index, total, slide)`      | `Go to image 3`                                                      |
 
 ## Icons
 
-The built-in icons are drawn for this package: 24 × 24, 1.5px round stroke, `currentColor`. Replace any of them with any React node: `close`, `previous`, `next`, `zoomIn`, `zoomOut`, `enterFullscreen`, `exitFullscreen`, `playSlideshow`, `pauseSlideshow`, `rotateLeft`, `rotateRight` and `download`. The `Icon` export gives you the same frame:
+The built-in icons are drawn for this package: 24 × 24, 1.5px round stroke, `currentColor`. Replace any of them with any React node: `close`, `previous`, `next`, `zoomIn`, `zoomOut`, `enterFullscreen`, `exitFullscreen`, `playSlideshow`, `pauseSlideshow`, `rotateLeft`, `rotateRight`, `download`, `more`, `flipHorizontal`, `flipVertical`, `share` and `linkCopied` (shown on the share button for a moment after a copy). Arrow icons are mirrored in right-to-left layouts. The `Icon` export gives you the same frame:
 
 ```tsx
 import { Icon, Lightbox } from "@esdrassantos06/gallery";
@@ -368,54 +396,65 @@ The lightbox is neutral by default: black backdrop, counter top left, toolbar to
 
 ### CSS variables
 
-| Variable                      | Default                                                                  | Used for                                              |
-| ----------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------- |
-| `--eg-background`             | `#000`                                                                   | Backdrop                                              |
-| `--eg-color`                  | `#fff`                                                                   | Text and icons                                        |
-| `--eg-color-muted`            | `rgb(255 255 255 / 0.72)`                                                | Counter and description                               |
-| `--eg-focus-color`            | `#fff`                                                                   | Focus ring                                            |
-| `--eg-button-background`      | `transparent`                                                            | Toolbar buttons                                       |
-| `--eg-arrow-background`       | `rgb(0 0 0 / 0.45)`                                                      | Arrows                                                |
-| `--eg-caption-background`     | bottom gradient                                                          | Caption                                               |
-| `--eg-selection-background`   | `rgb(255 255 255 / 0.28)`                                                | Text selection                                        |
-| `--eg-font-family`            | `inherit`                                                                | All text                                              |
-| `--eg-font-size`              | `0.9375rem`                                                              | Caption text                                          |
-| `--eg-line-height`            | `1.5`                                                                    | All text                                              |
-| `--eg-title-font-size`        | `1rem`                                                                   | Caption title                                         |
-| `--eg-title-font-weight`      | `600`                                                                    | Caption title                                         |
-| `--eg-counter-font-size`      | `0.875rem`                                                               | Counter                                               |
-| `--eg-spacing`                | `16px` (`12px` under 640px)                                              | Outer spacing                                         |
-| `--eg-gap`                    | `24px`                                                                   | Gap between slides while sliding                      |
-| `--eg-radius`                 | `4px`                                                                    | Buttons and focus ring                                |
-| `--eg-top-bar-height`         | `56px`                                                                   | Top bar                                               |
-| `--eg-button-size`            | `44px`                                                                   | Toolbar buttons                                       |
-| `--eg-arrow-size`             | `48px` (`44px` under 640px)                                              | Arrows                                                |
-| `--eg-icon-size`              | `24px`                                                                   | Icons                                                 |
-| `--eg-stage-padding`          | top bar height and room for the arrows (top bar height only under 640px) | Space around the image                                |
-| `--eg-caption-max-width`      | `65ch`                                                                   | Caption line length                                   |
-| `--eg-thumbnail-width`        | `72px` (`56px` under 640px)                                              | Thumbnail width                                       |
-| `--eg-thumbnail-height`       | `54px` (`42px` under 640px)                                              | Thumbnail height                                      |
-| `--eg-thumbnail-gap`          | `6px`                                                                    | Space between thumbnails                              |
-| `--eg-thumbnail-radius`       | `var(--eg-radius)`                                                       | Thumbnail corners                                     |
-| `--eg-thumbnail-opacity`      | `0.5`                                                                    | Thumbnails other than the current one                 |
-| `--eg-thumbnail-active-color` | `var(--eg-color)`                                                        | Outline of the current thumbnail                      |
-| `--eg-thumbnails-height`      | thumbnail height plus spacing                                            | Space reserved for the strip                          |
-| `--eg-spinner-size`           | `32px`                                                                   | Loading indicator                                     |
-| `--eg-spinner-delay`          | `400ms`                                                                  | How long an image may load before the indicator shows |
-| `--eg-media-background`       | `#111`                                                                   | Behind videos, embeds and posters                     |
-| `--eg-progress-height`        | `2px`                                                                    | Slideshow progress bar                                |
-| `--eg-progress-color`         | `var(--eg-color)`                                                        | Slideshow progress bar                                |
-| `--eg-button-opacity`         | `0.8`                                                                    | Buttons at rest                                       |
-| `--eg-button-opacity-hover`   | `1`                                                                      | Buttons on hover and focus                            |
-| `--eg-disabled-opacity`       | `0.32`                                                                   | Disabled arrows                                       |
-| `--eg-drag-shrink`            | `0.2`                                                                    | How much the image shrinks while dragged down         |
-| `--eg-duration`               | `320ms`                                                                  | Every animation, including the open and close flight  |
-| `--eg-easing`                 | `cubic-bezier(0.2, 0, 0, 1)`                                             | Every animation                                       |
-| `--eg-z-index`                | `1000`                                                                   | Stacking                                              |
+| Variable                          | Default                                                                  | Used for                                              |
+| --------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------- |
+| `--eg-background`                 | `#000`                                                                   | Backdrop                                              |
+| `--eg-color`                      | `#fff`                                                                   | Text and icons                                        |
+| `--eg-color-muted`                | `rgb(255 255 255 / 0.72)`                                                | Counter and description                               |
+| `--eg-focus-color`                | `#fff`                                                                   | Focus ring                                            |
+| `--eg-button-background`          | `transparent`                                                            | Toolbar buttons                                       |
+| `--eg-arrow-background`           | `rgb(0 0 0 / 0.45)`                                                      | Arrows                                                |
+| `--eg-caption-background`         | bottom gradient                                                          | Caption                                               |
+| `--eg-selection-background`       | `rgb(255 255 255 / 0.28)`                                                | Text selection                                        |
+| `--eg-font-family`                | `inherit`                                                                | All text                                              |
+| `--eg-font-size`                  | `0.9375rem`                                                              | Caption text                                          |
+| `--eg-line-height`                | `1.5`                                                                    | All text                                              |
+| `--eg-title-font-size`            | `1rem`                                                                   | Caption title                                         |
+| `--eg-title-font-weight`          | `600`                                                                    | Caption title                                         |
+| `--eg-counter-font-size`          | `0.875rem`                                                               | Counter                                               |
+| `--eg-spacing`                    | `16px` (`12px` under 640px)                                              | Outer spacing                                         |
+| `--eg-gap`                        | `24px`                                                                   | Gap between slides while sliding                      |
+| `--eg-radius`                     | `4px`                                                                    | Buttons and focus ring                                |
+| `--eg-top-bar-height`             | `56px`                                                                   | Top bar                                               |
+| `--eg-button-size`                | `44px`                                                                   | Toolbar buttons                                       |
+| `--eg-arrow-size`                 | `48px` (`44px` under 640px)                                              | Arrows                                                |
+| `--eg-icon-size`                  | `24px`                                                                   | Icons                                                 |
+| `--eg-stage-padding`              | top bar height and room for the arrows (top bar height only under 640px) | Space around the image                                |
+| `--eg-caption-max-width`          | `65ch`                                                                   | Caption line length                                   |
+| `--eg-thumbnail-width`            | `72px` (`56px` under 640px)                                              | Thumbnail width                                       |
+| `--eg-thumbnail-height`           | `54px` (`42px` under 640px)                                              | Thumbnail height                                      |
+| `--eg-thumbnail-gap`              | `6px`                                                                    | Space between thumbnails                              |
+| `--eg-thumbnail-radius`           | `var(--eg-radius)`                                                       | Thumbnail corners                                     |
+| `--eg-thumbnail-opacity`          | `0.5`                                                                    | Thumbnails other than the current one                 |
+| `--eg-thumbnail-active-color`     | `var(--eg-color)`                                                        | Outline of the current thumbnail                      |
+| `--eg-thumbnails-height`          | thumbnail height plus spacing                                            | Space reserved for the strip                          |
+| `--eg-spinner-size`               | `32px`                                                                   | Loading indicator                                     |
+| `--eg-spinner-delay`              | `400ms`                                                                  | How long an image may load before the indicator shows |
+| `--eg-media-background`           | `#111`                                                                   | Behind videos, embeds and posters                     |
+| `--eg-progress-height`            | `2px`                                                                    | Slideshow progress bar                                |
+| `--eg-progress-color`             | `var(--eg-color)`                                                        | Slideshow progress bar                                |
+| `--eg-menu-background`            | `rgb(24 24 24 / 0.96)`                                                   | Overflow menu                                         |
+| `--eg-menu-color`                 | `var(--eg-color)`                                                        | Overflow menu text and icons                          |
+| `--eg-menu-radius`                | `8px`                                                                    | Overflow menu corners                                 |
+| `--eg-menu-shadow`                | `0 8px 24px rgb(0 0 0 / 0.4)`                                            | Overflow menu shadow                                  |
+| `--eg-menu-item-height`           | `44px`                                                                   | Overflow menu items                                   |
+| `--eg-menu-item-hover-background` | `rgb(255 255 255 / 0.1)`                                                 | Hovered and focused menu item                         |
+| `--eg-pager-height`               | `40px`                                                                   | Space reserved for the pager dots                     |
+| `--eg-pager-dot-size`             | `8px`                                                                    | Visible dot (the button is at least 24 × 24px)        |
+| `--eg-pager-dot-gap`              | `4px`                                                                    | Space on each side of a dot                           |
+| `--eg-pager-dot-color`            | `rgb(255 255 255 / 0.4)`                                                 | Dots other than the current one                       |
+| `--eg-pager-dot-active-color`     | `var(--eg-color)`                                                        | Current dot                                           |
+| `--eg-button-opacity`             | `0.8`                                                                    | Buttons at rest                                       |
+| `--eg-button-opacity-hover`       | `1`                                                                      | Buttons on hover and focus                            |
+| `--eg-disabled-opacity`           | `0.32`                                                                   | Disabled arrows                                       |
+| `--eg-drag-shrink`                | `0.2`                                                                    | How much the image shrinks while dragged down         |
+| `--eg-duration`                   | `320ms`                                                                  | Every animation, including the open and close flight  |
+| `--eg-easing`                     | `cubic-bezier(0.2, 0, 0, 1)`                                             | Every animation                                       |
+| `--eg-z-index`                    | `1000`                                                                   | Stacking                                              |
 
 ### Class names
 
-Every part has a stable class: `eg-root`, `eg-backdrop`, `eg-stage`, `eg-slide`, `eg-zoom`, `eg-rotate`, `eg-image`, `eg-video`, `eg-embed`, `eg-embed-poster`, `eg-error`, `eg-top-bar`, `eg-counter`, `eg-toolbar`, `eg-button`, `eg-arrow`, `eg-arrow-prev`, `eg-arrow-next`, `eg-caption`, `eg-caption-title`, `eg-caption-description`, `eg-thumbnails`, `eg-thumbnails-track`, `eg-thumbnails-item`, `eg-thumbnail`, `eg-thumbnail-image`, `eg-progress`, `eg-icon`, `eg-sr-only`.
+Every part has a stable class: `eg-root`, `eg-backdrop`, `eg-stage`, `eg-slide`, `eg-zoom`, `eg-rotate`, `eg-image`, `eg-video`, `eg-embed`, `eg-embed-poster`, `eg-error`, `eg-top-bar`, `eg-counter`, `eg-toolbar`, `eg-button`, `eg-arrow`, `eg-arrow-prev`, `eg-arrow-next`, `eg-caption`, `eg-caption-title`, `eg-caption-description`, `eg-thumbnails`, `eg-thumbnails-track`, `eg-thumbnails-item`, `eg-thumbnail`, `eg-thumbnail-image`, `eg-progress`, `eg-more`, `eg-menu`, `eg-menu-item`, `eg-menu-scrim`, `eg-pager`, `eg-pager-dot`, `eg-icon`, `eg-sr-only`.
 
 State is exposed as attributes you can select on:
 
@@ -430,6 +469,10 @@ State is exposed as attributes you can select on:
 | `data-status`     | `.eg-slide` | `loading`, `loaded`, `error` (built-in images only)          |
 | `data-gesture`    | `.eg-zoom`  | present while a pinch, pan or wheel zoom follows the pointer |
 | `data-playing`    | `.eg-root`  | present while the slideshow plays                            |
+| `data-pager`      | `.eg-root`  | present when the pager dots are shown                        |
+| `data-idle`       | `.eg-root`  | present while idle controls are hidden                       |
+| `data-menu`       | `.eg-root`  | present while the overflow menu is open                      |
+| `dir`             | `.eg-root`  | `ltr`, `rtl`                                                 |
 
 ## Transitions
 
@@ -453,9 +496,9 @@ With `prefers-reduced-motion: reduce`, durations become zero: the lightbox opens
 
 | Key                        | Action                                                 |
 | -------------------------- | ------------------------------------------------------ |
-| `ArrowRight` / `ArrowLeft` | Next / previous slide                                  |
+| `ArrowRight` / `ArrowLeft` | Next / previous slide (previous / next in `rtl`)       |
 | `+` or `=` / `-`           | Zoom in / out by `zoom.step`                           |
-| `0`                        | Reset zoom and rotation                                |
+| `0`                        | Reset zoom, rotation and flip                          |
 | `Home` / `End`             | First / last slide                                     |
 | `Escape`                   | Close                                                  |
 | `Tab` / `Shift+Tab`        | Move between the dialog's buttons (focus stays inside) |
@@ -470,6 +513,8 @@ Gestures use Pointer Events on the stage, so they work with touch, pen and mouse
 - **Vertical drag:** moves and shrinks the image and fades the backdrop. Releasing after a drag of 20% of the viewport height, or a flick projected past 40%, closes. Short taps never close.
 - A drag never counts as a backdrop click.
 - **Pinch, double tap and drag while zoomed** are described in [Zoom](#zoom). While the image is magnified, a one-finger drag pans it instead of changing slide or closing.
+- **Pinch to close:** a pinch that starts at fit, never zooms in, and is released under 90% of the fitted size (of `zoom.minScale` when that is smaller) closes the viewer. Below fit the image follows the fingers instead of resisting, as the cue. A pinch that zoomed in first only settles back. `pinchToClose={false}` turns it off.
+- In right-to-left layouts, a drag to the right goes to the next slide.
 
 Turn gestures off with `swipe={false}`.
 
@@ -701,6 +746,57 @@ const [index, setIndex] = useLightboxHash("galeria", { count: slides.length });
 - `slide.download` points the button at another URL, for example the original file instead of a resized `src`; `slide.download = false` hides it on that slide.
 - The file name comes from `slide.downloadName`, then `download.filename(slide, index)`, then the last segment of the URL.
 
+## Flip
+
+```tsx
+<Lightbox flip rotate {...props} />
+```
+
+`flip` adds flip horizontally and vertically buttons for images. A flip always mirrors across the screen axis named on the button, also on a rotated image, where the image's own axes are swapped. Flips compose with rotation and zoom, animate on `transform` and reset on slide change, when the viewer closes and with the `0` key.
+
+## Share
+
+```tsx
+const [index, setIndex] = useLightboxHash("galeria", { count: slides.length });
+
+<Lightbox share {...props} />;
+<Lightbox
+  share={{ url: (slide, index) => `https://example.com/photos/${index + 1}` }}
+  {...props}
+/>;
+```
+
+`share` (off by default) adds a share button. It opens the system share sheet through `navigator.share` with the link and the slide's string `title` (or `alt`). Where the share sheet is missing, the link is copied with `navigator.clipboard`, the icon turns into a check for a moment and `labels.linkCopied` is announced. Cancelling the share sheet does nothing. When neither API exists (for example over plain `http`), the button is not rendered.
+
+The link is `window.location.href` by default, which points at the open slide when you use [`useLightboxHash`](#deep-linking). No third-party script, SDK or share URL is involved.
+
+## Toolbar overflow menu
+
+On a narrow screen the toolbar buttons that do not fit beside the counter move into a "More options" menu, so the counter never collides with them and close always stays in reach. Zoom in and out go first, since pinch, double tap and the wheel do the same; rotate and flip next; fullscreen after them; slideshow, share and download stay longest. The layout is measured with the stage's `ResizeObserver`, so it updates on rotation and resize. Custom content from `render.toolbar` stays in the row and its width is accounted for.
+
+The menu follows the WAI-ARIA menu button pattern: the button has `aria-haspopup="menu"` and `aria-expanded`; Enter, Space or ArrowDown open it on the first item and ArrowUp on the last; ArrowUp, ArrowDown, Home and End move between items; Escape and Tab close it and return focus to the button; activating an item runs it and closes the menu. A press anywhere outside only dismisses the menu, it never closes the viewer. `toolbarOverflow={false}` keeps every button in the row.
+
+## Idle controls
+
+```tsx
+<Lightbox idle {...props} />
+<Lightbox idle={5000} {...props} />
+```
+
+With `idle` the top bar, arrows, caption, thumbnails and pager fade out after 3 seconds (or the number of ms you pass) without pointer movement, touch, wheel or key presses, and the pointer is hidden over the image. Any of those inputs brings them back, and the tap that wakes them never closes the viewer. They stay while a control has keyboard focus, while the pointer rests on one and while the overflow menu is open. The fade uses `opacity` and `--eg-duration`, so it is instant under `prefers-reduced-motion`. Hidden controls are still reachable with Tab, which shows them again.
+
+## Pager dots
+
+```tsx
+<Lightbox pager thumbnails={false} {...props} />
+```
+
+`pager` adds a row of dots, one per slide, above the thumbnail strip or in its place. It is a `nav` named by `labels.pager`; each dot is a button named by `labels.pagerItem` with `aria-current="true"` on the current one, and at least 24 × 24px to press. Dots suit short galleries; long ones read better with thumbnails.
+
+## Right-to-left
+
+The lightbox follows the direction of the element it is portalled into, so `<html dir="rtl">` is enough; `dir="rtl"` or `dir="ltr"` forces one. In right-to-left layouts the next slide comes from the left: the arrows swap sides and their icons mirror, a drag to the right and `ArrowLeft` go forward, the thumbnails, dots and toolbar run right to left, the overflow menu opens from the left edge and the slideshow progress grows from the right.
+
 ## Grids and filter
 
 The grids and the filter are optional. Each one works on its own: a grid without the lightbox is a responsive photo layout, and the lightbox keeps working with any markup you already have.
@@ -865,19 +961,22 @@ Classes: `eg-grid`, `eg-grid--masonry`, `eg-grid--justified`, `eg-grid--uniform`
 - The fullscreen toggle changes its name between `labels.enterFullscreen` and `labels.exitFullscreen`.
 - Videos and embeds are named from `alt`, a string `title` or `labels.video`; `tracks` adds captions.
 - The slideshow can always be paused from its button, and it stops on its own when the user takes over.
-- Rotate and download buttons are named by `labels`; a failed download is announced through a `role="status"` region.
+- Rotate, flip, share and download buttons are named by `labels`; a failed download, a copied link and a failed share are announced through a `role="status"` region.
+- The overflow menu follows the menu button pattern (`aria-haspopup`, `aria-expanded`, `role="menu"`, arrow keys, Escape and focus return).
+- Pager dots are a `nav` of named buttons with `aria-current`, each at least 24 × 24px.
+- Idle hiding never hides a control that has keyboard focus or the pointer on it.
 - When a focused button becomes disabled (for example zoom in at the maximum), focus moves back to the dialog instead of getting lost.
 - A polite live region announces the current slide (`labels.announcement`).
 - Slides other than the current one are `aria-hidden`.
 - Page scroll is locked while open. The body is padded by the scrollbar width so the page does not shift, and the previous inline styles are restored exactly.
 - `prefers-reduced-motion` is respected.
-- Controls are at least 44 × 44px and show a visible focus ring.
+- Toolbar buttons and arrows are at least 44 × 44px and show a visible focus ring.
 - Grid items are buttons named by `labels.open` inside a list; their images have empty `alt` since the button carries the name. Without `onOpen`, items are plain images with their `alt` text. Masonry keeps the DOM order equal to the visual reading order.
 - The filter is a `role="group"` named by `labels.group`, with `aria-pressed` toggle buttons and a polite live region that announces `labels.count`.
 
 ## Content Security Policy
 
-The package loads nothing from third parties, uses no CDN and injects no inline scripts. Styles come from the stylesheet you import (`style-src 'self'` when you self-host it). Sizes, positions and drag offsets are written through the CSSOM (`element.style`), which `style-src` does not restrict, and nothing is server-rendered, so no `'unsafe-inline'` is needed. The grids are the exception: they server-render their item positions as `style` attributes, which a strict `style-src` blocks until the client takes over. Render them on the client only, or allow `'unsafe-inline'` in `style-src`, if your policy is strict and you server-render.
+The package loads nothing from third parties, uses no CDN and injects no inline scripts. Sharing goes through the browser's own `navigator.share` and `navigator.clipboard`. Styles come from the stylesheet you import (`style-src 'self'` when you self-host it). Sizes, positions and drag offsets are written through the CSSOM (`element.style`), which `style-src` does not restrict, and nothing is server-rendered, so no `'unsafe-inline'` is needed. The grids are the exception: they server-render their item positions as `style` attributes, which a strict `style-src` blocks until the client takes over. Render them on the client only, or allow `'unsafe-inline'` in `style-src`, if your policy is strict and you server-render.
 
 Images, videos and pages load from the URLs you pass. A policy for a gallery with self-hosted media plus YouTube and Vimeo slides:
 
@@ -903,14 +1002,14 @@ Content-Security-Policy:
 
 ## Bundle size
 
-Measured with [size-limit](https://github.com/ai/size-limit) (`npm run size`) on `main` after phase 5, minified and brotli-compressed, React excluded:
+Measured with [size-limit](https://github.com/ai/size-limit) (`npm run size`) after phase 6, minified and brotli-compressed, React excluded:
 
 | Entry                                                               | Size     |
 | ------------------------------------------------------------------- | -------- |
-| `import { Lightbox }`                                               | 9.36 kB  |
+| `import { Lightbox }`                                               | 11.55 kB |
 | `import { MasonryGrid, JustifiedGrid, UniformGrid, GalleryFilter }` | 1.89 kB  |
-| Everything                                                          | 11.24 kB |
-| `styles.css`                                                        | 2.73 kB  |
+| Everything                                                          | 13.42 kB |
+| `styles.css`                                                        | 3.31 kB  |
 
 ## Site and playground
 

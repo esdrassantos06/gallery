@@ -4,6 +4,16 @@ All notable changes are listed here. The project follows [Semantic Versioning](h
 
 ## Unreleased
 
+- Toolbar overflow: on narrow screens the buttons that do not fit move into an accessible "More options" menu (menu button pattern), zoom first; close stays visible. On by default, `toolbarOverflow={false}` turns it off.
+- `idle`: fade the top bar, arrows, caption, thumbnails and pager out after a pause, back on any input; never while a control has keyboard focus or the pointer.
+- Right-to-left: `dir`, or the inherited direction, mirrors arrows, swipes, arrow keys, thumbnails, pager and toolbar.
+- Pinch to close: a pinch from fit released under the fitted size closes the viewer, unless it zoomed in first. On by default, `pinchToClose={false}` turns it off. A zoomed or pinched image now flies back to its thumbnail from where it is on screen.
+- `flip`: flip horizontally and vertically, composing with rotation and zoom.
+- `share`: Web Share with a copy-link fallback and no third-party scripts.
+- `pager`: accessible pager dots next to or instead of the thumbnail strip.
+- New labels, icons, class names (`menu`, `menuItem`, `pager`, `pagerDot`) and `--eg-menu-*` and `--eg-pager-*` variables for all of the above.
+- The counter no longer wraps when the toolbar is full.
+
 - Optional `MasonryGrid`, `JustifiedGrid` and `UniformGrid` with responsive columns or row height, lazy `srcset` thumbnails without layout shift and a `ref` that plugs into `getThumbnail`, plus a `GalleryFilter` with `aria-pressed` toggle buttons and a live count. Each works with or without the lightbox, and they are tree-shaken away when unused.
 
 ## 1.0.0 (unreleased)
