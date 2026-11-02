@@ -5,34 +5,34 @@ export type SwipeAxis = "horizontal" | "vertical";
 export type SwipeReleaseVerdict = "next" | "prev" | "stay";
 
 /** Travel in px before a drag commits to an axis. */
-export const SWIPE_AXIS_THRESHOLD = 10;
+const SWIPE_AXIS_THRESHOLD = 10;
 
 /** Release speed in px/ms that navigates even below the distance threshold. */
-export const FLICK_VELOCITY = 0.5;
+const FLICK_VELOCITY = 0.5;
 
 /** Shortest travel in px that can count as a flick, so taps never navigate. */
-export const FLICK_MIN_DISTANCE = 20;
+const FLICK_MIN_DISTANCE = 20;
 
 /** Fraction of the finger travel kept when dragging past the first or last slide. */
-export const SLIDE_EDGE_FRICTION = 0.35;
+const SLIDE_EDGE_FRICTION = 0.35;
 
 /** Shortest vertical travel in px before a release may close. */
-export const VERTICAL_CLOSE_MIN_DRAG = 40;
+const VERTICAL_CLOSE_MIN_DRAG = 40;
 
 /** Vertical travel, as a fraction of the viewport height, that closes on its own. */
-export const VERTICAL_CLOSE_DRAG_RATIO = 0.2;
+const VERTICAL_CLOSE_DRAG_RATIO = 0.2;
 
 /** Momentum-projected vertical travel, as a fraction of the viewport height, that closes. */
-export const VERTICAL_CLOSE_PROJECTED_RATIO = 0.4;
+const VERTICAL_CLOSE_PROJECTED_RATIO = 0.4;
 
 /** How far back in ms a release looks when reading the gesture velocity. */
-export const VELOCITY_WINDOW_MS = 100;
+const VELOCITY_WINDOW_MS = 100;
 
 /** Per-millisecond velocity retention used to project a release. */
-export const DECELERATION_RATE = 0.995;
+const DECELERATION_RATE = 0.995;
 
 /** Distance a release keeps travelling while its velocity decays. */
-export function project(velocity: number, decelerationRate: number = DECELERATION_RATE): number {
+function project(velocity: number, decelerationRate: number = DECELERATION_RATE): number {
   return (velocity * decelerationRate) / (1 - decelerationRate);
 }
 

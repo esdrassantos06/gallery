@@ -8,6 +8,12 @@ All notable changes are listed here. The project follows [Semantic Versioning](h
 - New built-in icons from [Mynaui Icons](https://mynaui.com/icons) (MIT). Same 24px grid and 1.5px stroke, so `--eg-icon-size` and custom icons work as before.
 - Fix: the caption covered the controls of videos, iframes and custom players such as Video.js. Those slides now fit above the caption.
 - The open and close flight now clips the image to its thumbnail, so thumbnails cropped with `object-fit: cover` grow into the full image without a jump.
+- Faster image loading: the current image is fetched first at high priority, neighbors wait until it loads and then follow at low priority, and the slide's `thumbnail` shows as a placeholder until the full image arrives. New `--eg-placeholder-size` variable (`cover` by default).
+- Adaptive preloading: with Save-Data or on 2G only the current image is fetched, and on 3G or devices with 2 GB of memory or less `preload` is capped at 1.
+- Thousands of slides: the thumbnail strip renders only what is in view past 100 slides, the grids past 200 (the list gets `data-virtual`), and the pager shows a window of 12 dots with smaller edge dots when there are more. Grids are memoized, so they no longer re-render when the page changes slide.
+- Videos: only the current video fetches metadata, neighbors use `preload="none"`. Grids and the thumbnail strip show `thumbnail`, `poster` or the YouTube poster, and never load a video file as an image. New `previewOf(slide)` export with the same rule.
+- Load status and natural sizes are kept for the 300 most recently seen slides.
+- Fix: a malformed download URL now reaches `download.onError` instead of throwing.
 
 ## 1.1.0 (2026-11-02)
 

@@ -5,13 +5,13 @@ description: Images, video files, YouTube, Vimeo and any page in an iframe.
 
 Every item in `slides` is a [`Slide`](/docs/slide). Its `src` decides how it renders unless you set `type`.
 
-| Kind       | Detected from                                                                            | Renders                                                                                                 |
-| ---------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Image      | anything else, or `type: "image"`                                                        | `<img>` with `srcset`, `sizes` and explicit dimensions                                                  |
-| Video file | `.mp4`, `.webm`, `.ogv`, `.ogg`, `.mov`, `.m4v`, or `type: "video"`                      | Native `<video>` with `controls`, `playsInline`, `preload="metadata"`, `poster`, `sources` and `tracks` |
-| YouTube    | `youtube.com/watch`, `youtu.be`, `/embed/`, `/shorts/`, `/live/`, `youtube-nocookie.com` | Iframe on `https://www.youtube-nocookie.com/embed/ID`, keeping a `t` or `start` time                    |
-| Vimeo      | `vimeo.com/ID`, `vimeo.com/ID/HASH`, `player.vimeo.com/video/ID`                         | Iframe on `https://player.vimeo.com/video/ID` with `dnt=1` and the private hash                         |
-| Page       | `type: "iframe"`                                                                         | Iframe on `src`                                                                                         |
+| Kind       | Detected from                                                                            | Renders                                                                                                                                             |
+| ---------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Image      | anything else, or `type: "image"`                                                        | `<img>` with `srcset`, `sizes` and explicit dimensions                                                                                              |
+| Video file | `.mp4`, `.webm`, `.ogv`, `.ogg`, `.mov`, `.m4v`, or `type: "video"`                      | Native `<video>` with `controls`, `playsInline`, `poster`, `sources` and `tracks`; `preload="metadata"` on the current slide, `"none"` on neighbors |
+| YouTube    | `youtube.com/watch`, `youtu.be`, `/embed/`, `/shorts/`, `/live/`, `youtube-nocookie.com` | Iframe on `https://www.youtube-nocookie.com/embed/ID`, keeping a `t` or `start` time                                                                |
+| Vimeo      | `vimeo.com/ID`, `vimeo.com/ID/HASH`, `player.vimeo.com/video/ID`                         | Iframe on `https://player.vimeo.com/video/ID` with `dnt=1` and the private hash                                                                     |
+| Page       | `type: "iframe"`                                                                         | Iframe on `src`                                                                                                                                     |
 
 The demo below mixes a native video with captions, images and an iframe page.
 
@@ -49,7 +49,7 @@ By default the caption is a band across the bottom of the viewer. `captionPositi
 
 Under a video or iframe, the bar never covers the player: the slide is fitted into the room left above the caption, so the controls stay visible and clickable. A custom player from `render.slide` gets that smaller `width` and `height` too.
 
-While an image loads, its slide has `data-status="loading"` and shows a spinner after `--eg-spinner-delay`. If it fails, the slide shows `labels.loadError` and gets `data-status="error"`.
+While an image loads, its slide has `data-status="loading"`, shows the slide's `thumbnail` behind it as a placeholder and a spinner after `--eg-spinner-delay`. If it fails, the slide shows `labels.loadError` and gets `data-status="error"`.
 
 ## Video files
 
@@ -118,4 +118,14 @@ getMedia({ src: "https://youtu.be/VIDEO_ID" });
 //   embed: "https://www.youtube-nocookie.com/embed/VIDEO_ID?rel=0&playsinline=1",
 //   poster: "https://i.ytimg.com/vi/VIDEO_ID/hqdefault.jpg",
 // }
+```
+
+`previewOf(slide)` returns the still the grids and the thumbnail strip show: `thumbnail`, then `poster`, then the provider's poster, then `src` for images. Videos and embeds without a still get `undefined`, so you never put a video file in an `<img>`:
+
+```ts
+import { previewOf } from "@esdrassantos06/gallery";
+
+previewOf({ src: "/clip.mp4", poster: "/clip.jpg" }); // "/clip.jpg"
+previewOf({ src: "/clip.mp4" }); // undefined
+previewOf({ src: "/a.jpg" }); // "/a.jpg"
 ```

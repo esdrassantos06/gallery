@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useRef, useState, type CSSProperties } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -153,14 +153,18 @@ describe("Lightbox", () => {
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
-  it("traps Tab focus inside the dialog", async () => {
+  it("wraps Tab focus at both ends of the dialog", async () => {
     const { user, dialog } = await openAt(2);
-    for (let i = 0; i < 8; i++) {
-      await user.tab();
-      expect(dialog.contains(document.activeElement)).toBe(true);
-    }
+    const buttons = within(dialog)
+      .getAllByRole("button")
+      .filter((button) => !(button as HTMLButtonElement).disabled);
+    const first = buttons[0]!;
+    const last = buttons.at(-1)!;
+    act(() => first.focus());
     await user.tab({ shift: true });
-    expect(dialog.contains(document.activeElement)).toBe(true);
+    expect(last).toHaveFocus();
+    await user.tab();
+    expect(first).toHaveFocus();
   });
 
   it("locks page scroll while open and restores it after", async () => {

@@ -9,8 +9,9 @@ The strip lists every slide as a button. It shows when there is more than one sl
 
 - The current thumbnail has `aria-current="true"` and an outline, and the strip scrolls to center it whenever the slide changes.
 - The strip scrolls natively with touch, the wheel and the keyboard.
-- Images use `slide.thumbnail`, falling back to `slide.src`, with `loading="lazy"`. The fallback downloads the full image, so pass a small file.
+- Images use `slide.thumbnail`, then `slide.poster`, then the YouTube poster, then `slide.src` for images, with `loading="lazy"` and low fetch priority. The `src` fallback downloads the full image, so pass a small file. Videos without a `thumbnail` or `poster` get an empty frame, never the video file. `previewOf(slide)` returns the same choice.
 - The strip is a `nav` named by `labels.thumbnails`. Each button is named by `labels.thumbnail(index, total, slide)`.
+- Past 100 slides the strip renders only the thumbnails in view, with spacers standing in for the rest. Each item keeps `aria-setsize` and `aria-posinset`, so the full count is still announced. This assumes every thumbnail has the width set by `--eg-thumbnail-width`, including custom content. Jumps longer than the strip, such as Home and End, scroll instantly.
 
 ## Turning it off
 

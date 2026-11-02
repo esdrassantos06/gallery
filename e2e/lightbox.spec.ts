@@ -107,14 +107,14 @@ test("navigates with the arrow buttons and closes with the close button", async 
   await expect(gallery(page).getByRole("button", { name: "Open Sample 01" })).toBeFocused();
 });
 
-test("keeps Tab focus inside the dialog", async ({ page }) => {
+test("wraps Tab focus at both ends of the dialog", async ({ page }) => {
   const viewer = await open(page, 5);
-  for (let i = 0; i < 7; i++) {
-    await page.keyboard.press("Tab");
-    expect(await viewer.evaluate((el) => el.contains(document.activeElement))).toBe(true);
-  }
+  const buttons = viewer.locator("button:not([disabled]):visible");
+  await buttons.first().focus();
   await page.keyboard.press("Shift+Tab");
-  expect(await viewer.evaluate((el) => el.contains(document.activeElement))).toBe(true);
+  await expect(buttons.last()).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(buttons.first()).toBeFocused();
 });
 
 test("locks page scroll while open and restores it", async ({ page }) => {

@@ -170,6 +170,15 @@ describe("download", () => {
     );
   });
 
+  it("reports a malformed download URL instead of throwing", async () => {
+    fetchMock.mockImplementation(() => Promise.reject(new TypeError("Failed to fetch")));
+    const onError = vi.fn();
+    const slides: Slide[] = [{ src: "/a.jpg", alt: "A", download: "http://exa mple.com/a.jpg" }];
+    const { user } = await openAt(0, { slides, download: { onError } });
+    await user.click(screen.getByRole("button", { name: "Download" }));
+    await waitFor(() => expect(onError).toHaveBeenCalledWith(expect.any(TypeError), slides[0]));
+  });
+
   it("treats an HTTP error as a failure", async () => {
     fetchMock.mockImplementation(() => Promise.resolve(new Response("no", { status: 403 })));
     const onError = vi.fn();

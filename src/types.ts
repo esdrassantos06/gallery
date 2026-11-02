@@ -71,7 +71,13 @@ export interface Slide {
   title?: ReactNode | undefined;
   /** Caption text below the title. */
   description?: ReactNode | undefined;
-  /** Small preview image for the thumbnail strip. Falls back to `src`, which downloads the full image. */
+  /**
+   * Small preview image for the grids, the thumbnail strip and the placeholder
+   * shown while the full image loads. Falls back to `poster`, then to `src` for
+   * images, which downloads the full file. Videos without either show no preview.
+   * The placeholder covers the image box; when thumbnails are cropped to another
+   * shape, set `--eg-placeholder-size` to `contain`, or to `0 0` to hide it.
+   */
   thumbnail?: string | undefined;
 }
 
@@ -257,7 +263,11 @@ export interface LightboxRender {
    * slide and its index, so extra actions can act on what is on screen.
    */
   toolbar?: ((buttons: ReactNode, slide: Slide, index: number) => ReactNode) | undefined;
-  /** Content of one thumbnail button. Its accessible name still comes from `labels.thumbnail`. */
+  /**
+   * Content of one thumbnail button. Its accessible name still comes from
+   * `labels.thumbnail`. Past 100 slides the strip only renders the thumbnails in
+   * view and assumes they all share one width, set by `--eg-thumbnail-width`.
+   */
   thumbnail?: ((slide: Slide, index: number, current: boolean) => ReactNode) | undefined;
 }
 
@@ -377,8 +387,11 @@ export interface LightboxProps {
    */
   captionPosition?: "bar" | "slide" | undefined;
   /**
-   * How many slides on each side of the current one are mounted, and therefore
-   * loaded. Slides outside this window are not in the DOM.
+   * How many slides on each side of the current one are mounted. Slides outside
+   * this window are not in the DOM. Neighbors start loading once the current
+   * image has, at low priority; on a 3G connection or a device with 2 GB of
+   * memory or less only one is kept on each side, and with Save-Data or 2G
+   * neighbors are not fetched before they are shown.
    * @defaultValue 2
    */
   preload?: number | undefined;

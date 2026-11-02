@@ -16,6 +16,7 @@ description: One dot per slide, as a lighter alternative or complement to thumbn
 - The dots are a `nav` named by `labels.pager`.
 - Each dot is a button named by `labels.pagerItem(index, total, slide)`, with `aria-current="true"` on the current one.
 - Each button is at least 24 by 24px, even though the visible dot is smaller.
+- With more than 12 slides it shows a window of 12 dots around the current one. The edge dots shrink, and get `data-more`, when there are more slides past them. Each dot still names its real position.
 - Dots suit short galleries. Long ones read better with [thumbnails](/docs/thumbnails).
 
 ## Styling

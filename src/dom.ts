@@ -1,8 +1,51 @@
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useSyncExternalStore, version } from "react";
 
 /** `useLayoutEffect` in the browser, `useEffect` on the server, where layout effects do not run. */
 export const useIsoLayoutEffect: typeof useEffect =
   typeof window === "undefined" ? useEffect : useLayoutEffect;
+
+// React 19 only knows `fetchPriority`; React 18 warns on it and passes `fetchpriority` through.
+const PRIORITY_PROP = Number.parseInt(version, 10) >= 19 ? "fetchPriority" : "fetchpriority";
+
+/** `<img>` props that set the fetch priority under React 18 and 19 alike. */
+export function fetchPriority(priority: "high" | "low"): Record<string, string> {
+  return { [PRIORITY_PROP]: priority };
+}
+
+/**
+ * How much prefetching the device can afford: `save` with Save-Data or a 2G
+ * connection, `slow` on 3G or with 2 GB of memory or less, `full` otherwise and
+ * wherever the browser does not tell.
+ */
+export type DataBudget = "save" | "slow" | "full";
+
+interface Connection extends EventTarget {
+  saveData?: boolean;
+  effectiveType?: string;
+}
+
+const connection = (): Connection | undefined =>
+  (navigator as Navigator & { connection?: Connection }).connection;
+
+function readDataBudget(): DataBudget {
+  const info = connection();
+  if (info?.saveData || info?.effectiveType === "slow-2g" || info?.effectiveType === "2g") {
+    return "save";
+  }
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
+  return info?.effectiveType === "3g" || memory <= 2 ? "slow" : "full";
+}
+
+function subscribeDataBudget(onChange: () => void): () => void {
+  const info = connection();
+  info?.addEventListener("change", onChange);
+  return () => info?.removeEventListener("change", onChange);
+}
+
+/** The current {@link DataBudget}, updated when the connection changes. */
+export function useDataBudget(): DataBudget {
+  return useSyncExternalStore(subscribeDataBudget, readDataBudget, () => "full");
+}
 
 /** Joins the truthy class names with spaces. */
 export function cx(...names: (string | false | undefined)[]): string {
@@ -50,7 +93,7 @@ export function parseDuration(value: string, fallback: number): number {
 }
 
 /** Default length of the open, close and slide animations in ms. */
-export const DEFAULT_DURATION = 320;
+const DEFAULT_DURATION = 320;
 
 /** Animation length for `el`: its `--eg-duration`, or zero under reduced motion. */
 export function readDuration(el: Element): number {
