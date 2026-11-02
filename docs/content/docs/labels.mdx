@@ -1,0 +1,85 @@
+---
+title: Labels and i18n
+description: Translate or reword every visible and announced string.
+---
+
+Every string the lightbox shows or announces comes from `labels`. Pass only the ones you want to change. The rest keep their English defaults.
+
+```tsx
+<Lightbox
+  labels={{
+    dialog: "Visualizador de imagens",
+    close: "Fechar",
+    previous: "Imagem anterior",
+    next: "Imagem seguinte",
+    counter: (current, total) => `${current} de ${total}`,
+    announcement: (current, total, slide) => `Imagem ${current} de ${total}: ${slide.alt ?? ""}`,
+  }}
+  {...props}
+/>
+```
+
+Open the demo and hover the buttons, or turn on a screen reader, to hear the Portuguese labels.
+
+<Demo count={4} preset="i18n" />
+
+## With next-intl
+
+Build the object from your messages:
+
+```tsx
+const t = useTranslations("lightbox");
+
+const labels = {
+  dialog: t("dialog"),
+  close: t("close"),
+  previous: t("previous"),
+  next: t("next"),
+  counter: (current: number, total: number) => t("counter", { current, total }),
+  announcement: (current: number, total: number) => t("announcement", { current, total }),
+};
+```
+
+Keep the object stable with `useMemo` if your messages object changes identity on every render.
+
+## Extending the defaults
+
+`defaultLabels` is exported, so you can reuse one default inside your own:
+
+```ts
+import { defaultLabels } from "@esdrassantos06/gallery";
+
+const labels = {
+  announcement: (current: number, total: number, slide: Slide) =>
+    `${defaultLabels.announcement(current, total, slide)}. Swipe to browse.`,
+};
+```
+
+## Every label
+
+| Key                                   | Default                                                              |
+| ------------------------------------- | -------------------------------------------------------------------- |
+| `dialog`                              | `Image viewer`                                                       |
+| `close`                               | `Close`                                                              |
+| `previous`                            | `Previous image`                                                     |
+| `next`                                | `Next image`                                                         |
+| `counter(current, total)`             | `3 / 12`                                                             |
+| `announcement(current, total, slide)` | `Image 3 of 12: <title or alt>`                                      |
+| `thumbnails`                          | `Thumbnails`                                                         |
+| `thumbnail(index, total, slide)`      | `Show image 3`                                                       |
+| `zoomIn`                              | `Zoom in`                                                            |
+| `zoomOut`                             | `Zoom out`                                                           |
+| `enterFullscreen`                     | `Enter fullscreen`                                                   |
+| `exitFullscreen`                      | `Exit fullscreen`                                                    |
+| `loadError`                           | `This image could not be loaded.`                                    |
+| `playSlideshow`                       | `Start slideshow`                                                    |
+| `pauseSlideshow`                      | `Pause slideshow`                                                    |
+| `video`                               | `Video`                                                              |
+| `rotateLeft`                          | `Rotate left`                                                        |
+| `rotateRight`                         | `Rotate right`                                                       |
+| `download`                            | `Download`                                                           |
+| `downloadError`                       | `This file could not be downloaded here, so it opened in a new tab.` |
+
+All numbers passed to label functions are 1-based. The full type, with a description of each key:
+
+<auto-type-table path="src/types.ts" name="LightboxLabels" />

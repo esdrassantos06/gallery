@@ -1,0 +1,53 @@
+---
+title: Deep linking
+description: Keep the open slide in the URL hash with useLightboxHash.
+---
+
+`useLightboxHash` keeps the open slide in the URL, as `#prefix-3`. People can share a link to a photo, and the browser's back button closes the viewer.
+
+It returns the same `[index, setIndex]` pair as `useState(-1)`, so it drops into the [quick start](/docs/quick-start) code:
+
+```tsx
+import { Lightbox, useLightboxHash } from "@esdrassantos06/gallery";
+
+const [index, setIndex] = useLightboxHash("photo", { count: slides.length });
+
+<Lightbox
+  slides={slides}
+  open={index >= 0}
+  index={Math.max(index, 0)}
+  onIndexChange={setIndex}
+  onClose={() => setIndex(-1)}
+/>;
+```
+
+Open a photo below and watch the address bar. Then press the back button.
+
+<HashDemo prefix="photo" count={6} />
+
+## URLs
+
+| URL                                              | State                             |
+| ------------------------------------------------ | --------------------------------- |
+| `/photos#photo-3`                                | Open on the third slide. 1-based. |
+| `/photos`, `/photos#contact`, `/photos#photo-99` | Closed                            |
+
+## History
+
+- Opening adds one history entry. Changing slide replaces it, so history does not fill up.
+- Closing goes back to the entry that was there before, which restores the previous URL, hash and scroll position. Back closes the viewer and forward opens it again.
+- When the page was loaded with the hash, because someone followed a shared link, closing removes the hash in place instead of leaving the page.
+- The state is read from the URL, so the URL and the lightbox cannot drift apart or loop.
+- Hashes that do not match the prefix, query strings and paths are never touched.
+
+## Options
+
+| Option  | Description                                                                |
+| ------- | -------------------------------------------------------------------------- |
+| `count` | Number of slides. Hashes past it read as closed instead of an empty slide. |
+
+Use a different prefix for each gallery on a page.
+
+## Server rendering
+
+On the server and during hydration the hook reads `-1`. A gallery opened from a shared link opens right after hydration.

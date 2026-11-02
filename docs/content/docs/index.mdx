@@ -1,0 +1,57 @@
+---
+title: Introduction
+description: An accessible React lightbox that opens out of your thumbnails and gets out of your way.
+---
+
+`@esdrassantos06/gallery` is a lightbox for React. Give it a list of slides and an index, and it opens the image out of the thumbnail that was clicked, lets people swipe, zoom and read captions, then flies back when they close it.
+
+<Demo count={6} />
+
+## What you get
+
+- An open and close animation that starts and ends on your thumbnail, with a fade and zoom fallback when there is none.
+- Arrows, keyboard, swipe and flick navigation, with `slide`, `fade` and `zoom` transitions.
+- A thumbnail strip, zoom with every input people expect, fullscreen, rotation and downloads.
+- Native video with captions, YouTube and Vimeo embeds without their player scripts, and any page in an iframe.
+- A slideshow that pauses when the user takes over.
+- Deep links through the URL hash, closed by the back button.
+- Modal dialog semantics, a focus trap, focus return, a live region and a scroll lock that keeps the page still.
+- Zero runtime dependencies. React is a peer dependency.
+
+## What it is not
+
+It does not draw your grid. Bring your own markup, CSS grid, masonry library or CMS output, and point the lightbox at it with `getThumbnail`. Optional grids are on the [roadmap](/docs/roadmap).
+
+## Compatibility
+
+|               | Supported                                                                                                                                                    |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| React         | 18 and 19, as a peer dependency                                                                                                                              |
+| Module format | ESM only, with TypeScript declarations                                                                                                                       |
+| Frameworks    | Any React setup, including the Next.js App Router                                                                                                            |
+| Browsers      | Current evergreen browsers. Without `ResizeObserver` or the Web Animations API it falls back to window resize events and opens without the flight animation. |
+
+## Next steps
+
+<Cards>
+  <Card
+    title="Installation"
+    href="/docs/installation"
+    description="Add the package and its stylesheet."
+  />
+  <Card
+    title="Quick start"
+    href="/docs/quick-start"
+    description="Wire a grid to the lightbox in one component."
+  />
+  <Card
+    title="Next.js"
+    href="/docs/nextjs"
+    description="Use it in the App Router without a wrapper."
+  />
+  <Card
+    title="Props"
+    href="/docs/lightbox-props"
+    description="Every prop, generated from the source."
+  />
+</Cards>

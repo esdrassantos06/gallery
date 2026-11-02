@@ -1,0 +1,18 @@
+---
+title: Rotation
+description: Turn images in quarter steps.
+---
+
+```tsx
+<Lightbox rotate {...props} />
+```
+
+`rotate` adds rotate left and right buttons for images. It is off by default.
+
+<Demo count={4} rotate />
+
+- Each press turns the image 90 degrees. Turns add up, so four presses bring it back the long way round with one smooth animation.
+- A sideways image is fitted again so it still fits the stage.
+- Zoom, pinch and pan keep working on a rotated image.
+- Rotation resets on slide change, when the viewer closes and with the `0` key, which also resets zoom.
+- The buttons are named by `labels.rotateLeft` and `labels.rotateRight`, and use `icons.rotateLeft` and `icons.rotateRight`.

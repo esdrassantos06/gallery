@@ -1,0 +1,35 @@
+---
+title: Performance
+description: What the lightbox loads, when, and how it keeps gestures smooth.
+---
+
+## Only what is near
+
+Only `preload` slides on each side of the current one are in the DOM, 2 by default. Full-size images outside that window are never requested. Thumbnails in the strip load lazily as they scroll into view.
+
+Set `preload={1}` on slow connections or with very large files, or raise it when people browse fast through small images.
+
+## The right file size
+
+Images get explicit `width` and `height` from `fitContain`, based on the natural size you pass and the stage size measured by one `ResizeObserver`. Without a natural size, it is read once the image loads.
+
+When `srcSet` is set and `sizes` is not, `sizes` becomes the rendered width, so the browser picks the smallest candidate that fills it. While zoomed, `sizes` grows to the magnified width, so a sharper file is fetched only when someone actually zooms.
+
+## Smooth gestures
+
+Drags write CSS variables on the root once per animation frame. Pinch, pan and wheel zoom write the transform straight to the element. React does not re-render while a gesture moves.
+
+Every animation uses `transform` and `opacity` only, so nothing triggers layout while it runs.
+
+## Cleanup
+
+Listeners and observers are removed on close and on unmount. Closing removes embeds, so YouTube and Vimeo stop playing and release their frames.
+
+## Tips
+
+- Pass `width` and `height` on every slide.
+- Pass a small `thumbnail`. Without it the strip downloads full images.
+- Serve `srcSet` with a few widths, for example 640, 1280 and the original.
+- Give videos a `poster` and keep `preload="metadata"`, which the built-in player uses.
+
+See [Bundle size](/docs/bundle-size) for the cost of the code itself.

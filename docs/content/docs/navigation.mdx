@@ -1,0 +1,78 @@
+---
+title: Navigation and gestures
+description: Arrows, keyboard, swipe, transitions and the open and close animation.
+---
+
+## Keyboard
+
+| Key                        | Action                                            |
+| -------------------------- | ------------------------------------------------- |
+| `ArrowRight` / `ArrowLeft` | Next / previous slide                             |
+| `Home` / `End`             | First / last slide                                |
+| `+` or `=` / `-`           | Zoom in / out by `zoom.step`                      |
+| `0`                        | Reset zoom and rotation                           |
+| `Escape`                   | Close                                             |
+| `Tab` / `Shift+Tab`        | Move between the dialog's buttons, focus stays in |
+
+`keyboard={false}` turns off every shortcut above except Tab. Arrow keys, Home and End are left alone while a video, a form field or an editable element has focus. Keys that your own content already handled with `event.preventDefault()` are ignored.
+
+## Looping
+
+`loop` is on by default, so the last slide wraps to the first. With `loop={false}` the arrows are disabled at both ends and dragging past an end meets resistance.
+
+<Demo count={4} loop={false} />
+
+## Gestures
+
+Gestures use Pointer Events on the stage, so touch, pen and mouse all work.
+
+- **Drag sideways.** The slide follows the pointer. Releasing past `swipeThreshold` (50px by default), or flicking faster than 0.5px per ms, changes slide.
+- **Drag up or down.** The image moves and shrinks and the backdrop fades. Releasing after 20% of the viewport height, or a flick projected past 40%, closes. Short taps never close.
+- **Zoomed in.** A one-finger drag pans the image instead. See [Zoom](/docs/zoom).
+- A drag never counts as a backdrop click.
+
+Drags that start on a `video`, `iframe`, button, link, form field, `role="slider"` or anything inside `[data-eg-no-gestures]` are left to that element. `swipe={false}` turns gestures off.
+
+## Backdrop clicks
+
+Clicking the empty area around the media closes the viewer. Set `closeOnBackdropClick={false}` to keep it open.
+
+## Transitions
+
+```tsx
+<Lightbox transition="fade" {...props} />
+```
+
+| Value   | Effect                                                                           |
+| ------- | -------------------------------------------------------------------------------- |
+| `slide` | Slides sit side by side and move together. Dragging moves them under the finger. |
+| `fade`  | Cross-fade between slides.                                                       |
+| `zoom`  | The incoming slide grows from 85% while the outgoing one fades.                  |
+
+<Tabs items={["slide", "fade", "zoom"]}>
+  <Tab value="slide">
+    <Demo count={5} transition="slide" />
+  </Tab>
+  <Tab value="fade">
+    <Demo count={5} transition="fade" />
+  </Tab>
+  <Tab value="zoom">
+    <Demo count={5} transition="zoom" />
+  </Tab>
+</Tabs>
+
+All three animate `transform` and `opacity` only. Their length is `--eg-duration` and their curve is `--eg-easing`.
+
+## Open and close
+
+The open animation flies the image out of the element returned by `getThumbnail(index)`, scaled evenly so it covers that element. Closing flies it back to the thumbnail of the slide on screen. When there is no thumbnail, or it is scrolled out of view, the image zooms from 92% and fades in instead.
+
+`onAfterOpen` runs when the open animation ends. `onAfterClose` runs when the close animation ends and focus is back on the page.
+
+## Reduced motion
+
+With `prefers-reduced-motion: reduce`, durations become zero. The lightbox opens, changes slide and closes at once.
+
+## Preloading
+
+Only the current slide and `preload` slides on each side (2 by default) are mounted. Anything outside that window is not in the DOM and is never requested.

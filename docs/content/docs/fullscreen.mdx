@@ -1,0 +1,19 @@
+---
+title: Fullscreen
+description: A toggle that puts the viewer itself in fullscreen.
+---
+
+Where the Fullscreen API is available, the toolbar shows a toggle that puts the dialog in fullscreen. Try it from the toolbar:
+
+<Demo count={4} />
+
+- Its accessible name switches between `labels.enterFullscreen` and `labels.exitFullscreen`, and the icon between `icons.enterFullscreen` and `icons.exitFullscreen`.
+- It follows changes made outside the lightbox, such as the browser's own Escape.
+- Closing the viewer leaves fullscreen.
+- Where the API is missing, for example on iPhone, the button is not rendered. The viewer already covers the window there.
+
+```tsx
+<Lightbox fullscreen={false} {...props} />
+```
+
+`fullscreen={false}` hides the button everywhere.

@@ -1,0 +1,30 @@
+---
+title: Content Security Policy
+description: Run the lightbox under a strict CSP without unsafe-inline.
+---
+
+The package loads nothing from third parties, uses no CDN and injects no inline scripts or style tags.
+
+- Styles come from the stylesheet you import, so `style-src 'self'` is enough when you serve it yourself.
+- Sizes, positions and drag offsets are written through the CSSOM (`element.style`), which `style-src` does not restrict. No `'unsafe-inline'` is needed.
+- Nothing is server-rendered inside the dialog, so there are no inline `style` attributes in the HTML either.
+
+## Media
+
+Images, videos and pages load from the URLs you pass. For a gallery with self-hosted media plus YouTube and Vimeo slides:
+
+```http
+Content-Security-Policy:
+  img-src 'self' https://i.ytimg.com;
+  media-src 'self';
+  frame-src https://www.youtube-nocookie.com https://player.vimeo.com;
+```
+
+- `img-src https://i.ytimg.com` is only needed for the YouTube posters shown on neighboring slides. Drop it if every YouTube slide has its own `poster`.
+- Add the origins of any `type: "iframe"` pages to `frame-src`, and your CDN to `img-src` and `media-src`.
+- Downloads from another origin use `fetch`, so add that origin to `connect-src` if you enable [downloads](/docs/download). If it is blocked, the file opens in a new tab instead.
+- The YouTube and Vimeo players load their own scripts and images inside their frames. Those requests follow the provider's policy, not yours.
+
+## Tested under a strict policy
+
+The project's demo site is served with `default-src 'self'`, no `'unsafe-inline'`, and the whole site runs under it, lightbox included.

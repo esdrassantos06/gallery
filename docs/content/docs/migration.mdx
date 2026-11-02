@@ -1,0 +1,131 @@
+---
+title: Migrating from yet-another-react-lightbox
+description: Map yet-another-react-lightbox props and plugins to this package.
+---
+
+[yet-another-react-lightbox](https://yet-another-react-lightbox.com) (YARL) and this package share the same idea: a controlled lightbox fed by an array of slides. Most of a migration is renaming. The biggest differences are that there are no plugins to import, and that the open animation can start from your thumbnail.
+
+## Install and imports
+
+```diff
+- import Lightbox from "yet-another-react-lightbox";
+- import Zoom from "yet-another-react-lightbox/plugins/zoom";
+- import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
+- import "yet-another-react-lightbox/styles.css";
+- import "yet-another-react-lightbox/plugins/thumbnails.css";
++ import { Lightbox } from "@esdrassantos06/gallery";
++ import "@esdrassantos06/gallery/styles.css";
+```
+
+Everything is built in. Thumbnails, zoom and fullscreen are on by default. Slideshow, rotation and download are props.
+
+## Core props
+
+| YARL                                                     | This package                                                         |
+| -------------------------------------------------------- | -------------------------------------------------------------------- |
+| `open`                                                   | `open`                                                               |
+| `close`                                                  | `onClose`                                                            |
+| `index`                                                  | `index`                                                              |
+| `slides`                                                 | `slides`, see below                                                  |
+| `on.view({ index })`                                     | `onIndexChange(index)`                                               |
+| `on.entered`, `on.exited`                                | `onAfterOpen`, `onAfterClose`                                        |
+| `carousel.finite`                                        | `loop={false}`                                                       |
+| `carousel.preload`                                       | `preload`                                                            |
+| `controller.closeOnBackdropClick`                        | `closeOnBackdropClick`, on by default here                           |
+| `controller.closeOnPullDown`, `controller.closeOnPullUp` | built in, turned off with `swipe={false}` along with sideways swipes |
+| `controller.disableSwipeNavigation`                      | `swipe={false}`                                                      |
+| `animation.fade`, `animation.swipe`                      | `--eg-duration` and `--eg-easing`                                    |
+| `labels`                                                 | `labels`, with different keys                                        |
+| `render`                                                 | `render`, see below                                                  |
+| `portal.root`                                            | `container`                                                          |
+| `styles`, `className`                                    | `style` and `--eg-*` variables, `className`, `classNames`            |
+
+Two things have no equivalent in YARL and are worth adding while you migrate: `getThumbnail`, for the flight animation and focus return, and `transition`, to pick between `slide`, `fade` and `zoom`.
+
+## Slides
+
+```diff
+  {
+    src: "/photos/a-1600.jpg",
+    alt: "Harbour",
+    width: 1600,
+    height: 1067,
+-   srcSet: [
+-     { src: "/photos/a-640.jpg", width: 640, height: 427 },
+-     { src: "/photos/a-1600.jpg", width: 1600, height: 1067 },
+-   ],
++   srcSet: "/photos/a-640.jpg 640w, /photos/a-1600.jpg 1600w",
+  }
+```
+
+`srcSet` is a plain `srcset` string here. A one-line conversion:
+
+```ts
+const srcSet = yarlSlide.srcSet?.map((image) => `${image.src} ${image.width}w`).join(", ");
+```
+
+`title` and `description` work the same as with the Captions plugin.
+
+## Plugins
+
+| YARL plugin | This package                                                                            |
+| ----------- | --------------------------------------------------------------------------------------- |
+| Captions    | Built in. `title` and `description` on each slide. `render.caption` to change it.       |
+| Counter     | Built in. `labels.counter` or `render.counter`.                                         |
+| Download    | `download`. `slide.download` takes a URL or `false`, and `slide.downloadName` the name. |
+| Fullscreen  | Built in. `fullscreen={false}` to hide it.                                              |
+| Inline      | Not available.                                                                          |
+| Rotate      | `rotate`.                                                                               |
+| Share       | Not available yet. See the [roadmap](/docs/roadmap).                                    |
+| Slideshow   | `slideshow={{ interval, autoplay }}`. YARL's `delay` is `interval` here.                |
+| Thumbnails  | Built in. Size through `--eg-thumbnail-*` variables.                                    |
+| Video       | Built in. Video files are detected from the extension, or set `type: "video"`.          |
+| Zoom        | Built in. `zoom={{ maxScale, step, doubleTapScale, wheel }}`.                           |
+
+### Zoom options
+
+| YARL                           | This package                            |
+| ------------------------------ | --------------------------------------- |
+| `minZoom`                      | `minScale`                              |
+| `maxZoomPixelRatio`, `maxZoom` | `maxScale`, relative to the fitted size |
+| `zoomInMultiplier`             | `step`                                  |
+| `scrollToZoom`                 | `wheel`, on by default here             |
+
+### Video slides
+
+```diff
+  {
+    type: "video",
++   src: "/media/talk.mp4",
+    poster: "/media/talk.jpg",
+    width: 1920,
+    height: 1080,
+    sources: [{ src: "/media/talk.mp4", type: "video/mp4" }],
+  }
+```
+
+`src` is required here. With `sources`, it is only a fallback. Player options such as `controls` and `playsInline` are set for you. For anything more, use a [custom player](/docs/custom-players). YouTube and Vimeo links work as slides without extra code.
+
+## Render functions
+
+| YARL                                       | This package                                                                      |
+| ------------------------------------------ | --------------------------------------------------------------------------------- |
+| `render.slide({ slide, rect })`            | `render.slide({ slide, index, current, width, height })`                          |
+| `render.iconPrev`, `render.iconClose`, ... | `icons.previous`, `icons.close`, ...                                              |
+| `render.buttonPrev`, `render.buttonNext`   | Not replaceable. Restyle through `classNames.arrow` and `--eg-arrow-*` variables. |
+| `toolbar.buttons`                          | `render.toolbar(buttons, slide, index)`                                           |
+
+Return `undefined` from `render.slide` to keep the built-in rendering, as in YARL.
+
+## Styling
+
+YARL's `styles` prop and its CSS variables map to `--eg-*` variables here. The common ones:
+
+| Goal             | This package      |
+| ---------------- | ----------------- |
+| Backdrop color   | `--eg-background` |
+| Text and icons   | `--eg-color`      |
+| Animation length | `--eg-duration`   |
+| Stacking         | `--eg-z-index`    |
+
+The full list is in [Styling](/docs/styling).

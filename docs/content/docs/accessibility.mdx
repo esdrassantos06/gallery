@@ -1,0 +1,44 @@
+---
+title: Accessibility
+description: What the lightbox does for keyboard and screen reader users, and what is left to you.
+---
+
+The viewer is built to be usable with a keyboard, a screen reader, a switch or a single finger. Here is what it does out of the box.
+
+## Dialog and focus
+
+- The lightbox is a `role="dialog"` with `aria-modal="true"`, named by `labels.dialog`.
+- Focus moves into the dialog when it opens, and `Tab` stays inside it.
+- On close, focus goes to `getThumbnail(index)` for the slide on screen, or back to the element that opened the viewer.
+- When a focused button becomes disabled, for example zoom in at the maximum, focus moves back to the dialog instead of getting lost.
+- Slides other than the current one are `aria-hidden`.
+
+## Names and announcements
+
+- Every button has an `aria-label` from `labels`. Icons are `aria-hidden`.
+- A polite live region announces the current slide with `labels.announcement`.
+- The thumbnail strip is a `nav` named by `labels.thumbnails`. The current thumbnail has `aria-current="true"`.
+- The fullscreen and slideshow toggles change their names with their state.
+- Videos and embeds are named from `alt`, a string `title` or `labels.video`. `tracks` adds captions.
+- A failed download is announced through a `role="status"` region.
+
+## Motion and timing
+
+- `prefers-reduced-motion: reduce` turns every animation off.
+- The slideshow can always be paused from its button, and it stops on its own when the user takes over.
+
+## Touch and pointer
+
+- Controls are at least 44 by 44px and show a visible focus ring, colored by `--eg-focus-color`.
+- Everything a gesture does also has a button or a key: arrows for swipes, the close button for swipe to close, zoom buttons for pinch.
+
+## Scroll lock
+
+Page scroll is locked while the viewer is open. The body is padded by the scrollbar width so the page does not jump, and the previous inline styles are restored exactly on close.
+
+## Your part
+
+- Give every slide a meaningful `alt`. Decorative grids can use `alt=""` on the thumbnail `<img>` as long as the button around it has a name, as in the [quick start](/docs/quick-start).
+- Translate `labels` along with the rest of your UI.
+- If you change colors, keep the focus ring and text readable against `--eg-background`.
+- Custom content from `render` is yours to make accessible.

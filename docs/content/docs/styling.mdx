@@ -1,0 +1,99 @@
+---
+title: Styling
+description: Restyle the lightbox with --eg-* CSS variables.
+---
+
+The lightbox is neutral by default: a black backdrop, the counter top left, the toolbar top right and the caption at the bottom. Restyle it with CSS variables on `.eg-root`, on any ancestor, or through `style`.
+
+```css
+.eg-root {
+  --eg-background: #101418;
+  --eg-color: #f3efe6;
+  --eg-color-muted: rgb(243 239 230 / 0.7);
+  --eg-focus-color: #f2b544;
+  --eg-arrow-background: rgb(242 181 68 / 0.16);
+  --eg-radius: 999px;
+  --eg-duration: 480ms;
+}
+```
+
+```tsx
+<Lightbox style={{ "--eg-background": "#101418" } as React.CSSProperties} {...props} />
+```
+
+The demo below uses exactly the variables above, and nothing else.
+
+<Demo count={4} preset="theme" />
+
+To add your own classes to any part instead, use `classNames`. See [Class names and data attributes](/docs/class-names).
+
+## Light theme
+
+```css
+.eg-root {
+  --eg-background: #f6f5f2;
+  --eg-color: #0b0b0c;
+  --eg-color-muted: rgb(11 11 12 / 0.64);
+  --eg-focus-color: #0b0b0c;
+  --eg-arrow-background: rgb(255 255 255 / 0.7);
+  --eg-caption-background: none;
+  --eg-selection-background: rgb(11 11 12 / 0.16);
+}
+```
+
+## Every variable
+
+| Variable                      | Default                                                                  | Used for                                              |
+| ----------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------- |
+| `--eg-background`             | `#000`                                                                   | Backdrop                                              |
+| `--eg-color`                  | `#fff`                                                                   | Text and icons                                        |
+| `--eg-color-muted`            | `rgb(255 255 255 / 0.72)`                                                | Counter and description                               |
+| `--eg-focus-color`            | `#fff`                                                                   | Focus ring                                            |
+| `--eg-button-background`      | `transparent`                                                            | Toolbar buttons                                       |
+| `--eg-arrow-background`       | `rgb(0 0 0 / 0.45)`                                                      | Arrows                                                |
+| `--eg-caption-background`     | bottom gradient                                                          | Caption                                               |
+| `--eg-selection-background`   | `rgb(255 255 255 / 0.28)`                                                | Text selection                                        |
+| `--eg-font-family`            | `inherit`                                                                | All text                                              |
+| `--eg-font-size`              | `0.9375rem`                                                              | Caption text                                          |
+| `--eg-line-height`            | `1.5`                                                                    | All text                                              |
+| `--eg-title-font-size`        | `1rem`                                                                   | Caption title                                         |
+| `--eg-title-font-weight`      | `600`                                                                    | Caption title                                         |
+| `--eg-counter-font-size`      | `0.875rem`                                                               | Counter                                               |
+| `--eg-spacing`                | `16px` (`12px` under 640px)                                              | Outer spacing                                         |
+| `--eg-gap`                    | `24px`                                                                   | Gap between slides while sliding                      |
+| `--eg-radius`                 | `4px`                                                                    | Buttons and focus ring                                |
+| `--eg-top-bar-height`         | `56px`                                                                   | Top bar                                               |
+| `--eg-button-size`            | `44px`                                                                   | Toolbar buttons                                       |
+| `--eg-arrow-size`             | `48px` (`44px` under 640px)                                              | Arrows                                                |
+| `--eg-icon-size`              | `24px`                                                                   | Icons                                                 |
+| `--eg-stage-padding`          | top bar height and room for the arrows (top bar height only under 640px) | Space around the media                                |
+| `--eg-caption-max-width`      | `65ch`                                                                   | Caption line length                                   |
+| `--eg-thumbnail-width`        | `72px` (`56px` under 640px)                                              | Thumbnail width                                       |
+| `--eg-thumbnail-height`       | `54px` (`42px` under 640px)                                              | Thumbnail height                                      |
+| `--eg-thumbnail-gap`          | `6px`                                                                    | Space between thumbnails                              |
+| `--eg-thumbnail-radius`       | `var(--eg-radius)`                                                       | Thumbnail corners                                     |
+| `--eg-thumbnail-opacity`      | `0.5`                                                                    | Thumbnails other than the current one                 |
+| `--eg-thumbnail-active-color` | `var(--eg-color)`                                                        | Outline of the current thumbnail                      |
+| `--eg-thumbnails-height`      | thumbnail height plus spacing                                            | Space reserved for the strip                          |
+| `--eg-spinner-size`           | `32px`                                                                   | Loading indicator                                     |
+| `--eg-spinner-delay`          | `400ms`                                                                  | How long an image may load before the indicator shows |
+| `--eg-media-background`       | `#111`                                                                   | Behind videos, embeds and posters                     |
+| `--eg-progress-height`        | `2px`                                                                    | Slideshow progress bar                                |
+| `--eg-progress-color`         | `var(--eg-color)`                                                        | Slideshow progress bar                                |
+| `--eg-button-opacity`         | `0.8`                                                                    | Buttons at rest                                       |
+| `--eg-button-opacity-hover`   | `1`                                                                      | Buttons on hover and focus                            |
+| `--eg-disabled-opacity`       | `0.32`                                                                   | Disabled arrows and buttons                           |
+| `--eg-drag-shrink`            | `0.2`                                                                    | How much the image shrinks while dragged down         |
+| `--eg-duration`               | `320ms`                                                                  | Every animation, including the open and close flight  |
+| `--eg-easing`                 | `cubic-bezier(0.2, 0, 0, 1)`                                             | Every animation                                       |
+| `--eg-z-index`                | `1000`                                                                   | Stacking                                              |
+
+Other `--eg-*` names you may see in the inspector, such as `--eg-x`, `--eg-scale` or `--eg-drag-progress`, are written by the lightbox while it animates. Do not set them.
+
+## Tailwind CSS
+
+The stylesheet has no Tailwind dependency and works next to it. Set variables with arbitrary properties on `className`:
+
+```tsx
+<Lightbox className="[--eg-background:var(--color-zinc-950)] [--eg-radius:9999px]" {...props} />
+```
