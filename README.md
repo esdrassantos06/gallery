@@ -11,23 +11,24 @@
 [![npm](https://img.shields.io/npm/v/@esdrassantos06/gallery)](https://www.npmjs.com/package/@esdrassantos06/gallery)
 [![License: MIT](https://img.shields.io/badge/license-MIT-black)](./LICENSE)
 
-**[Documentation](https://gallery-docs-esdrassantos06.vercel.app/docs)** · **[Live demo](https://gallery-esdrassantos06.vercel.app)**
+**[Documentation and live demos](https://gallery-esdrassantos06.vercel.app)**
 
-An accessible, themeable image lightbox for React. It opens out of the thumbnail that was clicked and flies back into it on close. It has zero runtime dependencies, works with any grid, and every string, icon, color, size and timing can be replaced.
+An accessible, themeable image lightbox for React, with optional masonry, justified and uniform grids and a category filter. The lightbox opens out of the thumbnail that was clicked and flies back into it on close. It has zero runtime dependencies, works with any grid, and every string, icon, color, size and timing can be replaced.
 
-> **Status:** version 1.0.0, phase 4 of 7. Everything listed below is implemented and tested. Optional grids, interaction polish and the rest of the release tooling are planned and **not available yet** (see the [roadmap](https://gallery-docs-esdrassantos06.vercel.app/docs/roadmap)).
+> **Status:** version 1.0.0, phase 5 of 7. Everything listed below is implemented and tested. The grids and the filter are on `main` and ship in the next release, not in 1.0.0. Interaction polish and the rest of the release tooling are planned and **not available yet** (see the [roadmap](https://gallery-esdrassantos06.vercel.app/docs/roadmap)).
 
 ## Features
 
 - Open and close animation from your thumbnail, with a zoom and fade fallback.
 - Arrows, keyboard, swipe and flick navigation, with `slide`, `fade` and `zoom` transitions.
 - Thumbnail strip, zoom (wheel, pinch, double tap, buttons, keys), fullscreen, rotation and downloads.
-- Native video with captions, YouTube and Vimeo without their player scripts, any page in an iframe, and room for [custom players](https://gallery-docs-esdrassantos06.vercel.app/docs/custom-players) such as Video.js 10.
+- Native video with captions, YouTube and Vimeo without their player scripts, any page in an iframe, and room for [custom players](https://gallery-esdrassantos06.vercel.app/docs/custom-players) such as Video.js 10.
 - Slideshow that pauses when the user takes over.
+- Optional [justified, masonry and uniform grids](https://gallery-esdrassantos06.vercel.app/docs/grids) and a [category filter](https://gallery-esdrassantos06.vercel.app/docs/filter), each usable with or without the lightbox.
 - Deep links through the URL hash with `useLightboxHash`, closed by the back button.
 - Modal dialog semantics, focus trap and return, a live region, reduced motion and a scroll lock that keeps the page still.
 - Server-rendering safe, ready for the Next.js App Router.
-- Styled with `--eg-*` CSS variables. Runs under a strict Content Security Policy.
+- Styled with `--eg-*` CSS variables. The lightbox needs no `'unsafe-inline'` in a Content Security Policy.
 
 ## Installation
 
@@ -95,33 +96,34 @@ export function Gallery() {
 
 ## Documentation
 
-The full documentation, with live demos on every page, is at **[gallery-docs-esdrassantos06.vercel.app](https://gallery-docs-esdrassantos06.vercel.app/docs)**.
+The full documentation, with live demos on every page, is at **[gallery-esdrassantos06.vercel.app](https://gallery-esdrassantos06.vercel.app/docs)**.
 
-| Topic           | Pages                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Getting started | [Installation](https://gallery-docs-esdrassantos06.vercel.app/docs/installation), [Quick start](https://gallery-docs-esdrassantos06.vercel.app/docs/quick-start), [Next.js App Router](https://gallery-docs-esdrassantos06.vercel.app/docs/nextjs), [Server rendering](https://gallery-docs-esdrassantos06.vercel.app/docs/ssr)                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Features        | [Slides](https://gallery-docs-esdrassantos06.vercel.app/docs/slides), [Navigation and gestures](https://gallery-docs-esdrassantos06.vercel.app/docs/navigation), [Thumbnails](https://gallery-docs-esdrassantos06.vercel.app/docs/thumbnails), [Zoom](https://gallery-docs-esdrassantos06.vercel.app/docs/zoom), [Fullscreen](https://gallery-docs-esdrassantos06.vercel.app/docs/fullscreen), [Slideshow](https://gallery-docs-esdrassantos06.vercel.app/docs/slideshow), [Deep linking](https://gallery-docs-esdrassantos06.vercel.app/docs/deep-linking), [Rotation](https://gallery-docs-esdrassantos06.vercel.app/docs/rotation), [Download](https://gallery-docs-esdrassantos06.vercel.app/docs/download), [Custom players](https://gallery-docs-esdrassantos06.vercel.app/docs/custom-players) |
-| Customising     | [Labels and i18n](https://gallery-docs-esdrassantos06.vercel.app/docs/labels), [Icons](https://gallery-docs-esdrassantos06.vercel.app/docs/icons), [Render overrides](https://gallery-docs-esdrassantos06.vercel.app/docs/render), [Styling](https://gallery-docs-esdrassantos06.vercel.app/docs/styling), [Class names and data attributes](https://gallery-docs-esdrassantos06.vercel.app/docs/class-names)                                                                                                                                                                                                                                                                                                                                                                                         |
-| Reference       | [Lightbox props](https://gallery-docs-esdrassantos06.vercel.app/docs/lightbox-props), [Slide](https://gallery-docs-esdrassantos06.vercel.app/docs/slide), [Exports](https://gallery-docs-esdrassantos06.vercel.app/docs/exports)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| Guides          | [Accessibility](https://gallery-docs-esdrassantos06.vercel.app/docs/accessibility), [Content Security Policy](https://gallery-docs-esdrassantos06.vercel.app/docs/csp), [Performance](https://gallery-docs-esdrassantos06.vercel.app/docs/performance), [Bundle size](https://gallery-docs-esdrassantos06.vercel.app/docs/bundle-size), [Migrating from yet-another-react-lightbox](https://gallery-docs-esdrassantos06.vercel.app/docs/migration)                                                                                                                                                                                                                                                                                                                                                    |
+| Topic           | Pages                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Getting started | [Installation](https://gallery-esdrassantos06.vercel.app/docs/installation), [Quick start](https://gallery-esdrassantos06.vercel.app/docs/quick-start), [Next.js App Router](https://gallery-esdrassantos06.vercel.app/docs/nextjs), [Server rendering](https://gallery-esdrassantos06.vercel.app/docs/ssr)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Features        | [Slides](https://gallery-esdrassantos06.vercel.app/docs/slides), [Navigation and gestures](https://gallery-esdrassantos06.vercel.app/docs/navigation), [Thumbnails](https://gallery-esdrassantos06.vercel.app/docs/thumbnails), [Zoom](https://gallery-esdrassantos06.vercel.app/docs/zoom), [Fullscreen](https://gallery-esdrassantos06.vercel.app/docs/fullscreen), [Slideshow](https://gallery-esdrassantos06.vercel.app/docs/slideshow), [Deep linking](https://gallery-esdrassantos06.vercel.app/docs/deep-linking), [Rotation](https://gallery-esdrassantos06.vercel.app/docs/rotation), [Download](https://gallery-esdrassantos06.vercel.app/docs/download), [Custom players](https://gallery-esdrassantos06.vercel.app/docs/custom-players), [Grids](https://gallery-esdrassantos06.vercel.app/docs/grids), [Category filter](https://gallery-esdrassantos06.vercel.app/docs/filter) |
+| Customising     | [Labels and i18n](https://gallery-esdrassantos06.vercel.app/docs/labels), [Icons](https://gallery-esdrassantos06.vercel.app/docs/icons), [Render overrides](https://gallery-esdrassantos06.vercel.app/docs/render), [Styling](https://gallery-esdrassantos06.vercel.app/docs/styling), [Class names and data attributes](https://gallery-esdrassantos06.vercel.app/docs/class-names)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Reference       | [Lightbox props](https://gallery-esdrassantos06.vercel.app/docs/lightbox-props), [Slide](https://gallery-esdrassantos06.vercel.app/docs/slide), [Exports](https://gallery-esdrassantos06.vercel.app/docs/exports)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Guides          | [Accessibility](https://gallery-esdrassantos06.vercel.app/docs/accessibility), [Content Security Policy](https://gallery-esdrassantos06.vercel.app/docs/csp), [Performance](https://gallery-esdrassantos06.vercel.app/docs/performance), [Bundle size](https://gallery-esdrassantos06.vercel.app/docs/bundle-size), [Migrating from yet-another-react-lightbox](https://gallery-esdrassantos06.vercel.app/docs/migration)                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 The source of the docs lives in [`docs/`](./docs), and the prop tables there are generated from [`src/types.ts`](./src/types.ts).
 
 ## Bundle size
 
-Measured with `npm run size` on version 1.0.0, minified and brotli-compressed, React excluded:
+Measured with `npm run size` on `main` after phase 5, minified and brotli-compressed, React excluded:
 
-| Entry                 | Size    |
-| --------------------- | ------- |
-| `import { Lightbox }` | 9.39 kB |
-| Everything            | 9.8 kB  |
-| `styles.css`          | 2.25 kB |
+| Entry                                                               | Size     |
+| ------------------------------------------------------------------- | -------- |
+| `import { Lightbox }`                                               | 9.36 kB  |
+| `import { MasonryGrid, JustifiedGrid, UniformGrid, GalleryFilter }` | 1.89 kB  |
+| Everything                                                          | 11.24 kB |
+| `styles.css`                                                        | 2.73 kB  |
 
 ## Development
 
 | Script                  | What it does                                      |
 | ----------------------- | ------------------------------------------------- |
-| `npm run dev`           | Demo site and playground on Vite                  |
+| `npm run dev`           | Playground on Vite, also used by the e2e tests    |
 | `npm run test`          | Unit and integration tests (Vitest, jsdom)        |
 | `npm run e2e`           | Playwright on desktop Chrome and Pixel 7          |
 | `npm run typecheck`     | TypeScript, including isolated declaration checks |
@@ -130,7 +132,7 @@ Measured with `npm run size` on version 1.0.0, minified and brotli-compressed, R
 | `npm run size`          | Bundle size                                       |
 | `npm run check:package` | publint and Are the Types Wrong                   |
 
-The docs site has its own scripts: `npm run dev --prefix docs` and `npm run build --prefix docs`.
+The public site, with the docs and demos, lives in [`docs/`](./docs) (Next.js and Fumadocs) and has its own scripts: `npm run dev --prefix docs` and `npm run build --prefix docs`. It is a static export deployed to Vercel by [`vercel.json`](./vercel.json). Every page carries a Content Security Policy with `default-src 'self'` and no `'unsafe-inline'`: the inline scripts, style tags and style attributes of the export are allowed by SHA-256 hashes, added at build time.
 
 ## Contributing
 
@@ -138,4 +140,4 @@ Contributions are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) and the [Co
 
 ## License
 
-[MIT](./LICENSE)
+[MIT](./LICENSE). The justified layout math is adapted from opengallery, MIT License, Copyright (c) 2026 opengallery contributors.

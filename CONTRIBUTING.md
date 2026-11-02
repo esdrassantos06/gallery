@@ -18,13 +18,13 @@ npx playwright install chromium
 npm run dev
 ```
 
-`npm run dev` starts the site and playground on Vite. It is the quickest way to see a change.
+`npm run dev` starts the playground on Vite. It is the quickest way to see a change. The public site and docs live in `docs/` (Next.js and Fumadocs); run them with `npm install --prefix docs` and `npm run dev --prefix docs`.
 
 ## Workflow
 
 1. Open an issue first for anything larger than a small fix, so we can agree on the approach.
 2. Write the failing test first, then the change. Unit and integration tests live next to the code in `src/*.test.ts(x)`; browser tests live in `e2e/`.
-3. Keep the package free of runtime dependencies. Anything the site needs goes in `devDependencies`.
+3. Keep the package free of runtime dependencies. Anything the playground or the docs need goes in `devDependencies`.
 4. Every visible string, icon, color and timing must stay replaceable through `labels`, `icons`, `render` or a `--eg-*` variable.
 5. Run the checks before opening a pull request:
 

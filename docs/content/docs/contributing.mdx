@@ -21,7 +21,7 @@ npx playwright install chromium
 npm run dev
 ```
 
-`npm run dev` starts the demo site and playground on Vite. It is the quickest way to see a change.
+`npm run dev` starts the playground on Vite. It is the quickest way to see a change. The Playwright tests run against it too.
 
 ## Workflow
 
@@ -45,7 +45,7 @@ npm run build && npm run size && npm run check:package
 
 | Script                  | What it does                                      |
 | ----------------------- | ------------------------------------------------- |
-| `npm run dev`           | Demo site and playground                          |
+| `npm run dev`           | Playground on Vite                                |
 | `npm run test`          | Unit and integration tests (Vitest, jsdom)        |
 | `npm run e2e`           | Playwright on desktop Chrome and Pixel 7          |
 | `npm run typecheck`     | TypeScript, including isolated declaration checks |
@@ -56,7 +56,7 @@ npm run build && npm run size && npm run check:package
 
 ## Working on the docs
 
-This site lives in `docs/`, a Next.js app built with [Fumadocs](https://fumadocs.dev). It imports the library straight from `src/`, so the demos always run the code in your branch, and the prop tables are generated from `src/types.ts`.
+This site lives in `docs/`, a Next.js app built with [Fumadocs](https://fumadocs.dev), exported as static files and deployed from the repository root by `vercel.json`. It imports the library straight from `src/`, so the demos always run the code in your branch, and the prop tables are generated from `src/types.ts`.
 
 ```bash
 npm install --prefix docs
@@ -70,6 +70,7 @@ Pages are MDX files in `docs/content/docs`, and the sidebar order is in `meta.js
 
 - `<Demo />` renders a live gallery. Pass plain lightbox props, `set` (`images`, `media` or `player`), `count`, and `preset` for props that need functions.
 - `<HashDemo prefix="..." />` does the same with `useLightboxHash`.
+- `<GridsDemo />` renders a grid. Pass `layout`, `switcher`, `filter`, `lightbox` and `count`.
 
 Write prop tables with `<auto-type-table path="src/types.ts" name="..." />` instead of by hand, so they cannot drift from the code.
 
