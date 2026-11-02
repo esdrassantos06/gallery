@@ -4,7 +4,7 @@ export { defaultFilterLabels, defaultGridLabels, defaultLabels } from "./labels"
 export { GalleryFilter } from "./GalleryFilter";
 export { JustifiedGrid, MasonryGrid, UniformGrid, type GridComponent } from "./Grids";
 export { fitContain, type Size } from "./geometry";
-export { getMedia, type Media, type MediaKind } from "./media";
+export { getMedia, previewOf, type Media, type MediaKind } from "./media";
 export { useLightboxHash, type LightboxHashOptions } from "./useLightboxHash";
 export type {
   DownloadOptions,

@@ -6,6 +6,7 @@ import {
   JustifiedGrid,
   Lightbox,
   MasonryGrid,
+  previewOf,
   UniformGrid,
   useLightboxHash,
   type GridHandle,
@@ -282,7 +283,7 @@ function Gallery({ title, description, slides, lightbox, state, aside }: Gallery
             onClick={() => setIndex(i)}
           >
             <img
-              src={slide.thumbnail ?? slide.src}
+              src={previewOf(slide)}
               alt=""
               width={400}
               height={400}

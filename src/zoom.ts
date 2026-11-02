@@ -5,10 +5,10 @@ export interface Point {
 }
 
 /** Fraction of the overshoot kept when a pinch goes below the minimum scale. */
-export const PINCH_UNDER_FRICTION = 0.15;
+const PINCH_UNDER_FRICTION = 0.15;
 
 /** Fraction of the overshoot kept when a pinch goes past the maximum scale. */
-export const PINCH_OVER_FRICTION = 0.05;
+const PINCH_OVER_FRICTION = 0.05;
 
 /** Keeps `scale` within `[min, max]`. */
 export function clampScale(scale: number, min: number, max: number): number {
@@ -95,7 +95,7 @@ export function getWheelFactor(deltaY: number, deltaMode: number, ctrlKey: boole
 }
 
 /** Share of the minimum scale a pinch must release under to close, so resting fingers never do. */
-export const PINCH_CLOSE_RATIO = 0.9;
+const PINCH_CLOSE_RATIO = 0.9;
 
 /**
  * Whether a released pinch closes the lightbox: it ended well under the

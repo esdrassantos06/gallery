@@ -256,6 +256,7 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+  background: center / var(--eg-placeholder-size, cover) no-repeat;
   transition: transform var(--eg-duration) var(--eg-easing);
   -webkit-user-drag: none;
 }
@@ -576,6 +577,10 @@
   transform: scale(1.25);
 }
 
+.eg-pager-dot[data-more]::before {
+  transform: scale(0.6);
+}
+
 .eg-pager-dot:focus-visible {
   outline: 2px solid var(--eg-focus-color);
   outline-offset: -2px;
@@ -736,8 +741,13 @@
 }
 
 .eg-grid--masonry > .eg-grid-item,
-.eg-grid--justified > .eg-grid-item {
+.eg-grid--justified > .eg-grid-item,
+.eg-grid[data-virtual] > .eg-grid-item {
   position: absolute;
+}
+
+.eg-grid--uniform[data-virtual] {
+  display: block;
 }
 
 .eg-grid--uniform > .eg-grid-item {

@@ -3,6 +3,7 @@ import { useRef, useState, type ReactNode } from "react";
 import {
   Icon,
   Lightbox,
+  previewOf,
   useLightboxHash,
   type LightboxProps,
   type RenderSlideProps,
@@ -181,7 +182,7 @@ export function Grid({ slides, state: [index, setIndex], hint = true, ...options
               onClick={() => setIndex(i)}
             >
               <img
-                src={slide.thumbnail ?? slide.src}
+                src={previewOf(slide)}
                 alt=""
                 width={240}
                 height={240}

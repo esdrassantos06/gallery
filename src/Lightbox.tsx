@@ -13,7 +13,16 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { cx, getFocusable, lockScroll, readDuration, readEasing, useIsoLayoutEffect } from "./dom";
+import {
+  cx,
+  fetchPriority,
+  getFocusable,
+  lockScroll,
+  readDuration,
+  readEasing,
+  useDataBudget,
+  useIsoLayoutEffect,
+} from "./dom";
 import {
   fitContain,
   flipMedia,
@@ -39,6 +48,7 @@ import {
 } from "./gestures";
 import { defaultIcons } from "./icons";
 import { defaultLabels } from "./labels";
+import { remember } from "./lru";
 import { getMedia } from "./media";
 import { Thumbnails } from "./Thumbnails";
 import { getToolbarOverflow, TOOLBAR_PRIORITY, type ToolKey } from "./toolbar";
@@ -85,6 +95,12 @@ const NO_FLIP: Flip = { x: 1, y: 1 };
 const DEFAULT_IDLE_MS = 3000;
 
 const COPIED_MS = 2000;
+
+/** Slides whose load status and natural size are kept, most recently seen first. */
+const MEMORY_LIMIT = 300;
+
+/** Most pager dots shown at once; more slides slide a window of dots along. */
+const PAGER_DOTS = 12;
 
 /** Parts that idle hiding fades out. */
 const CONTROLS = [".eg-top-bar", ".eg-arrow", ".eg-caption", ".eg-thumbnails", ".eg-pager"];
@@ -271,6 +287,8 @@ export function Lightbox({
   const [notice, setNotice] = useState("");
   const [lastActive, setLastActive] = useState(active);
   const [jumps, setJumps] = useState<ReadonlySet<number>>(() => new Set());
+  const budget = useDataBudget();
+  const reach = budget === "full" ? preload : Math.min(preload, 1);
   if (active !== lastActive) {
     setLastActive(active);
     setRotation(0);
@@ -278,7 +296,7 @@ export function Lightbox({
     setNotice("");
     setJumps(
       new Set(
-        getSlideWindow(active, total, preload, loop)
+        getSlideWindow(active, total, reach, loop)
           .filter((s) => Math.abs(s.offset - relativeOffset(s.index, lastActive, total, loop)) > 1)
           .map((s) => s.index),
       ),
@@ -973,6 +991,7 @@ export function Lightbox({
     item: Slide,
     i: number,
     isCurrent: boolean,
+    hold: boolean,
   ): {
     node: ReactNode;
     builtIn: boolean;
@@ -1023,12 +1042,12 @@ export function Lightbox({
               style={frameStyle}
               controls
               playsInline
-              preload="metadata"
+              preload={isCurrent ? "metadata" : "none"}
               muted={video?.autoplay ?? false}
               onLoadedMetadata={(e) => {
                 const { videoWidth: width, videoHeight: height } = e.currentTarget;
                 if (!naturalSize && width && height) {
-                  setNatural((prev) => ({ ...prev, [item.src]: { width, height } }));
+                  setNatural((prev) => remember(prev, item.src, { width, height }, MEMORY_LIMIT));
                 }
               }}
             >
@@ -1096,11 +1115,17 @@ export function Lightbox({
       imageSize && isCurrent && zoomConfig && zoom.scale > 1
         ? imageSize.width * zoomConfig.maxScale
         : imageSize?.width;
+    const fetching = isCurrent || !hold || status[item.src] !== undefined;
+    const placeholder =
+      item.thumbnail && status[item.src] !== "loaded"
+        ? `url(${JSON.stringify(item.thumbnail)})`
+        : undefined;
     const image = (
       <img
         className={cn("image", "eg-image")}
-        src={item.src}
-        srcSet={item.srcSet}
+        src={fetching ? item.src : undefined}
+        srcSet={fetching ? item.srcSet : undefined}
+        {...fetchPriority(isCurrent ? "high" : "low")}
         sizes={
           item.srcSet
             ? (item.sizes ?? (renderedWidth ? `${Math.round(renderedWidth)}px` : "100vw"))
@@ -1110,11 +1135,12 @@ export function Lightbox({
         width={imageSize?.width}
         height={imageSize?.height}
         style={
-          imageSize || transform
+          imageSize || transform || placeholder
             ? {
                 width: imageSize?.width,
                 height: imageSize?.height,
                 transform: transform || undefined,
+                backgroundImage: placeholder,
               }
             : undefined
         }
@@ -1123,13 +1149,17 @@ export function Lightbox({
         onLoad={(e) => {
           const { naturalWidth: width, naturalHeight: height } = e.currentTarget;
           setStatus((prev) =>
-            prev[item.src] === "loaded" ? prev : { ...prev, [item.src]: "loaded" },
+            prev[item.src] === "loaded"
+              ? prev
+              : remember<ImageStatus>(prev, item.src, "loaded", MEMORY_LIMIT),
           );
           if (!naturalSize && width && height) {
-            setNatural((prev) => ({ ...prev, [item.src]: { width, height } }));
+            setNatural((prev) => remember(prev, item.src, { width, height }, MEMORY_LIMIT));
           }
         }}
-        onError={() => setStatus((prev) => ({ ...prev, [item.src]: "error" }))}
+        onError={() =>
+          setStatus((prev) => remember<ImageStatus>(prev, item.src, "error", MEMORY_LIMIT))
+        }
       />
     );
     const framed = rotate ? (
@@ -1156,11 +1186,13 @@ export function Lightbox({
     };
   };
 
-  const windowSlides = getSlideWindow(active, total, preload, loop).map(({ index: i, offset }) => ({
+  const currentMedia = renderMedia(slide, active, true, false);
+  const hold = budget === "save" || (currentMedia.builtIn && status[slide.src] === undefined);
+  const windowSlides = getSlideWindow(active, total, reach, loop).map(({ index: i, offset }) => ({
     index: i,
     offset,
     isCurrent: i === active,
-    media: renderMedia(slides[i] as Slide, i, i === active),
+    media: i === active ? currentMedia : renderMedia(slides[i] as Slide, i, false, hold),
   }));
   const currentIsImage = windowSlides.find((s) => s.isCurrent)?.media.builtIn ?? false;
   const showThumbnails = thumbnails && total > 1;
@@ -1174,11 +1206,11 @@ export function Lightbox({
   const saveCurrent = async (url: string) => {
     const item = slide;
     const name = item.downloadName ?? downloadOptions.filename?.(item, active) ?? fileName(url);
-    if (new URL(url, window.location.href).origin === window.location.origin) {
-      saveLink(url, name);
-      return;
-    }
     try {
+      if (new URL(url, window.location.href).origin === window.location.origin) {
+        saveLink(url, name);
+        return;
+      }
       const response = await fetch(url, { mode: "cors" });
       if (!response.ok) throw new Error(`Download failed with HTTP ${response.status}`);
       const href = URL.createObjectURL(await response.blob());
@@ -1422,6 +1454,10 @@ export function Lightbox({
   );
 
   const showPager = pager && total > 1;
+  const pagerStart = Math.min(
+    Math.max(active - Math.floor(PAGER_DOTS / 2), 0),
+    Math.max(total - PAGER_DOTS, 0),
+  );
 
   const slideCaption = (item: Slide, i: number, frame: CSSProperties | undefined) => {
     if (captionPosition !== "slide" || getMedia(item).kind !== "image") return null;
@@ -1535,16 +1571,24 @@ export function Lightbox({
       ) : null}
       {showPager ? (
         <nav className={cn("pager", "eg-pager")} aria-label={labels.pager}>
-          {slides.map((item, i) => (
-            <button
-              key={i}
-              type="button"
-              className={cn("pagerDot", "eg-pager-dot")}
-              aria-label={labels.pagerItem(i + 1, total, item)}
-              aria-current={i === active || undefined}
-              onClick={() => go(i)}
-            />
-          ))}
+          {slides.slice(pagerStart, pagerStart + PAGER_DOTS).map((item, offset) => {
+            const i = pagerStart + offset;
+            return (
+              <button
+                key={i}
+                type="button"
+                className={cn("pagerDot", "eg-pager-dot")}
+                aria-label={labels.pagerItem(i + 1, total, item)}
+                aria-current={i === active || undefined}
+                data-more={
+                  (offset === 0 && pagerStart > 0) ||
+                  (offset === PAGER_DOTS - 1 && pagerStart + PAGER_DOTS < total) ||
+                  undefined
+                }
+                onClick={() => go(i)}
+              />
+            );
+          })}
         </nav>
       ) : null}
       {showThumbnails ? (

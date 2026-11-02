@@ -106,3 +106,16 @@ export function getMedia(
 
   return VIDEO_EXTENSION.test(url.pathname) ? { kind: "video" } : { kind: "image" };
 }
+
+/**
+ * Small still for a slide in grids and the thumbnail strip: its `thumbnail`,
+ * then its `poster`, then the provider's poster, then the image itself. Videos
+ * and iframes without any still get `undefined`, never their own file.
+ */
+export function previewOf(
+  slide: Pick<Slide, "src" | "type" | "poster" | "thumbnail">,
+): string | undefined {
+  if (slide.thumbnail ?? slide.poster) return slide.thumbnail ?? slide.poster;
+  const media = getMedia(slide);
+  return media.poster ?? (media.kind === "image" ? slide.src : undefined);
+}
