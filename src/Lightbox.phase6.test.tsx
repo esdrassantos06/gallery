@@ -238,6 +238,18 @@ describe("right-to-left", () => {
   });
 });
 
+describe("bidirectional text", () => {
+  it("lays the counter out by its own content so it reads 1 / 12 in RTL", async () => {
+    await openAt(0, { dir: "rtl" });
+    expect(document.querySelector(".eg-counter")).toHaveAttribute("dir", "auto");
+  });
+
+  it("lays captions out by their own content, so English captions keep their punctuation in RTL", async () => {
+    await openAt(0, { dir: "rtl" });
+    expect(document.querySelector(".eg-caption")).toHaveAttribute("dir", "auto");
+  });
+});
+
 describe("pinch to close", () => {
   const touch = (type: "pointerDown" | "pointerMove" | "pointerUp", id: number, x: number) =>
     fireEvent[type](stage(), {

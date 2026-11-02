@@ -4,6 +4,8 @@ All notable changes are listed here. The project follows [Semantic Versioning](h
 
 ## Unreleased
 
+- Fix: in right-to-left layouts the counter read "12 / 1" and English captions moved their full stop to the start. The counter and caption now take their direction from their own text (`dir="auto"`).
+
 - Toolbar overflow: on narrow screens the buttons that do not fit move into an accessible "More options" menu (menu button pattern), zoom first; close stays visible. On by default, `toolbarOverflow={false}` turns it off.
 - `idle`: fade the top bar, arrows, caption, thumbnails and pager out after a pause, back on any input; never while a control has keyboard focus or the pointer.
 - Right-to-left: `dir`, or the inherited direction, mirrors arrows, swipes, arrow keys, thumbnails, pager and toolbar.
