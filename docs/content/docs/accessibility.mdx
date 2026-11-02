@@ -20,17 +20,24 @@ The viewer is built to be usable with a keyboard, a screen reader, a switch or a
 - The thumbnail strip is a `nav` named by `labels.thumbnails`. The current thumbnail has `aria-current="true"`.
 - The fullscreen and slideshow toggles change their names with their state.
 - Videos and embeds are named from `alt`, a string `title` or `labels.video`. `tracks` adds captions.
-- A failed download is announced through a `role="status"` region.
+- A failed download, a copied link and a failed share are announced through a `role="status"` region.
+- The [overflow menu](/docs/toolbar) follows the menu button pattern: `aria-haspopup`, `aria-expanded`, `role="menu"`, arrow keys, Escape and focus return.
+- [Pager dots](/docs/pager) are a named `nav`, with `aria-current` on the current dot and buttons of at least 24 by 24px.
 
 ## Motion and timing
 
 - `prefers-reduced-motion: reduce` turns every animation off.
+- [Idle controls](/docs/idle) never hide while a control has keyboard focus, and Tab brings them back.
 - The slideshow can always be paused from its button, and it stops on its own when the user takes over.
 
 ## Touch and pointer
 
 - Controls are at least 44 by 44px and show a visible focus ring, colored by `--eg-focus-color`.
-- Everything a gesture does also has a button or a key: arrows for swipes, the close button for swipe to close, zoom buttons for pinch.
+- Everything a gesture does also has a button or a key: arrows for swipes, the close button for swipe and pinch to close, zoom buttons for pinch.
+
+## Right-to-left
+
+[Right-to-left](/docs/rtl) layouts mirror arrows, swipes, arrow keys, thumbnails, dots and toolbar, following `<html dir>`.
 
 ## Grids and filter
 

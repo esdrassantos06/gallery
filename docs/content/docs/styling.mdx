@@ -43,50 +43,61 @@ To add your own classes to any part instead, use `classNames`. See [Class names 
 
 ## Every variable
 
-| Variable                      | Default                                                                  | Used for                                              |
-| ----------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------- |
-| `--eg-background`             | `#000`                                                                   | Backdrop                                              |
-| `--eg-color`                  | `#fff`                                                                   | Text and icons                                        |
-| `--eg-color-muted`            | `rgb(255 255 255 / 0.72)`                                                | Counter and description                               |
-| `--eg-focus-color`            | `#fff`                                                                   | Focus ring                                            |
-| `--eg-button-background`      | `transparent`                                                            | Toolbar buttons                                       |
-| `--eg-arrow-background`       | `rgb(0 0 0 / 0.45)`                                                      | Arrows                                                |
-| `--eg-caption-background`     | bottom gradient                                                          | Caption                                               |
-| `--eg-selection-background`   | `rgb(255 255 255 / 0.28)`                                                | Text selection                                        |
-| `--eg-font-family`            | `inherit`                                                                | All text                                              |
-| `--eg-font-size`              | `0.9375rem`                                                              | Caption text                                          |
-| `--eg-line-height`            | `1.5`                                                                    | All text                                              |
-| `--eg-title-font-size`        | `1rem`                                                                   | Caption title                                         |
-| `--eg-title-font-weight`      | `600`                                                                    | Caption title                                         |
-| `--eg-counter-font-size`      | `0.875rem`                                                               | Counter                                               |
-| `--eg-spacing`                | `16px` (`12px` under 640px)                                              | Outer spacing                                         |
-| `--eg-gap`                    | `24px`                                                                   | Gap between slides while sliding                      |
-| `--eg-radius`                 | `4px`                                                                    | Buttons and focus ring                                |
-| `--eg-top-bar-height`         | `56px`                                                                   | Top bar                                               |
-| `--eg-button-size`            | `44px`                                                                   | Toolbar buttons                                       |
-| `--eg-arrow-size`             | `48px` (`44px` under 640px)                                              | Arrows                                                |
-| `--eg-icon-size`              | `24px`                                                                   | Icons                                                 |
-| `--eg-stage-padding`          | top bar height and room for the arrows (top bar height only under 640px) | Space around the media                                |
-| `--eg-caption-max-width`      | `65ch`                                                                   | Caption line length                                   |
-| `--eg-thumbnail-width`        | `72px` (`56px` under 640px)                                              | Thumbnail width                                       |
-| `--eg-thumbnail-height`       | `54px` (`42px` under 640px)                                              | Thumbnail height                                      |
-| `--eg-thumbnail-gap`          | `6px`                                                                    | Space between thumbnails                              |
-| `--eg-thumbnail-radius`       | `var(--eg-radius)`                                                       | Thumbnail corners                                     |
-| `--eg-thumbnail-opacity`      | `0.5`                                                                    | Thumbnails other than the current one                 |
-| `--eg-thumbnail-active-color` | `var(--eg-color)`                                                        | Outline of the current thumbnail                      |
-| `--eg-thumbnails-height`      | thumbnail height plus spacing                                            | Space reserved for the strip                          |
-| `--eg-spinner-size`           | `32px`                                                                   | Loading indicator                                     |
-| `--eg-spinner-delay`          | `400ms`                                                                  | How long an image may load before the indicator shows |
-| `--eg-media-background`       | `#111`                                                                   | Behind videos, embeds and posters                     |
-| `--eg-progress-height`        | `2px`                                                                    | Slideshow progress bar                                |
-| `--eg-progress-color`         | `var(--eg-color)`                                                        | Slideshow progress bar                                |
-| `--eg-button-opacity`         | `0.8`                                                                    | Buttons at rest                                       |
-| `--eg-button-opacity-hover`   | `1`                                                                      | Buttons on hover and focus                            |
-| `--eg-disabled-opacity`       | `0.32`                                                                   | Disabled arrows and buttons                           |
-| `--eg-drag-shrink`            | `0.2`                                                                    | How much the image shrinks while dragged down         |
-| `--eg-duration`               | `320ms`                                                                  | Every animation, including the open and close flight  |
-| `--eg-easing`                 | `cubic-bezier(0.2, 0, 0, 1)`                                             | Every animation                                       |
-| `--eg-z-index`                | `1000`                                                                   | Stacking                                              |
+| Variable                          | Default                                                                  | Used for                                              |
+| --------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------- |
+| `--eg-background`                 | `#000`                                                                   | Backdrop                                              |
+| `--eg-color`                      | `#fff`                                                                   | Text and icons                                        |
+| `--eg-color-muted`                | `rgb(255 255 255 / 0.72)`                                                | Counter and description                               |
+| `--eg-focus-color`                | `#fff`                                                                   | Focus ring                                            |
+| `--eg-button-background`          | `transparent`                                                            | Toolbar buttons                                       |
+| `--eg-arrow-background`           | `rgb(0 0 0 / 0.45)`                                                      | Arrows                                                |
+| `--eg-caption-background`         | bottom gradient                                                          | Caption                                               |
+| `--eg-selection-background`       | `rgb(255 255 255 / 0.28)`                                                | Text selection                                        |
+| `--eg-font-family`                | `inherit`                                                                | All text                                              |
+| `--eg-font-size`                  | `0.9375rem`                                                              | Caption text                                          |
+| `--eg-line-height`                | `1.5`                                                                    | All text                                              |
+| `--eg-title-font-size`            | `1rem`                                                                   | Caption title                                         |
+| `--eg-title-font-weight`          | `600`                                                                    | Caption title                                         |
+| `--eg-counter-font-size`          | `0.875rem`                                                               | Counter                                               |
+| `--eg-spacing`                    | `16px` (`12px` under 640px)                                              | Outer spacing                                         |
+| `--eg-gap`                        | `24px`                                                                   | Gap between slides while sliding                      |
+| `--eg-radius`                     | `4px`                                                                    | Buttons and focus ring                                |
+| `--eg-top-bar-height`             | `56px`                                                                   | Top bar                                               |
+| `--eg-button-size`                | `44px`                                                                   | Toolbar buttons                                       |
+| `--eg-arrow-size`                 | `48px` (`44px` under 640px)                                              | Arrows                                                |
+| `--eg-icon-size`                  | `24px`                                                                   | Icons                                                 |
+| `--eg-stage-padding`              | top bar height and room for the arrows (top bar height only under 640px) | Space around the media                                |
+| `--eg-caption-max-width`          | `65ch`                                                                   | Caption line length                                   |
+| `--eg-thumbnail-width`            | `72px` (`56px` under 640px)                                              | Thumbnail width                                       |
+| `--eg-thumbnail-height`           | `54px` (`42px` under 640px)                                              | Thumbnail height                                      |
+| `--eg-thumbnail-gap`              | `6px`                                                                    | Space between thumbnails                              |
+| `--eg-thumbnail-radius`           | `var(--eg-radius)`                                                       | Thumbnail corners                                     |
+| `--eg-thumbnail-opacity`          | `0.5`                                                                    | Thumbnails other than the current one                 |
+| `--eg-thumbnail-active-color`     | `var(--eg-color)`                                                        | Outline of the current thumbnail                      |
+| `--eg-thumbnails-height`          | thumbnail height plus spacing                                            | Space reserved for the strip                          |
+| `--eg-spinner-size`               | `32px`                                                                   | Loading indicator                                     |
+| `--eg-spinner-delay`              | `400ms`                                                                  | How long an image may load before the indicator shows |
+| `--eg-media-background`           | `#111`                                                                   | Behind videos, embeds and posters                     |
+| `--eg-progress-height`            | `2px`                                                                    | Slideshow progress bar                                |
+| `--eg-progress-color`             | `var(--eg-color)`                                                        | Slideshow progress bar                                |
+| `--eg-button-opacity`             | `0.8`                                                                    | Buttons at rest                                       |
+| `--eg-button-opacity-hover`       | `1`                                                                      | Buttons on hover and focus                            |
+| `--eg-disabled-opacity`           | `0.32`                                                                   | Disabled arrows and buttons                           |
+| `--eg-drag-shrink`                | `0.2`                                                                    | How much the image shrinks while dragged down         |
+| `--eg-duration`                   | `320ms`                                                                  | Every animation, including the open and close flight  |
+| `--eg-easing`                     | `cubic-bezier(0.2, 0, 0, 1)`                                             | Every animation                                       |
+| `--eg-z-index`                    | `1000`                                                                   | Stacking                                              |
+| `--eg-menu-background`            | `rgb(24 24 24 / 0.96)`                                                   | Overflow menu                                         |
+| `--eg-menu-color`                 | `var(--eg-color)`                                                        | Overflow menu text and icons                          |
+| `--eg-menu-radius`                | `8px`                                                                    | Overflow menu corners                                 |
+| `--eg-menu-shadow`                | `0 8px 24px rgb(0 0 0 / 0.4)`                                            | Overflow menu shadow                                  |
+| `--eg-menu-item-height`           | `44px`                                                                   | Overflow menu items                                   |
+| `--eg-menu-item-hover-background` | `rgb(255 255 255 / 0.1)`                                                 | Hovered and focused menu item                         |
+| `--eg-pager-height`               | `40px`                                                                   | Space reserved for the pager dots                     |
+| `--eg-pager-dot-size`             | `8px`                                                                    | Visible dot, the button is at least 24 by 24px        |
+| `--eg-pager-dot-gap`              | `4px`                                                                    | Space on each side of a dot                           |
+| `--eg-pager-dot-color`            | `rgb(255 255 255 / 0.4)`                                                 | Dots other than the current one                       |
+| `--eg-pager-dot-active-color`     | `var(--eg-color)`                                                        | Current dot                                           |
 
 Other `--eg-*` names you may see in the inspector, such as `--eg-x`, `--eg-scale` or `--eg-drag-progress`, are written by the lightbox while it animates. Do not set them.
 

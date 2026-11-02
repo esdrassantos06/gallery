@@ -3,7 +3,7 @@ title: Content Security Policy
 description: Run the lightbox under a strict CSP without unsafe-inline.
 ---
 
-The package loads nothing from third parties, uses no CDN and injects no inline scripts or style tags.
+The package loads nothing from third parties, uses no CDN and injects no inline scripts or style tags. [Sharing](/docs/share) goes through the browser's own `navigator.share` and `navigator.clipboard`.
 
 - Styles come from the stylesheet you import, so `style-src 'self'` is enough when you serve it yourself.
 - Sizes, positions and drag offsets are written through the CSSOM (`element.style`), which `style-src` does not restrict. No `'unsafe-inline'` is needed.

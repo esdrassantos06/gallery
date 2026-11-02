@@ -1,0 +1,26 @@
+---
+title: Right-to-left
+description: Mirror arrows, swipes, keys, thumbnails, dots and toolbar for right-to-left languages.
+---
+
+<Callout>
+  Right-to-left support is on `main` and ships in the next release. It is not in 1.0.0.
+</Callout>
+
+The lightbox follows the direction of the element it is portalled into, so `<html dir="rtl">` is enough. `dir="rtl"` or `dir="ltr"` forces one.
+
+```tsx
+<Lightbox dir="rtl" labels={arabicLabels} {...props} />
+```
+
+<Demo count={5} dir="rtl" pager />
+
+In right-to-left layouts, the next slide comes from the left:
+
+- The arrows swap sides and their icons mirror.
+- A drag to the right and `ArrowLeft` go forward.
+- The thumbnails, dots and toolbar run right to left.
+- The [overflow menu](/docs/toolbar) opens from the left edge.
+- The slideshow progress grows from the right.
+
+The root carries `dir="ltr"` or `dir="rtl"`, so your CSS can target it. Translate the strings with [`labels`](/docs/labels).

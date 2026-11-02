@@ -28,7 +28,8 @@ Built-in images can be magnified up to `maxScale` times their fitted size. Zoom 
 
 - Zoom resets when the slide changes, the window resizes or the viewer closes.
 - While zoomed, `sizes` grows to the magnified width, so the browser can switch to a sharper `srcSet` candidate.
-- Pinching past the limits meets resistance and settles back on release.
+- Pinching past the limits meets resistance and settles back on release. Pinching under the fitted size from fit and letting go closes the viewer, unless `pinchToClose={false}`. See [Navigation and gestures](/docs/navigation#gestures).
+- A zoomed or pinched image flies back to its thumbnail from where it is on screen when the viewer closes.
 - The root gets `data-zoomed` while the image is magnified, and `.eg-zoom` gets `data-gesture` while a pinch, pan or wheel zoom follows the pointer.
 - Slides drawn by `render.slide`, videos and embeds do not zoom. The zoom buttons are hidden on them.
 

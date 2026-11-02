@@ -1,0 +1,23 @@
+---
+title: Idle controls
+description: Fade the controls out after a pause and bring them back on any input.
+---
+
+<Callout>Idle controls are on `main` and ship in the next release. They are not in 1.0.0.</Callout>
+
+```tsx
+<Lightbox idle {...props} />
+<Lightbox idle={5000} {...props} />
+```
+
+With `idle`, the top bar, arrows, caption, thumbnails and pager fade out after 3 seconds, or the number of ms you pass, without pointer movement, touch, wheel or key presses. The pointer is hidden over the image too. It is off by default.
+
+Open the demo and keep still for two seconds.
+
+<Demo count={4} idle={2000} />
+
+- Any of those inputs brings the controls back, and the tap that wakes them never closes the viewer.
+- They stay while a control has keyboard focus, while the pointer rests on one and while the [overflow menu](/docs/toolbar) is open.
+- Hidden controls are still reachable with Tab, which shows them again.
+- The fade uses `opacity` and `--eg-duration`, so it is instant under `prefers-reduced-motion`.
+- The root gets `data-idle` while the controls are hidden.

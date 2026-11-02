@@ -76,7 +76,7 @@ const srcSet = yarlSlide.srcSet?.map((image) => `${image.src} ${image.width}w`).
 | Fullscreen  | Built in. `fullscreen={false}` to hide it.                                              |
 | Inline      | Not available.                                                                          |
 | Rotate      | `rotate`.                                                                               |
-| Share       | Not available yet. See the [roadmap](/docs/roadmap).                                    |
+| Share       | `share`, through `navigator.share` with a copy-link fallback.                           |
 | Slideshow   | `slideshow={{ interval, autoplay }}`. YARL's `delay` is `interval` here.                |
 | Thumbnails  | Built in. Size through `--eg-thumbnail-*` variables.                                    |
 | Video       | Built in. Video files are detected from the extension, or set `type: "video"`.          |

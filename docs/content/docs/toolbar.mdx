@@ -1,0 +1,53 @@
+---
+title: Toolbar and overflow menu
+description: Buttons that do not fit on a narrow screen move into an accessible More options menu.
+---
+
+<Callout>The overflow menu is on `main` and ships in the next release. It is not in 1.0.0.</Callout>
+
+On a narrow screen, the toolbar buttons that do not fit beside the counter move into a "More options" menu. The counter never collides with them, and close always stays in reach. It is on by default.
+
+Open the demo on a phone, or make the window narrow, to see the menu.
+
+<Demo count={4} rotate flip share download slideshow />
+
+## Which buttons move first
+
+1. Zoom in and out, since pinch, double tap and the wheel do the same.
+2. Rotate and flip.
+3. Fullscreen.
+4. Slideshow, share and download stay longest.
+
+Close never moves. The toolbar is measured with the stage's `ResizeObserver`, so it updates on rotation and resize. Custom content from `render.toolbar` stays in the row, and its width is accounted for.
+
+## Keyboard and screen readers
+
+The menu follows the WAI-ARIA menu button pattern:
+
+- The button has `aria-haspopup="menu"` and `aria-expanded`, and is named by `labels.more`.
+- Enter, Space or ArrowDown open the menu on the first item. ArrowUp opens it on the last.
+- ArrowUp, ArrowDown, Home and End move between items.
+- Escape and Tab close it and return focus to the button.
+- Choosing an item runs it and closes the menu.
+- A press anywhere outside only dismisses the menu. It never closes the viewer.
+
+## Turning it off
+
+```tsx
+<Lightbox toolbarOverflow={false} {...props} />
+```
+
+Every button then stays in the row.
+
+## Styling
+
+| Variable                          | Default                       | Used for                      |
+| --------------------------------- | ----------------------------- | ----------------------------- |
+| `--eg-menu-background`            | `rgb(24 24 24 / 0.96)`        | Menu background               |
+| `--eg-menu-color`                 | `var(--eg-color)`             | Menu text and icons           |
+| `--eg-menu-radius`                | `8px`                         | Menu corners                  |
+| `--eg-menu-shadow`                | `0 8px 24px rgb(0 0 0 / 0.4)` | Menu shadow                   |
+| `--eg-menu-item-height`           | `44px`                        | Menu items                    |
+| `--eg-menu-item-hover-background` | `rgb(255 255 255 / 0.1)`      | Hovered and focused menu item |
+
+Classes: `eg-more` on the button, `eg-menu`, `eg-menu-item` and `eg-menu-scrim`. `classNames.menu` and `classNames.menuItem` add your own. The root gets `data-menu` while the menu is open.
