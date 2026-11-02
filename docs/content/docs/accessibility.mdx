@@ -32,6 +32,12 @@ The viewer is built to be usable with a keyboard, a screen reader, a switch or a
 - Controls are at least 44 by 44px and show a visible focus ring, colored by `--eg-focus-color`.
 - Everything a gesture does also has a button or a key: arrows for swipes, the close button for swipe to close, zoom buttons for pinch.
 
+## Grids and filter
+
+- Grid items are buttons named by `labels.open`, inside a list. Their images have an empty `alt`, since the button carries the name. Without `onOpen`, items are plain images with their `alt` text.
+- Masonry keeps the DOM order equal to the visual reading order.
+- The filter is a `role="group"` named by `labels.group`, with `aria-pressed` toggle buttons and a polite live region that announces `labels.count`.
+
 ## Scroll lock
 
 Page scroll is locked while the viewer is open. The body is padded by the scrollbar width so the page does not jump, and the previous inline styles are restored exactly on close.

@@ -21,6 +21,10 @@ Drags write CSS variables on the root once per animation frame. Pinch, pan and w
 
 Every animation uses `transform` and `opacity` only, so nothing triggers layout while it runs.
 
+## Grids
+
+Each grid measures itself with one `ResizeObserver` and computes its layout in plain JavaScript, with no work per image. Grid images load lazily, with `srcset` and `sizes` set to the rendered width. Items are placed from `width` and `height` before any image loads, so nothing shifts.
+
 ## Cleanup
 
 Listeners and observers are removed on close and on unmount. Closing removes embeds, so YouTube and Vimeo stop playing and release their frames.

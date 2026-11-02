@@ -11,6 +11,9 @@ description: Everything the package exports besides the Lightbox component.
 | `defaultIcons`                                   | The built-in icons.                                                                             |
 | `Icon`                                           | The SVG frame of the built-in icons. See [Icons](/docs/icons).                                  |
 | `getMedia(slide, { autoplay? })`                 | How a slide renders: `image`, `video`, `youtube`, `vimeo` or `iframe`, with the embed URL.      |
+| `JustifiedGrid`, `MasonryGrid`, `UniformGrid`    | Optional grids. See [Grids](/docs/grids).                                                       |
+| `GalleryFilter`                                  | Category filter. See [Category filter](/docs/filter).                                           |
+| `defaultGridLabels`, `defaultFilterLabels`       | English labels of the grids and the filter.                                                     |
 | `fitContain(width, height, boxWidth, boxHeight)` | The fit math the lightbox uses. Scales a size into a box, keeping its ratio, without upscaling. |
 
 ## getMedia
@@ -38,3 +41,7 @@ fitContain(0, 0, 800, 600); // { width: 800, height: 600 }, unknown size fills t
 ## Types
 
 `Slide`, `VideoSource`, `VideoTrack`, `Transition`, `ZoomOptions`, `VideoOptions`, `SlideshowOptions`, `DownloadOptions`, `LightboxHashOptions`, `LightboxProps`, `LightboxLabels`, `LightboxIcons`, `LightboxClassNames`, `LightboxRender`, `RenderSlideProps`, `Media`, `MediaKind` and `Size`.
+
+For the grids and the filter: `GridProps`, `JustifiedGridProps`, `MasonryGridProps`, `UniformGridProps`, `GridHandle`, `GridLabels`, `GridClassNames`, `GridRender`, `RenderGridImageProps`, `Responsive`, `GridComponent`, `GalleryFilterProps`, `FilterLabels` and `FilterClassNames`.
+
+The grids and the filter are tree-shaken away when you only import `Lightbox`.

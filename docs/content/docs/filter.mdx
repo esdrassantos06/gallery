@@ -1,0 +1,102 @@
+---
+title: Category filter
+description: Toggle buttons that narrow a gallery and announce how many items are left.
+---
+
+`GalleryFilter` is a group of toggle buttons with an "All" option first. It only reports the choice. You filter the slides and pass the same list to the grid and the lightbox, so the index the grid reports is the index the lightbox shows.
+
+<Callout>The filter is on `main` and ships in the next release. It is not in 1.0.0.</Callout>
+
+<GridsDemo filter switcher />
+
+```tsx
+import { useRef, useState } from "react";
+import {
+  GalleryFilter,
+  JustifiedGrid,
+  Lightbox,
+  type GridHandle,
+  type Slide,
+} from "@esdrassantos06/gallery";
+
+type Photo = Slide & { trade: "roofs" | "walls" };
+
+export function Gallery({ photos }: { photos: Photo[] }) {
+  const [trade, setTrade] = useState<Photo["trade"] | null>(null);
+  const [index, setIndex] = useState(-1);
+  const grid = useRef<GridHandle>(null);
+  const shown = trade ? photos.filter((photo) => photo.trade === trade) : photos;
+
+  return (
+    <>
+      <GalleryFilter
+        categories={["roofs", "walls"]}
+        value={trade}
+        onChange={setTrade}
+        count={shown.length}
+      />
+      <JustifiedGrid ref={grid} slides={shown} onOpen={setIndex} />
+      <Lightbox
+        slides={shown}
+        open={index >= 0}
+        index={Math.max(index, 0)}
+        onIndexChange={setIndex}
+        onClose={() => setIndex(-1)}
+        getThumbnail={(i) => grid.current?.getThumbnail(i)}
+      />
+    </>
+  );
+}
+```
+
+The filter works with any list, not only the built-in grids.
+
+## Props
+
+<auto-type-table path="src/types.ts" name="GalleryFilterProps" />
+
+## Labels
+
+```tsx
+<GalleryFilter
+  categories={trades}
+  value={trade}
+  onChange={setTrade}
+  count={shown.length}
+  labels={{
+    group: "Filtrar por ofício",
+    all: "Todos",
+    category: (id) => t(`trades.${id}`),
+    count: (n) => (n === 1 ? "1 foto" : `${n} fotos`),
+  }}
+/>
+```
+
+<auto-type-table path="src/types.ts" name="FilterLabels" />
+
+`defaultFilterLabels` holds the English defaults: `Filter`, `All`, the category itself, and `1 image` or `n images`.
+
+## Accessibility
+
+- The buttons sit in a `role="group"` named by `labels.group`.
+- Each button is a toggle with `aria-pressed`. The selected one is `true`.
+- A visually hidden polite live region announces `labels.count(count)` whenever the visible count changes.
+- Buttons are at least 44px tall by default.
+
+## Styling
+
+| Variable                        | Default                  | Used for              |
+| ------------------------------- | ------------------------ | --------------------- |
+| `--eg-filter-gap`               | `8px`                    | Space between buttons |
+| `--eg-filter-height`            | `44px`                   | Minimum button height |
+| `--eg-filter-padding`           | `16px`                   | Inline padding        |
+| `--eg-filter-radius`            | `999px`                  | Button corners        |
+| `--eg-filter-font-size`         | `0.875rem`               | Button text           |
+| `--eg-filter-color`             | `inherit`                | Button text           |
+| `--eg-filter-background`        | `transparent`            | Buttons at rest       |
+| `--eg-filter-border-color`      | `rgb(127 127 127 / 0.5)` | Buttons at rest       |
+| `--eg-filter-active-background` | `CanvasText`             | Pressed button        |
+| `--eg-filter-active-color`      | `Canvas`                 | Pressed button text   |
+| `--eg-filter-focus-color`       | `currentColor`           | Focus ring            |
+
+Classes: `eg-filter`, `eg-filter-group`, `eg-filter-button` and `eg-filter-status`. `classNames` adds your own to `root`, `group`, `button` and `status`.

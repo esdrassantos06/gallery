@@ -4,12 +4,14 @@ import { TypeTable } from "fumadocs-ui/components/type-table";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
 import { Demo, HashDemo } from "@/components/demo";
+import { GridsDemo } from "@/components/grids-demo";
 
 /** Components available in every MDX page. */
 export function getMDXComponents(components?: MDXComponents) {
   return {
     ...defaultMdxComponents,
     Demo,
+    GridsDemo,
     HashDemo,
     Step,
     Steps,
