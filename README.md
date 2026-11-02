@@ -112,14 +112,10 @@ The source of the docs lives in [`docs/`](./docs), and the prop tables there are
 
 ## Bundle size
 
-Measured with `npm run size` for 1.2.0, minified and brotli-compressed, React excluded:
+[![Lightbox size](https://img.shields.io/bundlejs/size/@esdrassantos06/gallery?exports=Lightbox&externals=react,react-dom&label=Lightbox)](https://bundlejs.com/?q=@esdrassantos06/gallery&treeshake=[{Lightbox}])
+[![Package size](https://img.shields.io/bundlejs/size/@esdrassantos06/gallery?externals=react,react-dom&label=everything)](https://bundlejs.com/?q=@esdrassantos06/gallery)
 
-| Entry                                                               | Size     |
-| ------------------------------------------------------------------- | -------- |
-| `import { Lightbox }`                                               | 13.09 kB |
-| `import { MasonryGrid, JustifiedGrid, UniformGrid, GalleryFilter }` | 2.97 kB  |
-| Everything                                                          | 15.32 kB |
-| `styles.css`                                                        | 3.41 kB  |
+Minified and gzipped by [bundlejs](https://bundlejs.com) from the version on npm, React excluded. The [Bundle size](https://gallery-esdrassantos06.vercel.app/docs/bundle-size) page lists every entry, minified and brotli-compressed with `npm run size` each time the docs are built.
 
 ## Development
 

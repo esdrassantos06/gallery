@@ -5,10 +5,11 @@ import { Demo } from "@/components/demo";
 import { GridsDemo } from "@/components/grids-demo";
 import { JsonLd } from "@/components/json-ld";
 import { PlaygroundGallery, PolishGallery, SlideshowGallery } from "@/components/home";
+import size from "@/lib/generated/size.json";
 import { npmUrl, repoUrl, siteDescription, siteUrl } from "@/lib/shared";
 
 const facts = [
-  ["13.09 kB", "lightbox, min + brotli, measured"],
+  [size.lightbox, "lightbox, min + brotli, measured"],
   ["0", "runtime dependencies"],
   ["React 18 and 19", "SSR safe, App Router ready"],
   ["Screen readers", "focus trap, live region, reduced motion"],

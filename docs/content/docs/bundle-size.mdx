@@ -3,14 +3,9 @@ title: Bundle size
 description: Measured size of the JavaScript and the stylesheet.
 ---
 
-Measured with [size-limit](https://github.com/ai/size-limit) through `npm run size` for 1.2.0, minified and compressed with brotli. React and React DOM are excluded, since they are peer dependencies.
+Measured with [size-limit](https://github.com/ai/size-limit) through `npm run size` every time this site is built, minified and compressed with brotli. React and React DOM are excluded, since they are peer dependencies.
 
-| Entry                                                               | Size     |
-| ------------------------------------------------------------------- | -------- |
-| `import { Lightbox }`                                               | 13.09 kB |
-| `import { MasonryGrid, JustifiedGrid, UniformGrid, GalleryFilter }` | 2.97 kB  |
-| Everything the package exports                                      | 15.32 kB |
-| `styles.css`                                                        | 3.41 kB  |
+<BundleSize />
 
 The grids and the filter are tree-shaken away when you only import `Lightbox`.
 
