@@ -16,7 +16,8 @@
     "declaration": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": ["node", "vitest/globals", "@testing-library/jest-dom/vitest"]
+    "types": ["node", "vitest/globals", "@testing-library/jest-dom/vitest"],
+    "paths": { "@/*": ["./playground/*"] }
   },
-  "include": ["src", "playground", "e2e", "*.ts"]
+  "include": ["src", "e2e", "*.ts"]
 }
