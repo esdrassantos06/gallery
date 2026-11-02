@@ -176,6 +176,8 @@ Commit `package.json`, `package-lock.json` and the `CHANGELOG.md` entry, open a 
 gh release create v1.0.1 --target main --generate-notes
 ```
 
+If a release run fails before `npm publish`, fix the workflow on `main` and start it by hand with `gh workflow run publish.yml --ref main`; the release tag stays where it is.
+
 The first release (`1.0.0`) is published by hand, so tag it with `git tag v1.0.0` and `git push origin v1.0.0` instead of creating a GitHub release, which would start the workflow for a version that already exists.
 
 ## 10. Manual versus automated
