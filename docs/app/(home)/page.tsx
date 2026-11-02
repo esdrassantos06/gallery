@@ -137,7 +137,7 @@ export default function HomePage() {
         <Section
           id="default-look"
           title="Default look"
-          description="The built-in theme, driven by the options beside it. The open photo is kept in the URL as #galeria-3, so you can share it, and the back button closes the viewer."
+          description="The built-in theme, driven by the options panel. The open photo is kept in the URL as #galeria-3, so you can share it, and the back button closes the viewer."
         >
           <PlaygroundGallery />
         </Section>

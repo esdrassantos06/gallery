@@ -27,7 +27,7 @@ export function PlaygroundGallery() {
     <div className="grid items-start gap-6 lg:grid-cols-[18rem_1fr]">
       <form
         aria-label="Lightbox options"
-        className="bg-fd-card flex flex-col gap-6 rounded-xl border p-5 lg:sticky lg:top-20"
+        className="bg-fd-card order-last flex flex-col gap-6 rounded-xl border p-5 md:block md:columns-2 md:gap-8 lg:sticky lg:top-20 lg:order-first lg:flex lg:columns-auto [&>fieldset]:break-inside-avoid md:[&>fieldset:not(:last-child)]:mb-6 lg:[&>fieldset]:mb-0"
         onSubmit={(e) => e.preventDefault()}
       >
         <Panel title="Transition">
@@ -111,7 +111,7 @@ export function SlideshowGallery() {
     <div className="grid items-start gap-6 lg:grid-cols-[18rem_1fr]">
       <form
         aria-label="Slideshow options"
-        className="bg-fd-card flex flex-col gap-2 rounded-xl border p-5"
+        className="bg-fd-card order-last flex flex-col gap-2 rounded-xl border p-5 lg:order-first"
         onSubmit={(e) => e.preventDefault()}
       >
         <Panel title="Slideshow">
