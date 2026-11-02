@@ -44,7 +44,13 @@ function Gallery({ title, description, slides, lightbox }: GalleryProps) {
               }}
               onClick={() => setIndex(i)}
             >
-              <img src={slide.thumbnail} alt="" width={400} height={400} loading="lazy" />
+              <img
+                src={slide.thumbnail ?? slide.src}
+                alt=""
+                width={400}
+                height={400}
+                loading="lazy"
+              />
             </button>
           </li>
         ))}
@@ -59,6 +65,79 @@ function Gallery({ title, description, slides, lightbox }: GalleryProps) {
         {...lightbox}
       />
     </section>
+  );
+}
+
+const mediaSlides: Slide[] = [
+  {
+    src: "/videos/sample-clip.mp4",
+    poster: "/videos/sample-clip-poster.jpg",
+    thumbnail: "/videos/sample-clip-poster.jpg",
+    width: 1280,
+    height: 720,
+    alt: "Sample clip: drifting colour gradients",
+    title: "Sample video · native player",
+    description: "Generated locally with ffmpeg. WebM first, MP4 fallback, English captions.",
+    sources: [
+      { src: "/videos/sample-clip.webm", type: "video/webm" },
+      { src: "/videos/sample-clip.mp4", type: "video/mp4" },
+    ],
+    tracks: [{ src: "/videos/sample-clip.en.vtt", srcLang: "en", label: "English", default: true }],
+  },
+  ...samples.slice(6, 9),
+  {
+    src: "/embed-demo.html",
+    type: "iframe",
+    width: 960,
+    height: 600,
+    title: "Embedded page · iframe slide",
+    description: "Any page through type: iframe. YouTube and Vimeo links embed the same way.",
+    thumbnail: "/samples/sample-12-thumb.jpg",
+  },
+  ...samples.slice(9, 11),
+];
+
+function SlideshowGallery() {
+  const [interval, setSlideInterval] = useState(3000);
+  const [autoplayVideo, setAutoplayVideo] = useState(false);
+  return (
+    <>
+      <form
+        className="pg-controls"
+        aria-label="Slideshow options"
+        onSubmit={(e) => e.preventDefault()}
+      >
+        <fieldset>
+          <legend>Slideshow</legend>
+          <label>
+            Interval
+            <input
+              type="range"
+              min={1000}
+              max={8000}
+              step={500}
+              value={interval}
+              onChange={(e) => setSlideInterval(Number(e.target.value))}
+            />
+            <output>{interval / 1000}s</output>
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={autoplayVideo}
+              onChange={(e) => setAutoplayVideo(e.target.checked)}
+            />
+            Autoplay video (muted)
+          </label>
+        </fieldset>
+      </form>
+      <Gallery
+        title="Video and slideshow"
+        description="A native video with captions, an iframe slide and images. Press the play button in the toolbar to run the slideshow; it pauses on manual navigation, while the tab is hidden and on video slides until the video ends."
+        slides={mediaSlides}
+        lightbox={{ slideshow: { interval }, video: { autoplay: autoplayVideo } }}
+      />
+    </>
   );
 }
 
@@ -287,6 +366,7 @@ function App() {
           },
         }}
       />
+      <SlideshowGallery />
       <section className="pg-section" aria-labelledby="usage">
         <h2 id="usage">Usage</h2>
         <pre className="pg-code">
