@@ -142,8 +142,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: npm
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
@@ -158,7 +158,7 @@ jobs:
 
 - `id-token: write` is what lets the job request the OIDC token. Without it npm falls back to looking for a token and fails.
 - With Trusted Publishing, npm attaches a provenance statement automatically, linking the published version to this workflow run and commit.
-- **Check:** the action major versions (`checkout`, `setup-node`) current at the time you add the file.
+- The action versions match their latest major releases as of November 2026 (`checkout@v7`, `setup-node@v7`); Dependabot keeps them current.
 
 To release a new version:
 

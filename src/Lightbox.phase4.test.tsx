@@ -83,7 +83,7 @@ describe("download", () => {
     ) {
       clicks.push(this);
     });
-    fetchMock = vi.fn(() => Promise.resolve(new Response(new Blob(["x"]), { status: 200 })));
+    fetchMock = vi.fn(() => Promise.resolve(new Response("x", { status: 200 })));
     vi.stubGlobal("fetch", fetchMock);
     URL.createObjectURL = vi.fn(() => "blob:fake");
     URL.revokeObjectURL = vi.fn();
