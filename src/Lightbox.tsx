@@ -1,7 +1,6 @@
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
   useSyncExternalStore,
@@ -12,7 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { getFocusable, lockScroll, readDuration, readEasing } from "./dom";
+import { cx, getFocusable, lockScroll, readDuration, readEasing, useIsoLayoutEffect } from "./dom";
 import {
   fitContain,
   getFlipTransform,
@@ -74,12 +73,7 @@ interface Drag {
 
 const FALLBACK_SCALE = 0.92;
 
-const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 const subscribeNothing = () => () => {};
-
-function cx(...names: (string | false | undefined)[]): string {
-  return names.filter(Boolean).join(" ");
-}
 
 function isOnScreen(rect: Rect): boolean {
   return (

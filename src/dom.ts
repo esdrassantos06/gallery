@@ -1,3 +1,14 @@
+import { useEffect, useLayoutEffect } from "react";
+
+/** `useLayoutEffect` in the browser, `useEffect` on the server, where layout effects do not run. */
+export const useIsoLayoutEffect: typeof useEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
+
+/** Joins the truthy class names with spaces. */
+export function cx(...names: (string | false | undefined)[]): string {
+  return names.filter(Boolean).join(" ");
+}
+
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
