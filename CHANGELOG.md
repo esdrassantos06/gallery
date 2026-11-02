@@ -10,4 +10,5 @@ First release.
 - Thumbnail strip, zoom (wheel, double click or tap, pinch, pan, buttons, keys), fullscreen, image loading and error states.
 - Video files with sources and caption tracks, YouTube through `youtube-nocookie.com`, Vimeo, iframe slides and a slideshow with a progress bar.
 - `useLightboxHash` for deep links with back-button close, rotation and downloads.
+- Works with custom players such as Video.js 10: the slideshow drives any native `<video>` in the current slide, and drags and keys that content handles are left to it (`[data-eg-no-gestures]`, `event.preventDefault()`).
 - Fully themeable through `--eg-*` variables, `labels`, `icons`, `classNames` and `render`.

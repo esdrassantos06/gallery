@@ -11,6 +11,8 @@
 [![npm](https://img.shields.io/npm/v/@esdrassantos06/gallery)](https://www.npmjs.com/package/@esdrassantos06/gallery)
 [![License: MIT](https://img.shields.io/badge/license-MIT-black)](./LICENSE)
 
+**[Live demo](https://gallery-esdrassantos06.vercel.app)**
+
 An accessible, themeable image lightbox for React. It has zero runtime dependencies, works with any grid, and every string, icon, color, size and timing can be replaced.
 
 > **Status:** version 1.0.0, phase 4 of 7. The core lightbox, thumbnails, zoom, fullscreen, video and embeds, slideshow, deep linking, rotation and download described below are implemented and tested. The optional grids, interaction polish and release tooling are planned and **not available yet** (see [Roadmap](#roadmap)).
@@ -36,6 +38,7 @@ An accessible, themeable image lightbox for React. It has zero runtime dependenc
 - [Loading and errors](#loading-and-errors)
 - [Video and embeds](#video-and-embeds)
 - [Slideshow](#slideshow)
+- [Custom players (Video.js, Plyr, Mux…)](#custom-players-videojs-plyr-mux)
 - [Deep linking](#deep-linking)
 - [Rotation](#rotation)
 - [Download](#download)
@@ -573,7 +576,68 @@ const slides: Slide[] = [
 | `autoplay` | `false` | Start playing when the lightbox opens. |
 | `progress` | `true`  | Show the progress bar.                 |
 
-It pauses when the user navigates (arrows, keys, swipe, thumbnails), and stops on the last slide when `loop` is false. It waits while the page is hidden and starts the slide's full interval again when it comes back. On a video slide it waits for the video to end; on an embed it holds until the user moves on, because the embedded player cannot be observed without its script. The button's name switches between `labels.playSlideshow` and `labels.pauseSlideshow`, which gives users the pause control WCAG asks for on moving content.
+It pauses when the user navigates (arrows, keys, swipe, thumbnails), and stops on the last slide when `loop` is false. It waits while the page is hidden and starts the slide's full interval again when it comes back. On a video slide it plays the video, waits for it to end and stops if the viewer pauses it, for the built-in player and for [custom players](#custom-players-videojs-plyr-mux); on an embed it holds until the user moves on, because the embedded player cannot be observed without its script. The button's name switches between `labels.playSlideshow` and `labels.pauseSlideshow`, which gives users the pause control WCAG asks for on moving content.
+
+## Custom players (Video.js, Plyr, Mux…)
+
+`render.slide` can put any player in a slide. The lightbox stays out of its way:
+
+- **Slideshow:** set `type: "video"` on the slide. The slideshow button plays and pauses the first `<video>` in the current slide, waits on it, advances when it fires `ended` and stops when the viewer pauses it. Any player that renders a native `<video>` works without extra wiring.
+- **Gestures:** pointer drags that start on a `video`, `iframe`, button, link, form field, `role="slider"` or anything inside `[data-eg-no-gestures]` are left to that element, so scrubbing or changing the volume never swipes.
+- **Keyboard:** keys that content already handled (`event.preventDefault()`) are ignored, so a player's own shortcuts win while it has focus.
+- **Leaving the slide:** native videos in other slides are paused. Unmounting does the rest: only `preload` slides are mounted.
+
+### Video.js 10
+
+[Video.js 10](https://videojs.org/docs/framework/react/llms.txt) (`@videojs/react`, 10.2.0 at the time of writing) renders a native `<video>` inside a fully customisable skin, so it slots straight into `render.slide`:
+
+```tsx
+import "@videojs/react/video/skin.css";
+import { Video, VideoPlayer, VideoSkin } from "@videojs/react/video";
+import { Lightbox, type Slide } from "@esdrassantos06/gallery";
+
+const slides: Slide[] = [
+  {
+    src: "/media/talk.mp4",
+    type: "video",
+    poster: "/media/talk.jpg",
+    width: 1920,
+    height: 1080,
+    alt: "Talk",
+  },
+  { src: "/photos/stage.jpg", width: 1600, height: 1067, alt: "Stage" },
+];
+
+<Lightbox
+  slides={slides}
+  slideshow
+  render={{
+    slide: ({ slide, width, height }) =>
+      slide.type === "video" ? (
+        <VideoPlayer>
+          <VideoSkin style={{ width, height }}>
+            <Video src={slide.src} poster={slide.poster} playsInline preload="metadata">
+              <track
+                kind="captions"
+                src="/media/talk.en.vtt"
+                srcLang="en"
+                label="English"
+                default
+              />
+            </Video>
+          </VideoSkin>
+        </VideoPlayer>
+      ) : undefined,
+  }}
+  {...props}
+/>;
+```
+
+- **Theme:** the packaged skin reads `--media-accent-color`, `--media-accent-text-color`, `--media-border-color`, `--media-border-radius`, `--media-font-family`, `--media-object-fit`, `--media-object-position` and `--media-scale-unit`, so it can share the lightbox's `--eg-*` values.
+- **Full control:** `npx shadcn@latest add @videojs/video` copies the skin's source into your project to add, remove or restyle controls, or build your own skin from the Video.js UI components.
+- **Content Security Policy:** Video.js documents `style-src 'unsafe-inline'` for some player UI, plus `media-src blob:`, `worker-src blob:` and `connect-src` for HLS or DASH. The lightbox itself needs none of these.
+
+The example follows the Video.js 10 documentation ([installation](https://videojs.org/docs/framework/react/how-to/installation.md), [customise skins](https://videojs.org/docs/framework/react/guides/customize-skins.md), [`Video`](https://videojs.org/docs/framework/react/reference/components/video.md), [CSP](https://videojs.org/docs/framework/react/guides/content-security-policy.md)). The `poster` prop on `Video` is forwarded to the native element, as `Video` forwards native attributes.
 
 ## Deep linking
 
@@ -695,7 +759,7 @@ npm run dev
 
 It has three galleries of locally generated samples: the default look, driven by a panel of options and kept in the URL hash as `#galeria-N`; a customised one with Portuguese labels, replaced icons, a custom caption, an extra toolbar link and a theme set through `--eg-*` variables; and a video and slideshow gallery with a native video with captions and an iframe slide.
 
-`npm run build:site` builds it into `playground/dist`. It deploys to Vercel as a static site with `vercel.json`, which also sends a strict Content Security Policy (`default-src 'self'`, no `'unsafe-inline'`) that the whole site, lightbox included, runs under.
+`npm run build:site` builds it into `playground/dist`. It is live at [gallery-esdrassantos06.vercel.app](https://gallery-esdrassantos06.vercel.app) and deploys to Vercel as a static site with `vercel.json`, which also sends a strict Content Security Policy (`default-src 'self'`, no `'unsafe-inline'`) that the whole site, lightbox included, runs under.
 
 ## Contributing
 

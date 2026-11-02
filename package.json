@@ -8,7 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/esdrassantos06/gallery.git"
   },
-  "homepage": "https://github.com/esdrassantos06/gallery#readme",
+  "homepage": "https://gallery-esdrassantos06.vercel.app",
   "bugs": "https://github.com/esdrassantos06/gallery/issues",
   "keywords": [
     "react",

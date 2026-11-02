@@ -160,17 +160,23 @@ jobs:
 - With Trusted Publishing, npm attaches a provenance statement automatically, linking the published version to this workflow run and commit.
 - The action versions match their latest major releases as of November 2026 (`checkout@v7`, `setup-node@v7`); Dependabot keeps them current.
 
-To release a new version:
+To release a new version, bump it in a pull request, because `main` only accepts squash merges from pull requests:
 
 ```bash
-npm version minor
+git switch -c release/1.0.1
 ```
 
 ```bash
-git push --follow-tags
+npm version patch --no-git-tag-version
 ```
 
-Then create a GitHub release from the new tag; publishing the release starts the workflow.
+Commit `package.json`, `package-lock.json` and the `CHANGELOG.md` entry, open a pull request and merge it once CI is green. Then create the release from `main`; publishing the release tags the commit and starts the workflow:
+
+```bash
+gh release create v1.0.1 --target main --generate-notes
+```
+
+The first release (`1.0.0`) is published by hand, so tag it with `git tag v1.0.0` and `git push origin v1.0.0` instead of creating a GitHub release, which would start the workflow for a version that already exists.
 
 ## 10. Manual versus automated
 
