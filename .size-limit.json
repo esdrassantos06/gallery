@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Lightbox (JS, min+brotli)",
+    "path": "dist/index.js",
+    "import": "{ Lightbox }",
+    "ignore": ["react", "react-dom"]
+  },
+  {
+    "name": "Everything (JS, min+brotli)",
+    "path": "dist/index.js",
+    "ignore": ["react", "react-dom"]
+  },
+  {
+    "name": "styles.css (min+brotli)",
+    "path": "dist/styles.css",
+    "rolldown": false
+  }
+]
