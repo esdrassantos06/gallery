@@ -89,7 +89,7 @@ Each grid measures itself with one `ResizeObserver`. On the server, and before t
 
 ## Images
 
-The built-in image uses `thumbnail`, then `poster`, then `src`, plus `srcSet` with `sizes` set to the rendered width, `loading="lazy"`, `decoding="async"` and explicit `width` and `height`. Video and embed slides need a `thumbnail` or a `poster`.
+The built-in image uses `thumbnail`, then `poster`, then the YouTube poster, then `src` for images, plus `srcSet` with `sizes` set to the rendered width, `loading="lazy"`, `decoding="async"` and explicit `width` and `height`. Video and embed slides without a `thumbnail` or a `poster` get an empty frame instead of loading the video file. `previewOf(slide)` returns the same choice for your own markup.
 
 To use a framework image component, return it from `render.image`. The item is positioned, so `fill`-style images work:
 
@@ -106,6 +106,12 @@ To use a framework image component, return it from `render.image`. The item is p
 ```
 
 Return `undefined` to keep the built-in image for a slide.
+
+## Large galleries
+
+Past 200 slides a grid renders only the items within a screen of the viewport and updates about once per screen of scrolling. The list gets `data-virtual`, and `UniformGrid` places its cells absolutely instead of using CSS grid. The item that opened the lightbox stays mounted, so focus returns to it on close. `getThumbnail` returns `null` for items that are not rendered, and the lightbox then opens and closes with its zoom and fade.
+
+Grids are memoized. When the page re-renders, for example on every slide change with `useLightboxHash`, a grid skips the work as long as `slides`, `onOpen` and the layout props keep their identity. Define `slides` outside the component or with `useMemo`.
 
 ## Props
 
@@ -148,7 +154,7 @@ These variables are read with fallbacks, so set them on the grid, on any ancesto
 | `--eg-grid-cursor`        | `zoom-in`                 | Buttons                       |
 | `--eg-grid-duration`      | `200ms`                   | Hover and filter transitions  |
 
-Classes: `eg-grid`, `eg-grid--masonry`, `eg-grid--justified`, `eg-grid--uniform`, `eg-grid-item`, `eg-grid-button` and `eg-grid-image`. `classNames` adds your own to `root`, `item`, `button` and `image`.
+Classes: `eg-grid`, `eg-grid--masonry`, `eg-grid--justified`, `eg-grid--uniform`, `eg-grid-item`, `eg-grid-button` and `eg-grid-image`. Large grids also get `data-virtual` on the list. `classNames` adds your own to `root`, `item`, `button` and `image`.
 
 ## Server rendering and CSP
 

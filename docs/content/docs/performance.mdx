@@ -1,19 +1,53 @@
 ---
 title: Performance
-description: What the lightbox loads, when, and how it keeps gestures smooth.
+description: What the lightbox loads, when, and how it stays fast with thousands of images and videos.
 ---
 
 ## Only what is near
 
-Only `preload` slides on each side of the current one are in the DOM, 2 by default. Full-size images outside that window are never requested. Thumbnails in the strip load lazily as they scroll into view.
+Only `preload` slides on each side of the current one are in the DOM, 2 by default. Full-size images outside that window are never requested. Thumbnails in the strip load lazily, at low priority, as they scroll into view.
 
-Set `preload={1}` on slow connections or with very large files, or raise it when people browse fast through small images.
+## The current image first
+
+The current image is requested with `fetchpriority="high"`. Its neighbors are mounted but wait until it has loaded, or failed, and then follow at low priority, so they never split the bandwidth with the image on screen. An image that has loaded keeps its file when you move on, so going back is instant.
+
+While the full image loads, the slide's `thumbnail` shows behind it as a placeholder. Grids have usually loaded that file already, so something appears at once. It covers the image box; when your thumbnails are cropped to another shape, set `--eg-placeholder-size: contain`, or `0 0` to hide it.
+
+## Adapts to the connection
+
+Where the browser reports it (Chromium-based browsers), the lightbox reads the connection and the device memory:
+
+| Condition                            | What changes                                       |
+| ------------------------------------ | -------------------------------------------------- |
+| Save-Data, or a 2G connection        | Only the current image is fetched. Neighbors wait. |
+| 3G, or 2 GB of device memory or less | `preload` is capped at 1                           |
+| Anything else, or no information     | `preload` as you set it                            |
+
+It follows changes while the viewer is open, for example when a phone drops to 3G.
 
 ## The right file size
 
 Images get explicit `width` and `height` from `fitContain`, based on the natural size you pass and the stage size measured by one `ResizeObserver`. Without a natural size, it is read once the image loads.
 
 When `srcSet` is set and `sizes` is not, `sizes` becomes the rendered width, so the browser picks the smallest candidate that fills it. While zoomed, `sizes` grows to the magnified width, so a sharper file is fetched only when someone actually zooms.
+
+## Videos
+
+Only the current video fetches its metadata (`preload="metadata"`). Neighboring videos use `preload="none"` and are paused when you move on. Embeds exist only on the current slide.
+
+Grids and the thumbnail strip show `thumbnail`, then `poster`, then the YouTube poster. A video without any of them shows an empty frame instead of loading the video file as an image. `previewOf(slide)` returns the same choice for your own grids.
+
+## Thousands of slides
+
+Long galleries stay as fast as short ones:
+
+- **Thumbnail strip.** Past 100 slides it renders only the thumbnails in view, with spacers for the rest, and keeps `aria-setsize` and `aria-posinset` so screen readers still hear the full count. It assumes every thumbnail has the width set by `--eg-thumbnail-width`. Jumps longer than the strip, such as Home and End, scroll instantly.
+- **Pager.** It shows at most 12 dots around the current slide. The edge dots shrink when there are more slides past them.
+- **Grids.** Past 200 slides they render only the items within a screen of the viewport, and the list gets `data-virtual`. The item that opened the lightbox stays mounted, so focus returns to it on close.
+- **Re-renders.** Grids are memoized: when the page changes slide, for example with `useLightboxHash`, they do not re-render as long as `slides` and `onOpen` keep their identity. Define `slides` outside the component or with `useMemo`.
+- **Memory.** Load status and natural sizes are kept for the 300 most recently seen slides.
+
+Measured with 10,000 slides in jsdom, a step to the next slide takes about 1.6ms with the strip, the pager and a grid on the page, against about 290ms without these limits.
 
 ## Smooth gestures
 
@@ -23,7 +57,7 @@ Every animation uses `transform` and `opacity`, plus `clip-path` for the crop of
 
 ## Grids
 
-Each grid measures itself with one `ResizeObserver` and computes its layout in plain JavaScript, with no work per image. Grid images load lazily, with `srcset` and `sizes` set to the rendered width. Items are placed from `width` and `height` before any image loads, so nothing shifts.
+Each grid measures itself with one `ResizeObserver` and computes its layout in plain JavaScript, with no work per image. The layout is computed again only when the slides, the width or the layout options change. Grid images load lazily, with `srcset` and `sizes` set to the rendered width. Items are placed from `width` and `height` before any image loads, so nothing shifts.
 
 ## Cleanup
 
@@ -31,9 +65,11 @@ Listeners and observers are removed on close and on unmount. Closing removes emb
 
 ## Tips
 
-- Pass `width` and `height` on every slide.
-- Pass a small `thumbnail`. Without it the strip downloads full images.
+- Pass `width` and `height` on every slide. The placeholder and the open flight need them.
+- Pass a small `thumbnail`. Without it the strip and the placeholder fall back to full images, or nothing for videos.
 - Serve `srcSet` with a few widths, for example 640, 1280 and the original.
-- Give videos a `poster` and keep `preload="metadata"`, which the built-in player uses.
+- Give videos a `poster`.
+- Keep `slides` and `onOpen` stable so grids skip work.
+- Serve images with long-lived `Cache-Control` headers and content-hashed names, so the browser cache does the rest.
 
 See [Bundle size](/docs/bundle-size) for the cost of the code itself.

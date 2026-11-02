@@ -76,4 +76,4 @@ With `prefers-reduced-motion: reduce`, durations become zero. The lightbox opens
 
 ## Preloading
 
-Only the current slide and `preload` slides on each side (2 by default) are mounted. Anything outside that window is not in the DOM and is never requested.
+Only the current slide and `preload` slides on each side (2 by default) are mounted. Anything outside that window is not in the DOM and is never requested. The current image loads first; neighbors follow once it has, and on slow or Save-Data connections fewer of them are fetched. See [Performance](/docs/performance).
