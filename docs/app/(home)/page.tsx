@@ -3,8 +3,9 @@ import Link from "next/link";
 import { CopyCommand } from "@/components/copy-command";
 import { Demo } from "@/components/demo";
 import { GridsDemo } from "@/components/grids-demo";
+import { JsonLd } from "@/components/json-ld";
 import { PlaygroundGallery, SlideshowGallery } from "@/components/home";
-import { npmUrl, repoUrl } from "@/lib/shared";
+import { npmUrl, repoUrl, siteDescription, siteUrl } from "@/lib/shared";
 
 const facts = [
   ["9.36 kB", "lightbox, min + brotli, measured"],
@@ -74,6 +75,20 @@ function Section({
 export default function HomePage() {
   return (
     <main className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "SoftwareSourceCode",
+          name: "@esdrassantos06/gallery",
+          description: siteDescription,
+          url: siteUrl,
+          codeRepository: repoUrl,
+          programmingLanguage: ["TypeScript", "React"],
+          runtimePlatform: "Web browser",
+          license: "https://opensource.org/licenses/MIT",
+          author: { "@type": "Person", name: "Esdras Santos" },
+        }}
+      />
       <section className="grid min-w-0 gap-10 py-12 sm:py-20 lg:grid-cols-[1.2fr_1fr] lg:items-end">
         <div>
           <h1 className="max-w-[16ch] text-4xl font-semibold tracking-[-0.035em] text-balance sm:text-6xl">
