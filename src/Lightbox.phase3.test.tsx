@@ -269,3 +269,92 @@ describe("slideshow", () => {
     expect(screen.getByRole("button", { name: "Iniciar" })).toBeInTheDocument();
   });
 });
+
+describe("custom players", () => {
+  const images = (count: number): Slide[] =>
+    Array.from({ length: count }, (_, i) => ({
+      src: `/s${i}.jpg`,
+      width: 1600,
+      height: 1000,
+      alt: `S${i}`,
+    }));
+  const player: Slide = { src: "/stream.m3u8", type: "video", alt: "Stream" };
+  const renderPlayer = {
+    slide: ({ slide }: { slide: Slide }) =>
+      slide.type === "video" ? (
+        <div className="my-player">
+          <video src={slide.src} aria-label={slide.alt}>
+            <track kind="captions" src="/stream.vtt" srcLang="en" label="English" />
+          </video>
+          <button type="button">Mute</button>
+          <div role="slider" aria-label="Volume" aria-valuenow={50} tabIndex={0} />
+        </div>
+      ) : undefined,
+  };
+
+  it("drives a video rendered by render.slide from the slideshow", async () => {
+    const slides = [player, ...images(2)];
+    const { user } = await openAt(0, {
+      slides,
+      slideshow: { interval: 5000 },
+      render: renderPlayer,
+    });
+    play.mockClear();
+    await user.click(screen.getByRole("button", { name: "Start slideshow" }));
+    await waitFor(() => expect(play).toHaveBeenCalled());
+    fireEvent(current().querySelector("video")!, new Event("ended"));
+    await waitFor(() => expect(counter()).toBe("2 / 3"));
+  });
+
+  it("stops the slideshow when a custom player is paused", async () => {
+    const slides = [player, ...images(2)];
+    const { user } = await openAt(0, {
+      slides,
+      slideshow: { interval: 5000 },
+      render: renderPlayer,
+    });
+    await user.click(screen.getByRole("button", { name: "Start slideshow" }));
+    fireEvent(current().querySelector("video")!, new Event("pause"));
+    expect(screen.getByRole("button", { name: "Start slideshow" })).toBeInTheDocument();
+  });
+
+  it("leaves drags on player controls to the player", async () => {
+    await openAt(0, { slides: [player, ...images(2)], render: renderPlayer });
+    const volume = screen.getByRole("slider", { name: "Volume" });
+    act(() => {
+      fireEvent.pointerDown(volume, { pointerId: 1, clientX: 300, clientY: 300, isPrimary: true });
+      fireEvent.pointerMove(volume, { pointerId: 1, clientX: 100, clientY: 300 });
+      fireEvent.pointerUp(volume, { pointerId: 1, clientX: 100, clientY: 300 });
+    });
+    expect(counter()).toBe("1 / 3");
+  });
+
+  it("leaves drags inside data-eg-no-gestures to the content", async () => {
+    await openAt(0, {
+      slides: images(3),
+      render: {
+        slide: () => (
+          <div data-eg-no-gestures data-testid="area" style={{ width: 100, height: 100 }} />
+        ),
+      },
+    });
+    const area = current().querySelector("[data-testid='area']")!;
+    act(() => {
+      fireEvent.pointerDown(area, { pointerId: 1, clientX: 300, clientY: 300, isPrimary: true });
+      fireEvent.pointerMove(area, { pointerId: 1, clientX: 100, clientY: 300 });
+      fireEvent.pointerUp(area, { pointerId: 1, clientX: 100, clientY: 300 });
+    });
+    expect(counter()).toBe("1 / 3");
+  });
+
+  it("leaves keys the content already handled", async () => {
+    await openAt(0, { slides: [player, ...images(2)], render: renderPlayer });
+    const volume = screen.getByRole("slider", { name: "Volume" });
+    volume.addEventListener("keydown", (e) => e.preventDefault());
+    volume.focus();
+    fireEvent.keyDown(volume, { key: "ArrowRight", bubbles: true, cancelable: true });
+    expect(counter()).toBe("1 / 3");
+    fireEvent.keyDown(document.body, { key: "ArrowRight", bubbles: true, cancelable: true });
+    expect(counter()).toBe("2 / 3");
+  });
+});

@@ -56,6 +56,10 @@ interface Tap {
   onMedia: boolean;
 }
 
+/** Content that handles its own pointer gestures: players, controls and opted-out areas. */
+const OWN_GESTURES =
+  'video, iframe, button, a[href], input, select, textarea, [role="slider"], [contenteditable="true"], [data-eg-no-gestures]';
+
 const TAP_MAX_MS = 300;
 const TAP_SLOP = 10;
 const DOUBLE_TAP_DISTANCE = 30;
@@ -308,6 +312,29 @@ export function Lightbox({
     setPlaying(!playing);
   };
 
+  const mediaHandlerRef = useRef<(e: Event) => void>(() => {});
+  useIsoLayoutEffect(() => {
+    mediaHandlerRef.current = (e: Event) => {
+      const media = e.target;
+      if (!playing || !(media instanceof HTMLMediaElement)) return;
+      if (!media.closest(".eg-slide[data-current]")) return;
+      if (e.type === "ended") advanceRef.current();
+      else if (!media.ended) setPlaying(false);
+    };
+  });
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!shown || !stage) return;
+    const listener = (e: Event) => mediaHandlerRef.current(e);
+    stage.addEventListener("ended", listener, true);
+    stage.addEventListener("pause", listener, true);
+    return () => {
+      stage.removeEventListener("ended", listener, true);
+      stage.removeEventListener("pause", listener, true);
+    };
+  }, [shown]);
+
   useEffect(() => {
     if (!shown || !playing || currentKind !== "video") return;
     const el = stageRef.current?.querySelector<HTMLVideoElement>(".eg-slide[data-current] video");
@@ -462,7 +489,7 @@ export function Lightbox({
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     draggedRef.current = false;
     if (e.pointerType === "mouse" && e.button !== 0) return;
-    if (e.target instanceof Element && e.target.closest("video, iframe")) return;
+    if (e.target instanceof Element && e.target.closest(OWN_GESTURES)) return;
     const pointers = pointersRef.current;
     const point = { x: e.clientX, y: e.clientY };
     pointers.set(e.pointerId, point);
@@ -642,7 +669,16 @@ export function Lightbox({
       }
       return;
     }
-    if (!keyboard || phase === "closing" || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (
+      !keyboard ||
+      phase === "closing" ||
+      e.defaultPrevented ||
+      e.metaKey ||
+      e.ctrlKey ||
+      e.altKey
+    ) {
+      return;
+    }
     const target = e.target;
     if (
       e.key !== "Escape" &&
@@ -796,12 +832,6 @@ export function Lightbox({
                 if (!naturalSize && width && height) {
                   setNatural((prev) => ({ ...prev, [item.src]: { width, height } }));
                 }
-              }}
-              onEnded={() => {
-                if (isCurrent && playing) advanceRef.current();
-              }}
-              onPause={(e) => {
-                if (isCurrent && playing && !e.currentTarget.ended) setPlaying(false);
               }}
             >
               {item.sources?.map((source) => (
