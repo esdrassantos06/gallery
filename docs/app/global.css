@@ -1,0 +1,69 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/shadcn.css";
+@import "fumadocs-ui/css/preset.css";
+@import "../../src/styles.css";
+
+@source "../../playground/data.tsx";
+
+:root {
+  --background: #f6f5f2;
+  --foreground: #0b0b0c;
+  --card: #fbfaf8;
+  --card-foreground: #0b0b0c;
+  --popover: #fbfaf8;
+  --popover-foreground: #0b0b0c;
+  --primary: #0b0b0c;
+  --primary-foreground: #f6f5f2;
+  --secondary: #ecebe7;
+  --secondary-foreground: #0b0b0c;
+  --muted: #ecebe7;
+  --muted-foreground: #5c5f66;
+  --accent: #e6e4df;
+  --accent-foreground: #0b0b0c;
+  --destructive: #b42318;
+  --border: #dddad3;
+  --ring: #0b0b0c;
+  --sidebar: #f6f5f2;
+  --sidebar-foreground: #0b0b0c;
+  --sidebar-border: #dddad3;
+  --sidebar-accent: #e6e4df;
+  --sidebar-accent-foreground: #0b0b0c;
+  --sidebar-ring: #0b0b0c;
+  --sidebar-primary-foreground: #0b0b0c;
+}
+
+.dark {
+  --background: #0b0b0c;
+  --foreground: #f2f1ee;
+  --card: #121214;
+  --card-foreground: #f2f1ee;
+  --popover: #121214;
+  --popover-foreground: #f2f1ee;
+  --primary: #f2f1ee;
+  --primary-foreground: #0b0b0c;
+  --secondary: #1b1b1e;
+  --secondary-foreground: #f2f1ee;
+  --muted: #1b1b1e;
+  --muted-foreground: #a3a6ad;
+  --accent: #232327;
+  --accent-foreground: #f2f1ee;
+  --destructive: #f97066;
+  --border: #26262a;
+  --ring: #f2f1ee;
+  --sidebar: #0b0b0c;
+  --sidebar-foreground: #f2f1ee;
+  --sidebar-border: #26262a;
+  --sidebar-accent: #1b1b1e;
+  --sidebar-accent-foreground: #f2f1ee;
+  --sidebar-ring: #f2f1ee;
+  --sidebar-primary-foreground: #f2f1ee;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+}
+
+body {
+  font-feature-settings: "ss01";
+}

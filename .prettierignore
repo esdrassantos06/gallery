@@ -3,3 +3,9 @@ node_modules
 playwright-report
 test-results
 package-lock.json
+docs/.next
+docs/.source
+docs/out
+docs/public/samples
+docs/public/videos
+docs/public/embed-demo.*

@@ -5,7 +5,19 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["**/dist", "node_modules", "playwright-report", "test-results", "*.tgz"] },
+  {
+    ignores: [
+      "**/dist",
+      "**/node_modules",
+      "playwright-report",
+      "test-results",
+      "*.tgz",
+      "docs/.next",
+      "docs/.source",
+      "docs/out",
+      "docs/next-env.d.ts",
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.strict,
   reactHooks.configs.flat.recommended,
