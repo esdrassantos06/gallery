@@ -21,4 +21,8 @@ export const defaultLabels: LightboxLabels = {
   playSlideshow: "Start slideshow",
   pauseSlideshow: "Pause slideshow",
   video: "Video",
+  rotateLeft: "Rotate left",
+  rotateRight: "Rotate right",
+  download: "Download",
+  downloadError: "This file could not be downloaded here, so it opened in a new tab.",
 };

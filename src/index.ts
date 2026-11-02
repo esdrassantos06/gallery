@@ -3,7 +3,9 @@ export { defaultIcons, Icon } from "./icons";
 export { defaultLabels } from "./labels";
 export { fitContain, type Size } from "./geometry";
 export { getMedia, type Media, type MediaKind } from "./media";
+export { useLightboxHash, type LightboxHashOptions } from "./useLightboxHash";
 export type {
+  DownloadOptions,
   LightboxClassNames,
   LightboxIcons,
   LightboxLabels,

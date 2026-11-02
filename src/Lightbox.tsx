@@ -98,17 +98,43 @@ function contentBox(el: HTMLElement): Size {
 }
 
 /** Keyframes that grow `media` out of `origin`, or a zoom and fade when there is no usable origin. */
-function openKeyframes(media: HTMLElement, origin: HTMLElement | null | undefined): Keyframe[] {
+function openKeyframes(
+  media: HTMLElement,
+  origin: HTMLElement | null | undefined,
+  rotation: number,
+): Keyframe[] {
   const to = media.getBoundingClientRect();
   const from = origin?.getBoundingClientRect();
+  const turn = rotation ? ` rotate(${rotation}deg)` : "";
+  const rest = turn ? turn.trim() : "none";
   if (from && isOnScreen(from) && to.width > 0 && to.height > 0) {
     const { x, y, scale } = getFlipTransform(from, to);
-    return [{ transform: `translate(${x}px, ${y}px) scale(${scale})` }, { transform: "none" }];
+    return [{ transform: `translate(${x}px, ${y}px) scale(${scale})${turn}` }, { transform: rest }];
   }
   return [
-    { opacity: 0, transform: `scale(${FALLBACK_SCALE})` },
-    { opacity: 1, transform: "none" },
+    { opacity: 0, transform: `scale(${FALLBACK_SCALE})${turn}` },
+    { opacity: 1, transform: rest },
   ];
+}
+
+function fileName(url: string): string {
+  try {
+    const name = new URL(url, window.location.href).pathname.split("/").pop();
+    return name ? decodeURIComponent(name) : "download";
+  } catch {
+    return "download";
+  }
+}
+
+function saveLink(href: string, name: string): void {
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = name;
+  link.rel = "noopener";
+  link.style.display = "none";
+  document.body.append(link);
+  link.click();
+  link.remove();
 }
 
 /**
@@ -150,6 +176,8 @@ export function Lightbox({
   fullscreen = true,
   video,
   slideshow,
+  rotate = false,
+  download,
   getThumbnail,
   labels: labelOverrides,
   icons: iconOverrides,
@@ -191,10 +219,14 @@ export function Lightbox({
   }
   const active = clamp(current);
 
+  const [rotation, setRotation] = useState(0);
+  const [notice, setNotice] = useState("");
   const [lastActive, setLastActive] = useState(active);
   const [jumps, setJumps] = useState<ReadonlySet<number>>(() => new Set());
   if (active !== lastActive) {
     setLastActive(active);
+    setRotation(0);
+    setNotice("");
     setJumps(
       new Set(
         getSlideWindow(active, total, preload, loop)
@@ -267,6 +299,23 @@ export function Lightbox({
     const timer = window.setTimeout(() => advanceRef.current(), interval);
     return () => window.clearTimeout(timer);
   }, [playing, shown, phase, pageHidden, holding, interval, active]);
+
+  const currentVideo = () =>
+    stageRef.current?.querySelector<HTMLVideoElement>(".eg-slide[data-current] video") ?? null;
+
+  const toggleSlideshow = () => {
+    if (playing) currentVideo()?.pause();
+    setPlaying(!playing);
+  };
+
+  useEffect(() => {
+    if (!shown || !playing || currentKind !== "video") return;
+    const el = stageRef.current?.querySelector<HTMLVideoElement>(".eg-slide[data-current] video");
+    el?.play()?.catch(() => {
+      el.muted = true;
+      el.play()?.catch(() => {});
+    });
+  }, [shown, playing, currentKind, active]);
 
   useEffect(() => {
     if (!shown) return;
@@ -353,7 +402,11 @@ export function Lightbox({
       finish();
       return;
     }
-    const keyframes = openKeyframes(media, getThumbnail?.(active));
+    const keyframes = openKeyframes(
+      media,
+      getThumbnail?.(active),
+      media.matches(".eg-image") ? rotation : 0,
+    );
     const animation = media.animate(phase === "opening" ? keyframes : [...keyframes].reverse(), {
       duration,
       easing: readEasing(root),
@@ -610,7 +663,10 @@ export function Lightbox({
     if (zoomConfig) {
       actions["+"] = actions["="] = () => zoom.zoomBy(zoomConfig.step);
       actions["-"] = () => zoom.zoomBy(1 / zoomConfig.step);
-      actions["0"] = () => zoom.zoomTo(1);
+      actions["0"] = () => {
+        zoom.zoomTo(1);
+        setRotation(0);
+      };
     }
     const action = actions[e.key];
     if (!action) return;
@@ -744,6 +800,9 @@ export function Lightbox({
               onEnded={() => {
                 if (isCurrent && playing) advanceRef.current();
               }}
+              onPause={(e) => {
+                if (isCurrent && playing && !e.currentTarget.ended) setPlaying(false);
+              }}
             >
               {item.sources?.map((source) => (
                 <source key={source.src} src={source.src} type={source.type} />
@@ -792,10 +851,18 @@ export function Lightbox({
     if (status[item.src] === "error") {
       return { node: <p className="eg-error">{labels.loadError}</p>, builtIn: false };
     }
+    const turn = rotate && isCurrent ? rotation : 0;
+    const sideways = turn % 180 !== 0;
+    const footprint =
+      sideways && box && naturalSize
+        ? fitContain(naturalSize.height, naturalSize.width, box.width, box.height)
+        : size;
+    const imageSize =
+      sideways && footprint ? { width: footprint.height, height: footprint.width } : size;
     const renderedWidth =
-      size && isCurrent && zoomConfig && zoom.scale > 1
-        ? size.width * zoomConfig.maxScale
-        : size?.width;
+      imageSize && isCurrent && zoomConfig && zoom.scale > 1
+        ? imageSize.width * zoomConfig.maxScale
+        : imageSize?.width;
     const image = (
       <img
         className={cn("image", "eg-image")}
@@ -807,9 +874,17 @@ export function Lightbox({
             : undefined
         }
         alt={item.alt ?? ""}
-        width={size?.width}
-        height={size?.height}
-        style={size ? { width: size.width, height: size.height } : undefined}
+        width={imageSize?.width}
+        height={imageSize?.height}
+        style={
+          imageSize || turn
+            ? {
+                width: imageSize?.width,
+                height: imageSize?.height,
+                transform: turn ? `rotate(${turn}deg)` : undefined,
+              }
+            : undefined
+        }
         decoding="async"
         draggable={false}
         onLoad={(e) => {
@@ -824,13 +899,24 @@ export function Lightbox({
         onError={() => setStatus((prev) => ({ ...prev, [item.src]: "error" }))}
       />
     );
+    const framed = rotate ? (
+      <div
+        className="eg-rotate"
+        data-turn={sideways ? "odd" : "even"}
+        style={footprint ? { width: footprint.width, height: footprint.height } : undefined}
+      >
+        {image}
+      </div>
+    ) : (
+      image
+    );
     return {
       node: zoomConfig ? (
         <div className="eg-zoom" ref={isCurrent ? zoom.targetRef : undefined}>
-          {image}
+          {framed}
         </div>
       ) : (
-        image
+        framed
       ),
       builtIn: true,
     };
@@ -845,6 +931,32 @@ export function Lightbox({
   const currentIsImage = windowSlides.find((s) => s.isCurrent)?.media.builtIn ?? false;
   const showThumbnails = thumbnails && total > 1;
 
+  const downloadOptions = typeof download === "object" ? download : {};
+  const downloadUrl =
+    download && slide.download !== false && (currentKind === "image" || currentKind === "video")
+      ? (slide.download ?? slide.src)
+      : null;
+
+  const saveCurrent = async (url: string) => {
+    const item = slide;
+    const name = item.downloadName ?? downloadOptions.filename?.(item, active) ?? fileName(url);
+    if (new URL(url, window.location.href).origin === window.location.origin) {
+      saveLink(url, name);
+      return;
+    }
+    try {
+      const response = await fetch(url, { mode: "cors" });
+      if (!response.ok) throw new Error(`Download failed with HTTP ${response.status}`);
+      const href = URL.createObjectURL(await response.blob());
+      saveLink(href, name);
+      window.setTimeout(() => URL.revokeObjectURL(href), 100);
+    } catch (error) {
+      window.open(url, "_blank", "noopener");
+      setNotice(labels.downloadError);
+      downloadOptions.onError?.(error, item);
+    }
+  };
+
   const toolbarButtons = (
     <>
       {slideshowConfig && total > 1 ? (
@@ -852,7 +964,7 @@ export function Lightbox({
           type="button"
           className={button("button", "")}
           aria-label={playing ? labels.pauseSlideshow : labels.playSlideshow}
-          onClick={() => setPlaying((value) => !value)}
+          onClick={toggleSlideshow}
         >
           {playing ? icons.pauseSlideshow : icons.playSlideshow}
         </button>
@@ -878,6 +990,36 @@ export function Lightbox({
             {icons.zoomOut}
           </button>
         </>
+      ) : null}
+      {rotate && currentIsImage ? (
+        <>
+          <button
+            type="button"
+            className={button("button", "")}
+            aria-label={labels.rotateLeft}
+            onClick={() => setRotation((value) => value - 90)}
+          >
+            {icons.rotateLeft}
+          </button>
+          <button
+            type="button"
+            className={button("button", "")}
+            aria-label={labels.rotateRight}
+            onClick={() => setRotation((value) => value + 90)}
+          >
+            {icons.rotateRight}
+          </button>
+        </>
+      ) : null}
+      {downloadUrl ? (
+        <button
+          type="button"
+          className={button("button", "")}
+          aria-label={labels.download}
+          onClick={() => void saveCurrent(downloadUrl)}
+        >
+          {icons.download}
+        </button>
       ) : null}
       {fullscreen && fs.supported ? (
         <button
@@ -989,6 +1131,9 @@ export function Lightbox({
           onSelect={go}
         />
       ) : null}
+      <div className="eg-sr-only" role="status">
+        {notice}
+      </div>
       <div className="eg-sr-only" aria-live="polite" aria-atomic="true">
         {labels.announcement(active + 1, total, slide)}
       </div>

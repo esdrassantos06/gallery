@@ -146,6 +146,20 @@
   cursor: zoom-in;
 }
 
+.eg-rotate {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.eg-rotate > .eg-image {
+  flex: none;
+  max-width: none;
+  max-height: none;
+  transition: transform var(--eg-duration) var(--eg-easing);
+}
+
 .eg-zoom[data-gesture] {
   transition: none;
 }

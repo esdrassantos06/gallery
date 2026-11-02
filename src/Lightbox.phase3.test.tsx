@@ -233,6 +233,33 @@ describe("slideshow", () => {
     await waitFor(() => expect(counter()).toBe("2 / 3"));
   });
 
+  it("plays the current video from the slideshow button and pauses it again", async () => {
+    const slides: Slide[] = [{ src: "/v.mp4", alt: "V" }, ...images(2)];
+    const { user } = await openAt(0, { slides, slideshow: { interval: 5000 } });
+    play.mockClear();
+    await user.click(screen.getByRole("button", { name: "Start slideshow" }));
+    await waitFor(() => expect(play).toHaveBeenCalled());
+    pause.mockClear();
+    await user.click(screen.getByRole("button", { name: "Pause slideshow" }));
+    expect(pause).toHaveBeenCalled();
+  });
+
+  it("plays a video the slideshow lands on", async () => {
+    const slides: Slide[] = [...images(1), { src: "/v.mp4", alt: "V" }];
+    await openAt(0, { slides, slideshow: { interval: 50, autoplay: true } });
+    play.mockClear();
+    await waitFor(() => expect(counter()).toBe("2 / 2"));
+    await waitFor(() => expect(play).toHaveBeenCalled());
+  });
+
+  it("stops the slideshow when the viewer pauses the video", async () => {
+    const slides: Slide[] = [{ src: "/v.mp4", alt: "V" }, ...images(2)];
+    const { user } = await openAt(0, { slides, slideshow: { interval: 5000 } });
+    await user.click(screen.getByRole("button", { name: "Start slideshow" }));
+    fireEvent(current().querySelector("video")!, new Event("pause"));
+    expect(screen.getByRole("button", { name: "Start slideshow" })).toBeInTheDocument();
+  });
+
   it("uses custom labels", async () => {
     await openAt(0, {
       slides: images(2),

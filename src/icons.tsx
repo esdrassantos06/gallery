@@ -75,4 +75,21 @@ export const defaultIcons: LightboxIcons = {
       <path d="M8.25 5.25v13.5M15.75 5.25v13.5" />
     </Icon>
   ),
+  rotateLeft: (
+    <Icon>
+      <path d="M4.5 9.75h5.25V4.5" />
+      <path d="M4.97 9.75A8.25 8.25 0 1 1 6.17 17.83" />
+    </Icon>
+  ),
+  rotateRight: (
+    <Icon>
+      <path d="M19.5 9.75h-5.25V4.5" />
+      <path d="M19.03 9.75a8.25 8.25 0 1 0-1.2 8.08" />
+    </Icon>
+  ),
+  download: (
+    <Icon>
+      <path d="M12 3.75v11.25M7.5 10.5 12 15l4.5-4.5M4.5 19.5h15" />
+    </Icon>
+  ),
 };

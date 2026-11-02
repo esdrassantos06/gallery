@@ -44,6 +44,13 @@ export interface Slide {
   sources?: VideoSource[] | undefined;
   /** Captions, subtitles or descriptions for a video slide. */
   tracks?: VideoTrack[] | undefined;
+  /**
+   * What the download button saves: a URL to use instead of `src`, for example
+   * the original file, or `false` to hide the button on this slide.
+   */
+  download?: string | false | undefined;
+  /** File name for the download. Wins over `download.filename`. */
+  downloadName?: string | undefined;
   /** Responsive candidates for `<img srcset>`, for example `"a-640.jpg 640w, a-1280.jpg 1280w"`. */
   srcSet?: string | undefined;
   /**
@@ -110,6 +117,14 @@ export interface LightboxLabels {
   pauseSlideshow: string;
   /** Accessible name for a video or embed whose slide has no `alt` or string `title`. */
   video: string;
+  /** Accessible name of the rotate left button. */
+  rotateLeft: string;
+  /** Accessible name of the rotate right button. */
+  rotateRight: string;
+  /** Accessible name of the download button. */
+  download: string;
+  /** Announced when a file could not be saved directly and opened in a new tab instead. */
+  downloadError: string;
 }
 
 /** Icons of the built-in buttons. Each one can be replaced by any React node. */
@@ -132,6 +147,12 @@ export interface LightboxIcons {
   playSlideshow: ReactNode;
   /** Icon of the slideshow button while playing. */
   pauseSlideshow: ReactNode;
+  /** Icon of the rotate left button. */
+  rotateLeft: ReactNode;
+  /** Icon of the rotate right button. */
+  rotateRight: ReactNode;
+  /** Icon of the download button. */
+  download: ReactNode;
 }
 
 /** Extra class names, added next to the built-in `eg-*` class of each part. */
@@ -208,6 +229,17 @@ export interface VideoOptions {
    * @defaultValue false
    */
   autoplay?: boolean | undefined;
+}
+
+/** Options for the `download` prop. */
+export interface DownloadOptions {
+  /** File name for a slide. Defaults to the last segment of the URL. `slide.downloadName` wins. */
+  filename?: ((slide: Slide, index: number) => string) | undefined;
+  /**
+   * Called when a cross-origin file could not be fetched (network, CORS or an
+   * HTTP error). The file is then opened in a new tab instead.
+   */
+  onError?: ((error: unknown, slide: Slide) => void) | undefined;
 }
 
 /** Options for the `slideshow` prop. */
@@ -332,6 +364,19 @@ export interface LightboxProps {
    * @defaultValue true
    */
   fullscreen?: boolean | undefined;
+  /**
+   * Add rotate left and right buttons for images. Rotation turns in 90 degree
+   * steps, keeps working with zoom and resets on slide change and with the `0` key.
+   * @defaultValue false
+   */
+  rotate?: boolean | undefined;
+  /**
+   * Add a download button for images and video files. Same-origin files are
+   * saved directly; cross-origin files are fetched so the name is kept, and open
+   * in a new tab when the server does not allow it.
+   * @defaultValue false
+   */
+  download?: boolean | DownloadOptions | undefined;
   /** Options for video slides. See {@link VideoOptions}. */
   video?: VideoOptions | undefined;
   /**
