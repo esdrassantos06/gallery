@@ -4,11 +4,11 @@ import { CopyCommand } from "@/components/copy-command";
 import { Demo } from "@/components/demo";
 import { GridsDemo } from "@/components/grids-demo";
 import { JsonLd } from "@/components/json-ld";
-import { PlaygroundGallery, SlideshowGallery } from "@/components/home";
+import { PlaygroundGallery, PolishGallery, SlideshowGallery } from "@/components/home";
 import { npmUrl, repoUrl, siteDescription, siteUrl } from "@/lib/shared";
 
 const facts = [
-  ["9.36 kB", "lightbox, min + brotli, measured"],
+  ["11.55 kB", "lightbox, min + brotli, measured"],
   ["0", "runtime dependencies"],
   ["React 18 and 19", "SSR safe, App Router ready"],
   ["Screen readers", "focus trap, live region, reduced motion"],
@@ -95,9 +95,9 @@ export default function HomePage() {
             A lightbox that flies out of your thumbnails.
           </h1>
           <p className="text-fd-muted-foreground mt-6 max-w-[56ch] text-lg text-pretty">
-            Accessible React gallery viewer with zoom, video, slideshow, deep links and optional
-            grids. Every string, icon and color is yours to replace, and it ships without a single
-            runtime dependency.
+            Accessible React gallery viewer with zoom, video, slideshow, deep links, sharing and
+            optional grids. Every string, icon and color is yours to replace, and it ships without a
+            single runtime dependency.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
@@ -157,6 +157,14 @@ export default function HomePage() {
         description="A native video with captions, an iframe slide and images. Press play in the toolbar to run the slideshow. It pauses on manual navigation, while the tab is hidden and on video slides until the video ends."
       >
         <SlideshowGallery />
+      </Section>
+
+      <Section
+        id="polish"
+        title="Interaction polish"
+        description="Flip, share and every other button: on a narrow screen the ones that do not fit move into a More menu, zoom first. Pager dots, controls that fade out when idle, right-to-left and pinch to close are each one prop."
+      >
+        <PolishGallery />
       </Section>
 
       <Section

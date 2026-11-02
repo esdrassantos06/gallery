@@ -137,3 +137,48 @@ export function SlideshowGallery() {
     </div>
   );
 }
+
+/** Flip, share, pager, idle, right-to-left and pinch to close, each behind a switch. */
+export function PolishGallery() {
+  const [flip, setFlip] = useState(true);
+  const [share, setShare] = useState(true);
+  const [pager, setPager] = useState(true);
+  const [thumbnails, setThumbnails] = useState(false);
+  const [idle, setIdle] = useState(false);
+  const [rtl, setRtl] = useState(false);
+  const [pinchToClose, setPinchToClose] = useState(true);
+  const state = useState(-1);
+  return (
+    <div className="grid items-start gap-6 lg:grid-cols-[18rem_1fr]">
+      <form
+        aria-label="Polish options"
+        className="bg-fd-card order-last flex flex-col gap-2 rounded-xl border p-5 lg:order-first"
+        onSubmit={(e) => e.preventDefault()}
+      >
+        <Panel title="Polish">
+          <Toggle label="Flip buttons" checked={flip} onChange={setFlip} />
+          <Toggle label="Share button" checked={share} onChange={setShare} />
+          <Toggle label="Pager dots" checked={pager} onChange={setPager} />
+          <Toggle label="Thumbnail strip" checked={thumbnails} onChange={setThumbnails} />
+          <Toggle label="Hide controls when idle" checked={idle} onChange={setIdle} />
+          <Toggle label="Right to left" checked={rtl} onChange={setRtl} />
+          <Toggle label="Pinch to close" checked={pinchToClose} onChange={setPinchToClose} />
+        </Panel>
+      </form>
+      <Grid
+        slides={samples}
+        state={state}
+        hint={false}
+        rotate
+        download
+        flip={flip}
+        share={share}
+        pager={pager}
+        thumbnails={thumbnails}
+        idle={idle && 2000}
+        dir={rtl ? "rtl" : "ltr"}
+        pinchToClose={pinchToClose}
+      />
+    </div>
+  );
+}
