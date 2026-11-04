@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { CookieSettingsButton } from "@/components/consent";
 import { CopyCommand } from "@/components/copy-command";
 import { Demo } from "@/components/demo";
 import { GridsDemo } from "@/components/grids-demo";
@@ -235,25 +234,6 @@ export default function HomePage() {
           <code>{usage}</code>
         </pre>
       </Section>
-
-      <footer className="text-fd-muted-foreground flex flex-wrap items-center justify-between gap-4 border-t py-8 text-sm">
-        <span>MIT licensed. Sample images and video are generated, not real photos.</span>
-        <span className="flex gap-4">
-          <Link href="/docs/changelog" className="hover:text-fd-foreground">
-            Changelog
-          </Link>
-          <Link href="/privacy" className="hover:text-fd-foreground">
-            Privacy
-          </Link>
-          <Link href="/cookies" className="hover:text-fd-foreground">
-            Cookies
-          </Link>
-          <CookieSettingsButton className="hover:text-fd-foreground" />
-          <a href={repoUrl} className="hover:text-fd-foreground">
-            esdrassantos06/liftbox
-          </a>
-        </span>
-      </footer>
     </main>
   );
 }

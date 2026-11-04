@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/layouts/docs/page";
 import { createRelativeLink } from "fumadocs-ui/mdx";
+import { SiteFooter } from "@/components/footer";
 import { JsonLd } from "@/components/json-ld";
 import { getMDXComponents } from "@/components/mdx";
 import { repoUrl, siteName, siteUrl } from "@/lib/shared";
@@ -17,7 +18,7 @@ export default async function Page({ params }: Props) {
   const MDX = page.data.body;
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
+    <DocsPage toc={page.data.toc} full={page.data.full} footer={{ children: <SiteFooter /> }}>
       <JsonLd
         data={{
           "@context": "https://schema.org",
