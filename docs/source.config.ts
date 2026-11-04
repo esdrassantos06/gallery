@@ -1,10 +1,18 @@
 import { resolve } from "node:path";
+import { pageSchema } from "fumadocs-core/source/schema";
 import { defineConfig, defineDocs } from "fumadocs-mdx/config";
 import { remarkAutoTypeTable } from "fumadocs-typescript";
 
 export const docs = defineDocs({
   dir: "content/docs",
-  docs: { postprocess: { includeProcessedMarkdown: true } },
+  docs: {
+    schema: pageSchema.extend({
+      /** Search result title when the sidebar title is too short to carry the query. */
+      seoTitle: pageSchema.shape.title.optional(),
+    }),
+    lastModified: true,
+    postprocess: { includeProcessedMarkdown: true },
+  },
 });
 
 export default defineConfig({

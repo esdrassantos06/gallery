@@ -1,0 +1,88 @@
+---
+title: liftbox vs PhotoSwipe
+seoTitle: "PhotoSwipe for React: liftbox vs PhotoSwipe"
+description: How liftbox compares with PhotoSwipe and react-photoswipe-gallery in React, and how to move a gallery from one to the other.
+---
+
+[PhotoSwipe](https://photoswipe.com) is the lightbox most people already know, and its touch gestures are still some of the best around. It isn't built for React, though: React apps reach it through the community wrapper [react-photoswipe-gallery](https://github.com/dromru/react-photoswipe-gallery), and that's the setup compared here, PhotoSwipe 5.4.4 with react-photoswipe-gallery 4.1.2, checked on November 4, 2026. The [full comparison](/docs/comparison) covers the other libraries.
+
+## What they share
+
+Both are MIT, so a closed-source product pays nothing. Both open the image out of the thumbnail you clicked, cropped with `object-fit: cover` or not, and both handle pinch, double tap, wheel zoom, swipes, the keyboard and reduced motion.
+
+## Where they differ
+
+|                                               | liftbox                                                      | PhotoSwipe with react-photoswipe-gallery         |
+| --------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------ |
+| Built for                                     | React 18 and 19                                              | Any framework, React through a community wrapper |
+| Image size                                    | `width` and `height` optional, measured on load when missing | Required for every image before it opens         |
+| Native video, YouTube, Vimeo                  | Built in                                                     | A separate video plugin, in development          |
+| Thumbnail strip                               | Built in                                                     | No                                               |
+| Slideshow                                     | Built in                                                     | No                                               |
+| Fullscreen                                    | Built in                                                     | A recipe in the docs                             |
+| Share and rotation                            | Built in                                                     | No                                               |
+| Deep links (URL hash)                         | `useLightboxHash`                                            | In the React wrapper                             |
+| Grids                                         | Masonry, justified, uniform and a filter                     | No                                               |
+| Dialog with `aria-modal`, slide announcements | Yes                                                          | Dialog without `aria-modal`, no announcements    |
+| JS size, min and brotli                       | 13.12 kB with everything above                               | 17.49 kB                                         |
+| Last release                                  | 2026                                                         | PhotoSwipe 5.4.4, May 2024                       |
+
+## When to pick PhotoSwipe
+
+Pick PhotoSwipe if your site isn't only React, or you want the same lightbox in Vue, Svelte and plain HTML. It has around 25,000 GitHub stars and years in production, which counts for a lot when you can't afford surprises.
+
+It's also the simpler choice when you already store every image's width and height and need images only, with no video, thumbnail strip or slideshow.
+
+## Moving from react-photoswipe-gallery
+
+`Gallery` and `Item` turn into a slide list plus one controlled `Lightbox`. `original` becomes `src`, `thumbnail` keeps its name, and `width` and `height` carry over as numbers (or drop them, and liftbox measures each image when it loads).
+
+```diff
+- import { Gallery, Item } from "react-photoswipe-gallery";
+- import "photoswipe/dist/photoswipe.css";
++ import { useRef, useState } from "react";
++ import { Lightbox, type Slide } from "liftbox";
++ import "liftbox/styles.css";
+```
+
+```tsx
+const slides: Slide[] = photos.map((photo) => ({
+  src: photo.original,
+  thumbnail: photo.thumbnail,
+  width: photo.width,
+  height: photo.height,
+  alt: photo.alt,
+  title: photo.caption,
+}));
+
+export function Photos() {
+  const [index, setIndex] = useState(-1);
+  const thumbnails = useRef<(HTMLButtonElement | null)[]>([]);
+  return (
+    <>
+      {slides.map((slide, i) => (
+        <button
+          key={slide.src}
+          ref={(el) => {
+            thumbnails.current[i] = el;
+          }}
+          onClick={() => setIndex(i)}
+          aria-label={`Open ${slide.alt}`}
+        >
+          <img src={slide.thumbnail} alt="" />
+        </button>
+      ))}
+      <Lightbox
+        slides={slides}
+        open={index >= 0}
+        index={Math.max(index, 0)}
+        onIndexChange={setIndex}
+        onClose={() => setIndex(-1)}
+        getThumbnail={(i) => thumbnails.current[i]}
+      />
+    </>
+  );
+}
+```
+
+Rather not write the thumbnail buttons yourself? [Grids](/docs/grids) renders masonry, justified or uniform layouts and wires the thumbnails for you.

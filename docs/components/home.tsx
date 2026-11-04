@@ -7,7 +7,7 @@ import { Grid } from "./demo";
 
 const transitions = ["slide", "fade", "zoom"] as const satisfies readonly Transition[];
 
-/** The default gallery, driven by an options panel and kept in the URL as `#galeria-N`. */
+/** The default gallery, driven by an options panel and kept in the URL as `#gallery-N`. */
 export function PlaygroundGallery() {
   const [transition, setTransition] = useState<Transition>("slide");
   const [thumbnails, setThumbnails] = useState(true);
@@ -21,7 +21,7 @@ export function PlaygroundGallery() {
   const [keyboard, setKeyboard] = useState(true);
   const [preload, setPreload] = useState(2);
   const [swipeThreshold, setSwipeThreshold] = useState(50);
-  const state = useLightboxHash("galeria", { count: samples.length });
+  const state = useLightboxHash("gallery", { count: samples.length });
 
   return (
     <div className="grid items-start gap-6 lg:grid-cols-[18rem_1fr]">

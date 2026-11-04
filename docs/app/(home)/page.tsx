@@ -1,12 +1,22 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { Star } from "lucide-react";
 import { CopyCommand } from "@/components/copy-command";
 import { Demo } from "@/components/demo";
 import { GridsDemo } from "@/components/grids-demo";
 import { JsonLd } from "@/components/json-ld";
 import { PlaygroundGallery, PolishGallery, SlideshowGallery } from "@/components/home";
 import size from "@/lib/generated/size.json";
-import { npmUrl, repoUrl, siteDescription, siteUrl } from "@/lib/shared";
+import {
+  authorName,
+  authorUrl,
+  npmUrl,
+  repoUrl,
+  siteDescription,
+  siteName,
+  siteUrl,
+} from "@/lib/shared";
+import pkg from "../../../package.json";
 
 const facts = [
   [size.lightbox, "lightbox, min + brotli, measured"],
@@ -33,13 +43,22 @@ const comparisons = [
   ],
 ] as const;
 
+const guides = [
+  ["/docs/quick-start", "Quick start"],
+  ["/docs/nextjs", "Next.js App Router"],
+  ["/docs/grids", "Masonry and justified grids"],
+  ["/docs/zoom", "Image zoom"],
+  ["/docs/slides", "Video and iframes"],
+  ["/docs/accessibility", "Accessibility"],
+] as const;
+
 const usage = `import { useRef } from "react";
 import { Lightbox, useLightboxHash, type Slide } from "liftbox";
 import "liftbox/styles.css";
 
 export function Gallery({ slides }: { slides: Slide[] }) {
   const thumbnails = useRef<(HTMLButtonElement | null)[]>([]);
-  const [index, setIndex] = useLightboxHash("galeria", { count: slides.length });
+  const [index, setIndex] = useLightboxHash("gallery", { count: slides.length });
 
   return (
     <>
@@ -97,21 +116,35 @@ export default function HomePage() {
       <JsonLd
         data={{
           "@context": "https://schema.org",
-          "@type": "SoftwareSourceCode",
-          name: "liftbox",
-          description: siteDescription,
-          url: siteUrl,
-          codeRepository: repoUrl,
-          programmingLanguage: ["TypeScript", "React"],
-          runtimePlatform: "Web browser",
-          license: "https://opensource.org/licenses/MIT",
-          author: { "@type": "Person", name: "Esdras Santos" },
+          "@graph": [
+            {
+              "@type": "WebSite",
+              name: siteName,
+              url: `${siteUrl}/`,
+              description: siteDescription,
+              inLanguage: "en",
+            },
+            {
+              "@type": "SoftwareSourceCode",
+              name: siteName,
+              description: siteDescription,
+              url: `${siteUrl}/`,
+              image: `${siteUrl}/opengraph-image`,
+              codeRepository: repoUrl,
+              version: pkg.version,
+              sameAs: [repoUrl, npmUrl],
+              programmingLanguage: ["TypeScript", "React"],
+              runtimePlatform: "Web browser",
+              license: "https://opensource.org/licenses/MIT",
+              author: { "@type": "Person", name: authorName, url: authorUrl },
+            },
+          ],
         }}
       />
       <section className="grid min-w-0 gap-10 py-12 sm:py-20 lg:grid-cols-[1.2fr_1fr] lg:items-end">
         <div>
           <h1 className="max-w-[16ch] text-4xl font-semibold tracking-[-0.035em] text-balance sm:text-6xl">
-            A lightbox that flies out of your thumbnails.
+            The React lightbox that flies out of your thumbnails.
           </h1>
           <p className="text-fd-muted-foreground mt-6 max-w-[56ch] text-lg text-pretty">
             Accessible React gallery viewer with zoom, video, slideshow, deep links, sharing and
@@ -131,6 +164,13 @@ export default function HomePage() {
               className="hover:bg-fd-accent inline-flex h-11 items-center rounded-lg border px-5 font-medium"
             >
               Try the demo
+            </a>
+            <a
+              href={repoUrl}
+              className="hover:bg-fd-accent inline-flex h-11 items-center gap-2 rounded-lg border px-5 font-medium"
+            >
+              <Star aria-hidden className="size-4" />
+              Star on GitHub
             </a>
             <a
               href={npmUrl}
@@ -157,7 +197,7 @@ export default function HomePage() {
         <Section
           id="default-look"
           title="Default look"
-          description="The built-in theme, driven by the options panel. The open photo is kept in the URL as #galeria-3, so you can share it, and the back button closes the viewer."
+          description="The built-in theme, driven by the options panel. The open photo is kept in the URL as #gallery-3, so you can share it, and the back button closes the viewer."
         >
           <PlaygroundGallery />
         </Section>
@@ -230,6 +270,17 @@ export default function HomePage() {
           </>
         }
       >
+        <nav aria-label="Guides" className="mb-6 flex flex-wrap gap-2">
+          {guides.map(([href, text]) => (
+            <Link
+              key={href}
+              href={href}
+              className="hover:bg-fd-accent rounded-full border px-3 py-1 text-sm transition-colors"
+            >
+              {text}
+            </Link>
+          ))}
+        </nav>
         <pre className="bg-fd-foreground text-fd-background overflow-x-auto rounded-xl p-5 font-mono text-[0.8125rem] leading-relaxed">
           <code>{usage}</code>
         </pre>

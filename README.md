@@ -10,16 +10,17 @@
 [![CI](https://github.com/esdrassantos06/liftbox/actions/workflows/ci.yml/badge.svg)](https://github.com/esdrassantos06/liftbox/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/liftbox)](https://www.npmjs.com/package/liftbox)
 [![License: MIT](https://img.shields.io/badge/license-MIT-black)](./LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/esdrassantos06/liftbox?style=social)](https://github.com/esdrassantos06/liftbox)
 
-**[Documentation and live demos](https://liftbox.digital)** · [Comparison with other React lightboxes](https://liftbox.digital/docs/comparison)
+**[Documentation and live demos](https://liftbox.digital)** · [Try it on StackBlitz](https://stackblitz.com/github/esdrassantos06/liftbox/tree/main/examples/vite?file=src%2FGallery.jsx) · [Comparison with other React lightboxes](https://liftbox.digital/docs/comparison)
 
-An accessible, themeable image lightbox for React, with optional masonry, justified and uniform grids and a category filter. The lightbox opens out of the thumbnail that was clicked and flies back into it on close. It has zero runtime dependencies, works with any grid, and every string, icon, color, size and timing can be replaced.
+A React lightbox that opens each photo out of the thumbnail you clicked, even a cropped one, and flies it back on close. Zoom, video, thumbnails, slideshow and masonry or justified grids ship in one MIT package with zero runtime dependencies; you can swap every string, icon, color and timing, and it works with any grid you already have.
 
 <p align="center">
   <img src="./assets/demo.gif" alt="A photo in a justified grid is clicked, lifts out of its thumbnail into the lightbox, moves to the next photos and flies back into the grid on close." width="720" />
 </p>
 
-> Formerly published as `@esdrassantos06/gallery`. Moving over takes one install and two import paths: the API, class names and `--eg-*` variables did not change.
+Using liftbox? A star on GitHub is how the next person searching for a React lightbox finds it.
 
 ## Features
 
@@ -36,6 +37,19 @@ An accessible, themeable image lightbox for React, with optional masonry, justif
 - Modal dialog semantics, focus trap and return, a live region, reduced motion and a scroll lock that keeps the page still.
 - Server-rendering safe, ready for the Next.js App Router.
 - Styled with `--eg-*` CSS variables. The lightbox needs no `'unsafe-inline'` in a Content Security Policy.
+
+## Compared with other React lightboxes
+
+|                            | liftbox                     | yet-another-react-lightbox | PhotoSwipe | lightGallery                 |
+| -------------------------- | --------------------------- | -------------------------- | ---------- | ---------------------------- |
+| License                    | MIT                         | MIT                        | MIT        | GPL-3.0 or a paid license    |
+| Opens out of the thumbnail | Yes, also cropped ones      | No                         | Yes        | Yes, cropped with a plugin   |
+| Grids                      | Masonry, justified, uniform | Separate package           | No         | Justified                    |
+| Zoom, thumbnails, video    | Built in                    | One plugin each            | Zoom only  | One plugin each              |
+| YouTube and Vimeo          | Built in                    | No                         | No         | Plugin                       |
+| JS, min and brotli         | 13.12 kB with everything    | 19.46 kB with every plugin | 17.49 kB   | 25.32 kB with common plugins |
+
+Pinned versions, sources and an accessibility table are on the [comparison page](https://liftbox.digital/docs/comparison), with migration guides from [yet-another-react-lightbox](https://liftbox.digital/docs/migration), [lightGallery](https://liftbox.digital/docs/migration-lightgallery) and [PhotoSwipe](https://liftbox.digital/docs/vs-photoswipe).
 
 ## Installation
 
@@ -137,10 +151,14 @@ Minified and gzipped by [bundlejs](https://bundlejs.com) from the version on npm
 
 The public site, with the docs and demos, lives in [`docs/`](./docs) (Next.js and Fumadocs) and has its own scripts: `npm run dev --prefix docs` and `npm run build --prefix docs`. It runs as a Next.js server on Vercel, with `docs` as the project's root directory. [`docs/proxy.ts`](./docs/proxy.ts) gives every page a fresh nonce and a Content Security Policy with `default-src 'self'` that trusts only scripts and style tags carrying that nonce.
 
+## Migrating from @esdrassantos06/gallery
+
+This package was published as `@esdrassantos06/gallery` until 1.2.0. Moving over takes one install and two import paths: the API, class names and `--eg-*` variables did not change.
+
 ## Contributing
 
 Contributions are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) and the [Code of Conduct](./CODE_OF_CONDUCT.md), and report vulnerabilities as described in [SECURITY.md](./SECURITY.md). Changes are listed in [CHANGELOG.md](./CHANGELOG.md).
 
 ## License
 
-[MIT](./LICENSE). The justified layout math is adapted from opengallery, MIT License, Copyright (c) 2026 opengallery contributors. The built-in icons are from [Mynaui Icons](https://mynaui.com/icons), MIT License, Copyright (c) Praveen Juge.
+[MIT](./LICENSE). The justified layout math is adapted from opengallery and the built-in icons are from [Mynaui Icons](https://mynaui.com/icons), both MIT. Their notices are in [NOTICE](./NOTICE).
