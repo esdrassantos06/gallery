@@ -13,5 +13,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
     { url: `${siteUrl}/privacy`, priority: 0.2 },
     { url: `${siteUrl}/cookies`, priority: 0.2 },
+    { url: `${siteUrl}/terms`, priority: 0.2 },
   ];
 }

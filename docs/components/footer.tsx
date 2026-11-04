@@ -17,6 +17,9 @@ export function SiteFooter() {
         <Link href="/cookies" className="hover:text-fd-foreground">
           Cookies
         </Link>
+        <Link href="/terms" className="hover:text-fd-foreground">
+          Terms
+        </Link>
         <CookieSettingsButton className="hover:text-fd-foreground" />
         <a href={repoUrl} className="hover:text-fd-foreground">
           esdrassantos06/liftbox
