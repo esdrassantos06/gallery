@@ -28,6 +28,17 @@ function parse(src: string): URL | null {
   }
 }
 
+const WEB_SCHEMES = ["http:", "https:", "blob:"];
+
+/**
+ * Whether `src` parses to a scheme outside the web schemes plus `extra`, such
+ * as `javascript:` or `data:`. Relative and malformed URLs return `false`.
+ */
+export function hasUnsafeScheme(src: string, extra: readonly string[] = []): boolean {
+  const url = parse(src);
+  return !!url && !WEB_SCHEMES.includes(url.protocol) && !extra.includes(url.protocol);
+}
+
 function hostIs(url: URL, ...hosts: string[]): boolean {
   const host = url.hostname.replace(/^(www|m)\./, "");
   return hosts.includes(host);
@@ -70,7 +81,9 @@ export function getMedia(
 ): Media {
   if (slide.type === "image") return { kind: "image" };
   if (slide.type === "video") return { kind: "video" };
-  if (slide.type === "iframe") return { kind: "iframe", embed: slide.src };
+  if (slide.type === "iframe") {
+    return hasUnsafeScheme(slide.src) ? { kind: "iframe" } : { kind: "iframe", embed: slide.src };
+  }
   const url = parse(slide.src);
   if (!url) return { kind: "image" };
 

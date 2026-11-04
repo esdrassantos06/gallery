@@ -34,5 +34,6 @@ description: Save images and video files, keeping the file name across origins.
 
 - `slide.download` points the button at another URL, for example the original file instead of a resized `src`.
 - `slide.download = false` hides the button on that slide.
+- A URL with a `javascript:` or other non-web scheme hides the button too. `data:` URLs are allowed.
 
 The file name comes from `slide.downloadName`, then `download.filename(slide, index)`, then the last segment of the URL.

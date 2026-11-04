@@ -2,6 +2,10 @@
 
 All notable changes are listed here. The project follows [Semantic Versioning](https://semver.org).
 
+## Unreleased
+
+- Security: an iframe slide whose `src` uses a scheme other than `http:`, `https:` or `blob:`, such as `javascript:` or `data:`, now renders no iframe. The download button is hidden when its URL uses `javascript:` or another non-web scheme (`data:` stays allowed). This matters when slide URLs come from your users, especially on React 18, which does not block `javascript:` URLs.
+
 ## 1.3.1 (2026-11-04)
 
 - More npm keywords, such as image viewer, slideshow and video, so the package shows up in more searches. No code changes.

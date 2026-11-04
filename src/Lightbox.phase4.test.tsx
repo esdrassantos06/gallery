@@ -138,6 +138,17 @@ describe("download", () => {
     expect(screen.queryByRole("button", { name: "Download" })).toBeNull();
   });
 
+  it("hides the button for script URLs and keeps it for data URLs", async () => {
+    const slides: Slide[] = [
+      { src: "/a.jpg", alt: "A", download: "javascript:alert(1)" },
+      { src: "/b.jpg", alt: "B", download: "data:image/png;base64,AAAA" },
+    ];
+    const { user } = await openAt(0, { slides, download: true });
+    expect(screen.queryByRole("button", { name: "Download" })).toBeNull();
+    await user.keyboard("{ArrowRight}");
+    expect(screen.getByRole("button", { name: "Download" })).toBeInTheDocument();
+  });
+
   it("fetches cross-origin files as a blob so the name is kept", async () => {
     const slides: Slide[] = [{ src: "https://cdn.example.com/photos/sea.jpg", alt: "Sea" }];
     const { user } = await openAt(0, { slides, download: true });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getMedia } from "./media";
+import { getMedia, hasUnsafeScheme } from "./media";
 
 describe("getMedia", () => {
   it("treats plain URLs as images", () => {
@@ -20,6 +20,22 @@ describe("getMedia", () => {
       kind: "iframe",
       embed: "https://example.com/map",
     });
+  });
+
+  it("never embeds an iframe slide with a script or data URL", () => {
+    for (const src of [
+      "javascript:alert(1)",
+      " JavaScript:alert(1)",
+      "java\tscript:alert(1)",
+      "data:text/html,<script>alert(1)</script>",
+      "vbscript:msgbox(1)",
+    ]) {
+      expect(getMedia({ src, type: "iframe" })).toEqual({ kind: "iframe" });
+    }
+    expect(getMedia({ src: "/embed/map", type: "iframe" }).embed).toBe("/embed/map");
+    expect(getMedia({ src: "blob:https://site/1", type: "iframe" }).embed).toBe(
+      "blob:https://site/1",
+    );
   });
 
   it("embeds YouTube links through youtube-nocookie.com", () => {
@@ -74,5 +90,19 @@ describe("getMedia", () => {
       "https://i.ytimg.com/vi/abc/hqdefault.jpg",
     );
     expect(getMedia({ src: "https://youtu.be/abc", poster: "/p.jpg" }).poster).toBeUndefined();
+  });
+});
+
+describe("hasUnsafeScheme", () => {
+  it("accepts relative and web URLs and rejects other schemes", () => {
+    expect(hasUnsafeScheme("/a.jpg")).toBe(false);
+    expect(hasUnsafeScheme("https://cdn.example.com/a.jpg")).toBe(false);
+    expect(hasUnsafeScheme("javascript:alert(1)")).toBe(true);
+    expect(hasUnsafeScheme("data:image/png;base64,AAAA")).toBe(true);
+    expect(hasUnsafeScheme("data:image/png;base64,AAAA", ["data:"])).toBe(false);
+  });
+
+  it("leaves malformed URLs to the caller", () => {
+    expect(hasUnsafeScheme("http://exa mple.com/a.jpg")).toBe(false);
   });
 });
