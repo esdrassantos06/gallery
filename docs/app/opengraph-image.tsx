@@ -32,25 +32,28 @@ export default async function OpengraphImage() {
       <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
         <svg width="112" height="112" viewBox="0 0 64 64">
           <rect width="64" height="64" rx="14" fill="#0b0b0c" />
-          <path
-            d="M11 42 25 12M22 53 53 40"
+          <rect
+            x="17.8"
+            y="25.8"
+            width="20.5"
+            height="20.5"
+            rx="2.5"
             stroke="#f6f5f2"
-            strokeOpacity=".5"
-            strokeWidth="1.5"
-            strokeLinecap="round"
+            strokeOpacity=".38"
+            strokeWidth="2.5"
             fill="none"
           />
           <rect
             x="25"
-            y="12"
+            y="11"
             width="28"
             height="28"
-            rx="3"
+            rx="3.4"
             stroke="#f6f5f2"
-            strokeWidth="3"
+            strokeWidth="3.5"
             fill="none"
           />
-          <rect x="11" y="42" width="11" height="11" rx="2" fill="#f6f5f2" />
+          <rect x="10.5" y="40.5" width="13" height="13" rx="2" fill="#f6f5f2" />
         </svg>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <span style={{ fontSize: 64, fontWeight: 600, letterSpacing: -1.5 }}>liftbox</span>

@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./assets/logo/logo-dark.svg" />
-    <img src="./assets/logo/logo-light.svg" alt="liftbox" width="280" />
+    <img src="./assets/logo/logo-light.svg" alt="liftbox" width="220" />
   </picture>
 </p>
 
@@ -15,7 +15,11 @@
 
 An accessible, themeable image lightbox for React, with optional masonry, justified and uniform grids and a category filter. The lightbox opens out of the thumbnail that was clicked and flies back into it on close. It has zero runtime dependencies, works with any grid, and every string, icon, color, size and timing can be replaced.
 
-> **Status:** version 1.2.0. Every phase of the [roadmap](https://liftbox.digital/docs/roadmap) is done, and everything listed below is implemented, tested and published on npm.
+<p align="center">
+  <img src="./assets/demo.gif" alt="A photo in a justified grid is clicked, lifts out of its thumbnail into the lightbox, moves to the next photos and flies back into the grid on close." width="720" />
+</p>
+
+> Formerly published as `@esdrassantos06/gallery`. Moving over takes one install and two import paths: the API, class names and `--eg-*` variables did not change.
 
 ## Features
 
