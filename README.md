@@ -134,7 +134,7 @@ Minified and gzipped by [bundlejs](https://bundlejs.com) from the version on npm
 | `npm run size`          | Bundle size                                       |
 | `npm run check:package` | publint and Are the Types Wrong                   |
 
-The public site, with the docs and demos, lives in [`docs/`](./docs) (Next.js and Fumadocs) and has its own scripts: `npm run dev --prefix docs` and `npm run build --prefix docs`. It is a static export deployed to Vercel by [`vercel.json`](./vercel.json). Every page carries a Content Security Policy with `default-src 'self'` and no `'unsafe-inline'`: the inline scripts, style tags and style attributes of the export are allowed by SHA-256 hashes, added at build time.
+The public site, with the docs and demos, lives in [`docs/`](./docs) (Next.js and Fumadocs) and has its own scripts: `npm run dev --prefix docs` and `npm run build --prefix docs`. It runs as a Next.js server on Vercel, with `docs` as the project's root directory. [`docs/proxy.ts`](./docs/proxy.ts) gives every page a fresh nonce and a Content Security Policy with `default-src 'self'` that trusts only scripts and style tags carrying that nonce.
 
 ## Contributing
 

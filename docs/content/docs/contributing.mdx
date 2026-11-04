@@ -56,7 +56,7 @@ npm run build && npm run size && npm run check:package
 
 ## Working on the docs
 
-This site lives in `docs/`, a Next.js app built with [Fumadocs](https://fumadocs.dev), exported as static files and deployed from the repository root by `vercel.json`. It imports the library straight from `src/`, so the demos always run the code in your branch, and the prop tables are generated from `src/types.ts`.
+This site lives in `docs/`, a Next.js app built with [Fumadocs](https://fumadocs.dev), rendered on the server and deployed to Vercel with `docs` as the root directory. `proxy.ts` sets a per-request Content Security Policy. It imports the library straight from `src/`, so the demos always run the code in your branch, and the prop tables are generated from `src/types.ts`.
 
 ```bash
 npm install --prefix docs

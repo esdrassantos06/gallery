@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { GeistSans } from "geist/font/sans";
 import localFont from "next/font/local";
+import { headers } from "next/headers";
 import { CookieBanner } from "@/components/consent";
 import { Provider } from "@/components/provider";
 import { gtmId, siteDescription, siteName, siteUrl } from "@/lib/shared";
@@ -59,7 +60,8 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function Layout({ children }: { children: ReactNode }) {
+export default async function Layout({ children }: { children: ReactNode }) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html
       lang="en"
@@ -68,11 +70,11 @@ export default function Layout({ children }: { children: ReactNode }) {
     >
       {gtmId ? (
         <head>
-          <script dangerouslySetInnerHTML={{ __html: consentDefaults }} />
+          <script nonce={nonce} dangerouslySetInnerHTML={{ __html: consentDefaults }} />
         </head>
       ) : null}
       <body className="flex min-h-screen flex-col">
-        <Provider>
+        <Provider nonce={nonce}>
           {children}
           <CookieBanner />
         </Provider>

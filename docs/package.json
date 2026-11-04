@@ -8,12 +8,12 @@
     "dev": "next dev",
     "prebuild": "npm run assets",
     "build": "next build",
-    "postbuild": "node scripts/csp.js",
     "pretypecheck": "npm run assets",
-    "start": "serve out",
+    "start": "next start",
     "typecheck": "next typegen && tsc --noEmit"
   },
   "devDependencies": {
+    "@base-ui/react": "^1.9.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/mdx": "^2.0.14",
     "@types/node": "^26.6.6",
