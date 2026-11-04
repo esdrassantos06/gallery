@@ -3,7 +3,7 @@ title: Contributing
 description: Set up the repository, run the checks and work on the docs.
 ---
 
-Bug reports, accessibility findings, docs fixes and pull requests are all welcome. Please read the [Code of Conduct](https://github.com/esdrassantos06/gallery/blob/main/CODE_OF_CONDUCT.md) first, and report security issues as described in [SECURITY.md](https://github.com/esdrassantos06/gallery/blob/main/SECURITY.md) instead of opening an issue.
+Bug reports, accessibility findings, docs fixes and pull requests are all welcome. Please read the [Code of Conduct](https://github.com/esdrassantos06/liftbox/blob/main/CODE_OF_CONDUCT.md) first, and report security issues as described in [SECURITY.md](https://github.com/esdrassantos06/liftbox/blob/main/SECURITY.md) instead of opening an issue.
 
 ## Setup
 
@@ -56,7 +56,7 @@ npm run build && npm run size && npm run check:package
 
 ## Working on the docs
 
-This site lives in `docs/`, a Next.js app built with [Fumadocs](https://fumadocs.dev), exported as static files and deployed from the repository root by `vercel.json`. It imports the library straight from `src/`, so the demos always run the code in your branch, and the prop tables are generated from `src/types.ts`.
+This site lives in `docs/`, a Next.js app built with [Fumadocs](https://fumadocs.dev), rendered on the server and deployed to Vercel with `docs` as the root directory. `proxy.ts` sets a per-request Content Security Policy. It imports the library straight from `src/`, so the demos always run the code in your branch, and the prop tables are generated from `src/types.ts`.
 
 ```bash
 npm install --prefix docs
@@ -88,4 +88,4 @@ Changes to the viewer must keep it usable with a keyboard and a screen reader. C
 
 ## Releases
 
-Maintainers release through GitHub. See [PUBLISHING.md](https://github.com/esdrassantos06/gallery/blob/main/PUBLISHING.md).
+Maintainers release by publishing a GitHub release, which runs the [publish workflow](https://github.com/esdrassantos06/liftbox/blob/main/.github/workflows/publish.yml) and puts the version on npm.

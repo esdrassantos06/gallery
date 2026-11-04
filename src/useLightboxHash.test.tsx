@@ -85,6 +85,44 @@ describe("useLightboxHash", () => {
     expect(window.history.length).toBe(length);
   });
 
+  describe("with names", () => {
+    const names = ["harbour", "old town", "beach"];
+
+    it("writes the slide's name instead of its number", () => {
+      const { result } = renderHook(() => useLightboxHash("galeria", { names }));
+      act(() => result.current[1](1));
+      expect(window.location.hash).toBe("#galeria-old%20town");
+      expect(result.current[0]).toBe(1);
+    });
+
+    it("opens the slide whose name is in the hash", () => {
+      setUrl("/page#galeria-beach");
+      const { result } = renderHook(() => useLightboxHash("galeria", { names }));
+      expect(result.current[0]).toBe(2);
+    });
+
+    it("still opens numbered links, so links shared before naming keep working", () => {
+      setUrl("/page#galeria-2");
+      const { result } = renderHook(() => useLightboxHash("galeria", { names }));
+      expect(result.current[0]).toBe(1);
+    });
+
+    it("ignores unknown names and numbers past the last name", () => {
+      for (const hash of ["#galeria-lake", "#galeria-4", "#galeria-%E0%A4%A"]) {
+        setUrl(`/page${hash}`);
+        const { result, unmount } = renderHook(() => useLightboxHash("galeria", { names }));
+        expect(result.current[0]).toBe(-1);
+        unmount();
+      }
+    });
+
+    it("prefers a name over a number when a name looks like one", () => {
+      setUrl("/page#galeria-1");
+      const { result } = renderHook(() => useLightboxHash("galeria", { names: ["2", "1", "3"] }));
+      expect(result.current[0]).toBe(1);
+    });
+  });
+
   it("drives a Lightbox opened from a deep link", async () => {
     setUrl("/page#fotos-4");
     function Page() {

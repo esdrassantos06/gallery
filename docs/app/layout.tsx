@@ -1,16 +1,18 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
+import localFont from "next/font/local";
+import { headers } from "next/headers";
+import { CookieBanner } from "@/components/consent";
 import { Provider } from "@/components/provider";
-import { siteDescription, siteName, siteUrl } from "@/lib/shared";
+import { gtmId, siteDescription, siteName, siteUrl } from "@/lib/shared";
 import "./global.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "gallery: an accessible React lightbox with zoom and grids",
-    template: "%s | gallery, a React lightbox",
+    default: "liftbox: an accessible React lightbox with zoom and grids",
+    template: "%s | liftbox, a React lightbox",
   },
   description: siteDescription,
   applicationName: siteName,
@@ -35,6 +37,22 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
+/** Geist Mono without a preload: it only styles code, so it should not compete with the hero text. */
+const GeistMono = localFont({
+  src: "../node_modules/geist/dist/fonts/geist-mono/GeistMono-Variable.woff2",
+  variable: "--font-geist-mono",
+  weight: "100 900",
+  preload: false,
+  adjustFontFallback: false,
+  fallback: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+});
+
+/**
+ * Google Consent Mode defaults, set before any tag can load: everything denied
+ * until the visitor accepts in the cookie banner.
+ */
+const consentDefaults = `window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag("consent","default",{ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied",analytics_storage:"denied"});`;
+
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f6f5f2" },
@@ -42,15 +60,24 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function Layout({ children }: { children: ReactNode }) {
+export default async function Layout({ children }: { children: ReactNode }) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html
       lang="en"
       className={`${GeistSans.variable} ${GeistMono.variable}`}
       suppressHydrationWarning
     >
+      {gtmId ? (
+        <head>
+          <script nonce={nonce} dangerouslySetInnerHTML={{ __html: consentDefaults }} />
+        </head>
+      ) : null}
       <body className="flex min-h-screen flex-col">
-        <Provider>{children}</Provider>
+        <Provider nonce={nonce}>
+          {children}
+          <CookieBanner />
+        </Provider>
       </body>
     </html>
   );

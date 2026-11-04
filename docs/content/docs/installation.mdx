@@ -1,34 +1,34 @@
 ---
 title: Installation
-description: Add the package and import its stylesheet once.
+description: Install liftbox with npm, pnpm, yarn or bun, import its stylesheet once, and see every export the package ships.
 ---
 
 <Tabs items={["npm", "pnpm", "yarn", "bun"]}>
   <Tab value="npm">
 
 ```bash
-npm install @esdrassantos06/gallery
+npm install liftbox
 ```
 
   </Tab>
   <Tab value="pnpm">
 
 ```bash
-pnpm add @esdrassantos06/gallery
+pnpm add liftbox
 ```
 
   </Tab>
   <Tab value="yarn">
 
 ```bash
-yarn add @esdrassantos06/gallery
+yarn add liftbox
 ```
 
   </Tab>
   <Tab value="bun">
 
 ```bash
-bun add @esdrassantos06/gallery
+bun add liftbox
 ```
 
   </Tab>
@@ -41,7 +41,7 @@ bun add @esdrassantos06/gallery
 Import the CSS once, anywhere in your app. A root layout or your entry file is a good place.
 
 ```ts
-import "@esdrassantos06/gallery/styles.css";
+import "liftbox/styles.css";
 ```
 
 The package marks CSS files as side effects, so bundlers keep the import. Without it the lightbox still works, but it has no layout.
@@ -59,7 +59,7 @@ import {
   fitContain,
   type Slide,
   type LightboxProps,
-} from "@esdrassantos06/gallery";
+} from "liftbox";
 ```
 
 The full list is in [Exports](/docs/exports).

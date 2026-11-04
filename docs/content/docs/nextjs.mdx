@@ -1,6 +1,6 @@
 ---
 title: Next.js App Router
-description: Use the lightbox from Server Components without a dynamic import.
+description: "Use the React lightbox in the Next.js App Router: fetch slides in a Server Component, pass them down, and skip the dynamic import."
 ---
 
 The published bundle starts with `"use client"`. You can import `Lightbox` from a file in the App Router tree and Next.js treats it as a Client Component.
@@ -11,7 +11,7 @@ Your gallery still needs to be a Client Component, because it holds state:
 "use client";
 
 import { useRef, useState } from "react";
-import { Lightbox, type Slide } from "@esdrassantos06/gallery";
+import { Lightbox, type Slide } from "liftbox";
 
 export function Gallery({ slides }: { slides: Slide[] }) {
   const [index, setIndex] = useState(-1);
@@ -37,7 +37,7 @@ Slides are plain objects, so a Server Component can fetch them and pass them dow
 Import it once in `app/layout.tsx`, or in the client component:
 
 ```tsx title="app/layout.tsx"
-import "@esdrassantos06/gallery/styles.css";
+import "liftbox/styles.css";
 ```
 
 ## No `ssr: false` needed

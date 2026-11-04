@@ -52,7 +52,7 @@ import { remember } from "./lru";
 import { getMedia } from "./media";
 import { Thumbnails } from "./Thumbnails";
 import { getToolbarOverflow, TOOLBAR_PRIORITY, type ToolKey } from "./toolbar";
-import type { LightboxClassNames, LightboxProps, Slide } from "./types";
+import type { ImageSource, LightboxClassNames, LightboxProps, Slide, VideoSource } from "./types";
 import { useFullscreen } from "./useFullscreen";
 import { resolveZoom, useZoom } from "./useZoom";
 import { getWheelFactor, type Point } from "./zoom";
@@ -1030,13 +1030,16 @@ export function Lightbox({
             : undefined;
       const name = item.alt ?? (typeof item.title === "string" ? item.title : labels.video);
       if (media.kind === "video") {
+        const videoSources = (item.sources ?? []).filter(
+          (source): source is VideoSource => "src" in source,
+        );
         return {
           node: (
             // Captions come from slide.tracks below; the rule cannot see through the map.
             // eslint-disable-next-line jsx-a11y/media-has-caption
             <video
               className={cn("video", "eg-video")}
-              src={item.sources ? undefined : item.src}
+              src={videoSources.length > 0 ? undefined : item.src}
               poster={item.poster}
               aria-label={name}
               style={frameStyle}
@@ -1051,7 +1054,7 @@ export function Lightbox({
                 }
               }}
             >
-              {item.sources?.map((source) => (
+              {videoSources.map((source) => (
                 <source key={source.src} src={source.src} type={source.type} />
               ))}
               {item.tracks?.map((track) => (
@@ -1120,17 +1123,17 @@ export function Lightbox({
       item.thumbnail && status[item.src] !== "loaded"
         ? `url(${JSON.stringify(item.thumbnail)})`
         : undefined;
-    const image = (
+    const pictureSources = (item.sources ?? []).filter(
+      (source): source is ImageSource => "srcSet" in source,
+    );
+    const sizes = item.sizes ?? (renderedWidth ? `${Math.round(renderedWidth)}px` : "100vw");
+    const img = (
       <img
         className={cn("image", "eg-image")}
         src={fetching ? item.src : undefined}
         srcSet={fetching ? item.srcSet : undefined}
         {...fetchPriority(isCurrent ? "high" : "low")}
-        sizes={
-          item.srcSet
-            ? (item.sizes ?? (renderedWidth ? `${Math.round(renderedWidth)}px` : "100vw"))
-            : undefined
-        }
+        sizes={item.srcSet ? sizes : undefined}
         alt={item.alt ?? ""}
         width={imageSize?.width}
         height={imageSize?.height}
@@ -1162,6 +1165,23 @@ export function Lightbox({
         }
       />
     );
+    const image =
+      pictureSources.length > 0 ? (
+        <picture className="eg-picture">
+          {pictureSources.map((source) => (
+            <source
+              key={source.srcSet}
+              srcSet={fetching ? source.srcSet : undefined}
+              type={source.type}
+              media={source.media}
+              sizes={source.sizes ?? sizes}
+            />
+          ))}
+          {img}
+        </picture>
+      ) : (
+        img
+      );
     const framed = rotate ? (
       <div
         className="eg-rotate"

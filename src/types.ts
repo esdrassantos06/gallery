@@ -8,6 +8,21 @@ export interface VideoSource {
   type?: string | undefined;
 }
 
+/** One source of an image slide, for `<source>` inside a `<picture>`. */
+export interface ImageSource {
+  /** Candidates for `srcset`, for example `"a-640.avif 640w, a-1280.avif 1280w"`. */
+  srcSet: string;
+  /** MIME type, for example `image/avif`, so the browser can skip formats it cannot decode. */
+  type?: string | undefined;
+  /** Media query that must match for this source to be used, for art direction. */
+  media?: string | undefined;
+  /**
+   * Layout hint for `sizes`.
+   * @defaultValue the same `sizes` as the image
+   */
+  sizes?: string | undefined;
+}
+
 /** A text track of a video slide, for `<track>`. */
 export interface VideoTrack {
   /** WebVTT file URL. */
@@ -40,8 +55,13 @@ export interface Slide {
   type?: "image" | "video" | "iframe" | undefined;
   /** Still image shown before a video plays, and in place of embeds on neighboring slides. */
   poster?: string | undefined;
-  /** Alternative files for a video slide, in order of preference. `src` is used when omitted. */
-  sources?: VideoSource[] | undefined;
+  /**
+   * Alternative files, in order of preference. For a video slide, `<source>`
+   * files, and `src` is used when omitted. For an image slide, `<source>`
+   * elements of a `<picture>`, such as AVIF and WebP versions or other crops by
+   * `media`, with `src` and `srcSet` as the fallback.
+   */
+  sources?: VideoSource[] | ImageSource[] | undefined;
   /** Captions, subtitles or descriptions for a video slide. */
   tracks?: VideoTrack[] | undefined;
   /**

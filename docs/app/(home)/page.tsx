@@ -10,14 +10,32 @@ import { npmUrl, repoUrl, siteDescription, siteUrl } from "@/lib/shared";
 
 const facts = [
   [size.lightbox, "lightbox, min + brotli, measured"],
-  ["0", "runtime dependencies"],
+  ["MIT", "free in closed-source projects, 0 runtime dependencies"],
   ["React 18 and 19", "SSR safe, App Router ready"],
   ["Screen readers", "focus trap, live region, reduced motion"],
 ] as const;
 
+const comparisons = [
+  [
+    "/docs/comparison",
+    "Comparison table",
+    "Features, license, accessibility and bundle size next to YARL, PhotoSwipe, lightGallery and more.",
+  ],
+  [
+    "/docs/migration-lightgallery",
+    "From lightGallery",
+    "Move off @lightgallery/react and its commercial license, prop by prop.",
+  ],
+  [
+    "/docs/migration",
+    "From yet-another-react-lightbox",
+    "Prop-by-prop mapping from YARL and each of its plugins.",
+  ],
+] as const;
+
 const usage = `import { useRef } from "react";
-import { Lightbox, useLightboxHash, type Slide } from "@esdrassantos06/gallery";
-import "@esdrassantos06/gallery/styles.css";
+import { Lightbox, useLightboxHash, type Slide } from "liftbox";
+import "liftbox/styles.css";
 
 export function Gallery({ slides }: { slides: Slide[] }) {
   const thumbnails = useRef<(HTMLButtonElement | null)[]>([]);
@@ -80,7 +98,7 @@ export default function HomePage() {
         data={{
           "@context": "https://schema.org",
           "@type": "SoftwareSourceCode",
-          name: "@esdrassantos06/gallery",
+          name: "liftbox",
           description: siteDescription,
           url: siteUrl,
           codeRepository: repoUrl,
@@ -97,8 +115,9 @@ export default function HomePage() {
           </h1>
           <p className="text-fd-muted-foreground mt-6 max-w-[56ch] text-lg text-pretty">
             Accessible React gallery viewer with zoom, video, slideshow, deep links, sharing and
-            optional grids. Every string, icon and color is yours to replace, and it ships without a
-            single runtime dependency.
+            optional grids. Every string, icon and color is yours to replace. MIT licensed, so you
+            can ship it in a closed-source product without paying for anything, and it has no
+            runtime dependencies.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
@@ -122,7 +141,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="flex min-w-0 flex-col gap-4">
-          <CopyCommand command="npm install @esdrassantos06/gallery" />
+          <CopyCommand command="npm install liftbox" />
           <dl className="bg-fd-border grid grid-cols-2 gap-px overflow-hidden rounded-xl border">
             {facts.map(([value, label]) => (
               <div key={label} className="bg-fd-card p-4">
@@ -177,6 +196,28 @@ export default function HomePage() {
       </Section>
 
       <Section
+        id="compare"
+        title="Compared with other lightboxes"
+        description="lightGallery asks for a paid license once your code is closed source, and yet-another-react-lightbox needs a plugin per feature plus react-photo-album for grids. Here it is one MIT package."
+      >
+        <ul className="grid gap-3 sm:grid-cols-3">
+          {comparisons.map(([href, title, text]) => (
+            <li key={href}>
+              <Link
+                href={href}
+                className="hover:bg-fd-accent block h-full rounded-xl border p-5 transition-colors"
+              >
+                <span className="font-medium">{title}</span>
+                <span className="text-fd-muted-foreground mt-1 block text-sm text-pretty">
+                  {text}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section
         id="usage"
         title="Usage"
         description={
@@ -193,18 +234,6 @@ export default function HomePage() {
           <code>{usage}</code>
         </pre>
       </Section>
-
-      <footer className="text-fd-muted-foreground flex flex-wrap items-center justify-between gap-4 border-t py-8 text-sm">
-        <span>MIT licensed. Sample images and video are generated, not real photos.</span>
-        <span className="flex gap-4">
-          <Link href="/docs/changelog" className="hover:text-fd-foreground">
-            Changelog
-          </Link>
-          <a href={repoUrl} className="hover:text-fd-foreground">
-            esdrassantos06/gallery
-          </a>
-        </span>
-      </footer>
     </main>
   );
 }

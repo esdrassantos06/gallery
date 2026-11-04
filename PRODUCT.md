@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-React component library published to npm as `@esdrassantos06/gallery`. TypeScript strict, ESM output with types built by tsdown. React 18 and 19 as peer dependencies, zero runtime dependencies. Playground on Vite. Chosen by the user.
+React component library published to npm as `liftbox`. TypeScript strict, ESM output with types built by tsdown. React 18 and 19 as peer dependencies, zero runtime dependencies. Playground on Vite. Chosen by the user.
 
 ## Users
 

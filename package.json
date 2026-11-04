@@ -1,15 +1,15 @@
 {
-  "name": "@esdrassantos06/gallery",
+  "name": "liftbox",
   "version": "1.2.0",
   "description": "Accessible React gallery and lightbox with zoom, thumbnails, video and slideshow. Zero runtime dependencies, themeable with CSS variables.",
   "license": "MIT",
   "author": "Esdras Santos",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/esdrassantos06/gallery.git"
+    "url": "git+https://github.com/esdrassantos06/liftbox.git"
   },
-  "homepage": "https://gallery-esdrassantos06.vercel.app",
-  "bugs": "https://github.com/esdrassantos06/gallery/issues",
+  "homepage": "https://liftbox.digital",
+  "bugs": "https://github.com/esdrassantos06/liftbox/issues",
   "keywords": [
     "react",
     "lightbox",

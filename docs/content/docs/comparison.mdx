@@ -1,0 +1,76 @@
+---
+title: React lightbox comparison
+description: How this MIT-licensed React lightbox compares with yet-another-react-lightbox, PhotoSwipe, lightGallery, react-image-gallery and react-photo-view.
+---
+
+Each cell comes from the library's published package, source and documentation as of November 3, 2026, for the versions listed. Spot something out of date? [Open an issue](https://github.com/esdrassantos06/liftbox/issues) and it gets fixed.
+
+## Why choose this package
+
+It is MIT, so you can ship it in a closed-source product without buying anything or setting a license key. That is the real difference from lightGallery 3, which covers a lot of the same ground (grids, deep links, YouTube and Vimeo) but asks for GPL-3.0 or a paid license. [Migrating from lightGallery](/docs/migration-lightgallery) maps the props.
+
+Zoom, thumbnails, video, YouTube, Vimeo, slideshow, fullscreen, download, share, rotation and deep links are all props on one component. In YARL each of those is a plugin with its own import, and grids come from a second package, react-photo-album.
+
+The image opens out of the thumbnail you clicked, cropped the same way, and flies back into it when you close. PhotoSwipe, lightGallery and react-photo-view do this as well; YARL does not.
+
+Masonry, justified and uniform grids and a category filter ship in the same package, and bundlers drop them when you only import `Lightbox`. No runtime dependencies either, and it stays fast with [thousands of slides](/docs/performance).
+
+## At a glance
+
+| Feature                 | liftbox                                   | YARL                                     | PhotoSwipe                                | lightGallery                                                    | react-image-gallery | react-photo-view |
+| ----------------------- | ----------------------------------------- | ---------------------------------------- | ----------------------------------------- | --------------------------------------------------------------- | ------------------- | ---------------- |
+| Version                 | 1.2.0                                     | 3.33.0                                   | 5.4.4 with react-photoswipe-gallery 4.1.2 | 3.0.0 with @lightgallery/react                                  | 2.1.2               | 1.2.7            |
+| License                 | MIT                                       | MIT                                      | MIT                                       | GPL-3.0 or a paid commercial license                            | MIT                 | Apache-2.0       |
+| React                   | 18, 19                                    | 16.8 to 19                               | 16.8 and up                               | 18, 19                                                          | 16 to 19            | 16.8 and up      |
+| Kind                    | Modal                                     | Modal, inline with a plugin              | Modal                                     | Modal and inline                                                | Inline carousel     | Modal            |
+| Opens from thumbnail    | Yes, also from cropped thumbnails         | No                                       | Yes                                       | Yes, cropped with the `originCrop` plugin                       | No                  | Yes              |
+| Grids                   | Masonry, justified, uniform, and a filter | No, pair it with react-photo-album       | No                                        | Justified                                                       | No                  | No               |
+| Thumbnail strip         | Built in                                  | Plugin                                   | No                                        | Plugin                                                          | Built in            | No               |
+| Zoom                    | Built in                                  | Plugin                                   | Built in                                  | Plugin                                                          | No                  | Built in         |
+| Native video            | Built in                                  | Plugin                                   | Separate plugin, in development           | Plugin                                                          | Custom render       | No               |
+| YouTube and Vimeo       | Built in, without their player scripts    | No                                       | No                                        | Plugin                                                          | Custom render       | No               |
+| Slideshow               | Built in                                  | Plugin                                   | No                                        | Plugin                                                          | Built in            | No               |
+| Fullscreen              | Built in                                  | Plugin                                   | A recipe in the docs                      | Plugin                                                          | Built in            | No               |
+| Download                | Built in                                  | Plugin                                   | React wrapper                             | Built in                                                        | No                  | No               |
+| Share                   | Built in                                  | Plugin                                   | No                                        | Plugin                                                          | No                  | No               |
+| Rotation                | Built in                                  | Plugin                                   | No                                        | Plugin                                                          | No                  | Built in         |
+| Deep links (URL hash)   | `useLightboxHash`                         | No                                       | React wrapper                             | Plugin                                                          | No                  | No               |
+| JS size, min and brotli | 13.12 kB, everything above                | 9.49 kB core, 19.46 kB with every plugin | 17.49 kB                                  | 25.32 kB with zoom, thumbnails, video, fullscreen and slideshow | 9.14 kB             | 6.81 kB          |
+
+## Accessibility
+
+| Library             | Dialog with `aria-modal` | Focus trap                    | Focus return | Slide announcements      | Reduced motion |
+| ------------------- | ------------------------ | ----------------------------- | ------------ | ------------------------ | -------------- |
+| liftbox             | Yes                      | Yes                           | Yes          | Yes                      | Yes            |
+| YARL                | Yes                      | The rest of the page is inert | Yes          | Yes, off during autoplay | Yes            |
+| PhotoSwipe          | Dialog, no `aria-modal`  | Yes                           | Yes          | No                       | Yes            |
+| lightGallery        | Yes                      | Yes                           | Yes          | Yes                      | Yes            |
+| react-image-gallery | Not a dialog             | Not a dialog                  | Not a dialog | Yes                      | No             |
+| react-photo-view    | Dialog, no `aria-modal`  | No                            | No           | No                       | No             |
+
+See [Accessibility](/docs/accessibility) for what this package does in detail.
+
+## When to pick another library
+
+- **YARL** if you need React 16 or 17, an inline carousel, or the smallest possible core with only the plugins you use. It also has the largest community of the React options here.
+- **PhotoSwipe** if you are not on React, or want the same lightbox across frameworks.
+- **lightGallery** if you need Wistia, comments or a vendor-supported license, and the GPL-3.0 or commercial license works for you.
+- **react-image-gallery** if you want a carousel on the page rather than an overlay.
+- **react-photo-view** if you only need a minimal image viewer and no video or thumbnails. Its last release was in January 2025.
+
+This package has no inline mode, and its built-in features cannot be dropped from the bundle one by one. The 13.12 kB above always includes all of them. See [Bundle size](/docs/bundle-size).
+
+## How the sizes were measured
+
+With [size-limit](https://github.com/ai/size-limit) and `@size-limit/preset-small-lib`, minified and compressed with brotli, React and React DOM excluded. JavaScript only, without stylesheets. Each entry imports:
+
+| Library             | Imports                                                                                                                     |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| liftbox             | `Lightbox`                                                                                                                  |
+| YARL                | The default export, then also Zoom, Thumbnails, Fullscreen, Slideshow, Video, Captions, Counter, Download, Share and Rotate |
+| PhotoSwipe          | `Gallery` and `Item` from react-photoswipe-gallery, and `photoswipe`                                                        |
+| lightGallery        | `@lightgallery/react` with its zoom, thumbnail, video, fullscreen and autoplay plugins                                      |
+| react-image-gallery | The default export                                                                                                          |
+| react-photo-view    | `PhotoProvider` and `PhotoView`                                                                                             |
+
+Moving over? See [Migrating from yet-another-react-lightbox](/docs/migration) and [Migrating from lightGallery](/docs/migration-lightgallery).

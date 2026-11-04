@@ -11,5 +11,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${siteUrl}${page.url}`,
       priority: page.url === "/docs" ? 0.9 : 0.7,
     })),
+    { url: `${siteUrl}/privacy`, priority: 0.2 },
+    { url: `${siteUrl}/cookies`, priority: 0.2 },
+    { url: `${siteUrl}/terms`, priority: 0.2 },
   ];
 }
