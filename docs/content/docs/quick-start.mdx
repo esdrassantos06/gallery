@@ -1,6 +1,6 @@
 ---
 title: Quick start
-description: Wire your thumbnails to the lightbox in one component.
+description: "Build a working React image gallery in one component: describe your slides, render a grid and open the lightbox out of the clicked thumbnail."
 ---
 
 The lightbox is controlled. You own `open` and `index`, and it tells you when the user wants to change them. Keep it mounted next to your grid so the close animation has time to play.
@@ -8,7 +8,7 @@ The lightbox is controlled. You own `open` and `index`, and it tells you when th
 <Steps>
 <Step>
 
-### Describe your slides
+## Describe your slides
 
 ```ts
 import type { Slide } from "liftbox";
@@ -33,7 +33,7 @@ const slides: Slide[] = [
 </Step>
 <Step>
 
-### Render the grid and the lightbox
+## Render the grid and the lightbox
 
 ```tsx
 import { useRef, useState } from "react";
@@ -75,7 +75,7 @@ export function Gallery() {
 </Step>
 <Step>
 
-### Try it
+## Try it
 
 <Demo count={6} />
 
