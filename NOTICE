@@ -1,0 +1,9 @@
+liftbox includes code and assets from these projects, each under the MIT License.
+
+Justified layout (src/layout.ts), adapted from opengallery's justified-layout.ts
+Copyright (c) 2026 opengallery contributors
+
+Built-in icons (src/icons.tsx), from Mynaui Icons, https://mynaui.com/icons
+Copyright (c) Praveen Juge
+
+The MIT License text is in the LICENSE file and applies to both notices above.
