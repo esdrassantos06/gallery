@@ -11,7 +11,7 @@
 [![npm](https://img.shields.io/npm/v/liftbox)](https://www.npmjs.com/package/liftbox)
 [![License: MIT](https://img.shields.io/badge/license-MIT-black)](./LICENSE)
 
-**[Documentation and live demos](https://liftbox.digital)**
+**[Documentation and live demos](https://liftbox.digital)** · [Comparison with other React lightboxes](https://liftbox.digital/docs/comparison)
 
 An accessible, themeable image lightbox for React, with optional masonry, justified and uniform grids and a category filter. The lightbox opens out of the thumbnail that was clicked and flies back into it on close. It has zero runtime dependencies, works with any grid, and every string, icon, color, size and timing can be replaced.
 

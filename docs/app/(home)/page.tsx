@@ -10,9 +10,27 @@ import { npmUrl, repoUrl, siteDescription, siteUrl } from "@/lib/shared";
 
 const facts = [
   [size.lightbox, "lightbox, min + brotli, measured"],
-  ["0", "runtime dependencies"],
+  ["MIT", "free in closed-source projects, 0 runtime dependencies"],
   ["React 18 and 19", "SSR safe, App Router ready"],
   ["Screen readers", "focus trap, live region, reduced motion"],
+] as const;
+
+const comparisons = [
+  [
+    "/docs/comparison",
+    "Comparison table",
+    "Features, license, accessibility and bundle size next to YARL, PhotoSwipe, lightGallery and more.",
+  ],
+  [
+    "/docs/migration-lightgallery",
+    "From lightGallery",
+    "Move off @lightgallery/react and its commercial license, prop by prop.",
+  ],
+  [
+    "/docs/migration",
+    "From yet-another-react-lightbox",
+    "Prop-by-prop mapping from YARL and each of its plugins.",
+  ],
 ] as const;
 
 const usage = `import { useRef } from "react";
@@ -97,8 +115,9 @@ export default function HomePage() {
           </h1>
           <p className="text-fd-muted-foreground mt-6 max-w-[56ch] text-lg text-pretty">
             Accessible React gallery viewer with zoom, video, slideshow, deep links, sharing and
-            optional grids. Every string, icon and color is yours to replace, and it ships without a
-            single runtime dependency.
+            optional grids. Every string, icon and color is yours to replace. MIT licensed, so you
+            can ship it in a closed-source product without paying for anything, and it has no
+            runtime dependencies.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
@@ -174,6 +193,28 @@ export default function HomePage() {
         description="Justified rows, masonry columns or uniform cells, with a category filter. The grids work without the lightbox and the lightbox works without them. Here they share the filtered list, so indices always match."
       >
         <GridsDemo switcher filter />
+      </Section>
+
+      <Section
+        id="compare"
+        title="Compared with other lightboxes"
+        description="lightGallery asks for a paid license once your code is closed source, and yet-another-react-lightbox needs a plugin per feature plus react-photo-album for grids. Here it is one MIT package."
+      >
+        <ul className="grid gap-3 sm:grid-cols-3">
+          {comparisons.map(([href, title, text]) => (
+            <li key={href}>
+              <Link
+                href={href}
+                className="hover:bg-fd-accent block h-full rounded-xl border p-5 transition-colors"
+              >
+                <span className="font-medium">{title}</span>
+                <span className="text-fd-muted-foreground mt-1 block text-sm text-pretty">
+                  {text}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </Section>
 
       <Section

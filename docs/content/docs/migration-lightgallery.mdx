@@ -1,0 +1,197 @@
+---
+title: Migrating from lightGallery
+description: An MIT-licensed lightGallery alternative for React. Map @lightgallery/react props and plugins to liftbox and drop the commercial license.
+---
+
+[lightGallery](https://www.lightgalleryjs.com) 3 ships under GPL-3.0 or a commercial license you pay for, so a closed-source project has to buy one. This package is MIT: free for any project, commercial or not, and there is no license key to set.
+
+The React APIs are close. Both have a controlled mode with `slides`, `open`, `index`, `onIndexChange` and `onClose`, so most of a migration is renaming. This guide maps `@lightgallery/react` 3.0. See the [comparison](/docs/comparison) for how the two differ overall.
+
+## What has no equivalent
+
+Check this list first. If your gallery depends on one of these, this package is not a drop-in replacement:
+
+- Wistia videos.
+- The comment, medium zoom, relative caption and Vimeo thumbnail plugins.
+- Inline galleries rendered inside the page with `container`. Here `container` only picks where the portal mounts.
+- Facebook, X and Pinterest share buttons. Sharing goes through the system share sheet, with a copy-link fallback.
+- Transitions other than `slide`, `fade` and `zoom`.
+
+## Install and imports
+
+```diff
+- npm install @lightgallery/react lightgallery
++ npm install @esdrassantos06/gallery
+```
+
+```diff
+- import { LightGallery } from "@lightgallery/react";
+- import Thumbnail from "@lightgallery/react/plugins/thumbnail";
+- import Zoom from "@lightgallery/react/plugins/zoom";
+- import "lightgallery/css/lightgallery.css";
+- import "lightgallery/css/lg-thumbnail.css";
+- import "lightgallery/css/lg-zoom.css";
++ import { Lightbox } from "@esdrassantos06/gallery";
++ import "@esdrassantos06/gallery/styles.css";
+```
+
+There are no plugins to import and one stylesheet. Thumbnails, zoom and fullscreen are on by default. Video, YouTube and Vimeo work without setup.
+
+## Controlled galleries
+
+```diff
+- const [open, setOpen] = useState(false);
+- const [index, setIndex] = useState(0);
++ const [index, setIndex] = useState(-1);
+
+- <LightGallery
+-   plugins={[Thumbnail, Zoom]}
+-   slides={items}
+-   open={open}
+-   onClose={() => setOpen(false)}
+-   index={index}
+-   onIndexChange={setIndex}
+- />
++ <Lightbox
++   slides={slides}
++   open={index >= 0}
++   index={Math.max(index, 0)}
++   onIndexChange={setIndex}
++   onClose={() => setIndex(-1)}
++ />
+```
+
+One index of `-1` for "closed" is the usual pattern here, but a separate `open` state works too. Keep `Lightbox` mounted so the close animation can play.
+
+## Thumbnail triggers
+
+There is no `LightGalleryItem`. Render your own buttons and pass `getThumbnail`, which lightGallery does through `lgSize` and `zoomFromOrigin`. It makes the image fly out of the clicked thumbnail, cropped the same way, and returns focus to it on close.
+
+```tsx
+const thumbnails = useRef<(HTMLButtonElement | null)[]>([]);
+
+{
+  slides.map((slide, i) => (
+    <button
+      key={slide.src}
+      ref={(el) => {
+        thumbnails.current[i] = el;
+      }}
+      onClick={() => setIndex(i)}
+      aria-label={`Open ${slide.alt}`}
+    >
+      <img src={slide.thumbnail} alt="" />
+    </button>
+  ));
+}
+
+<Lightbox
+  // ...
+  getThumbnail={(i) => thumbnails.current[i]}
+/>;
+```
+
+Or use one of the [grids](/docs/grids), which do this for you.
+
+## Items to slides
+
+| lightGallery             | This package                                                    |
+| ------------------------ | --------------------------------------------------------------- |
+| `src`                    | `src`                                                           |
+| `thumb`                  | `thumbnail`                                                     |
+| `alt`                    | `alt`                                                           |
+| `lgSize: "1600-1067"`    | `width: 1600, height: 1067`                                     |
+| `srcset`, `sizes`        | `srcSet`, `sizes`                                               |
+| `sources` (`<picture>`)  | `sources`, with `srcSet` in place of `srcset`                   |
+| `title`                  | `title`                                                         |
+| `caption`, `captionHtml` | `description`, which takes any React node. No HTML strings.     |
+| `poster`                 | `poster`                                                        |
+| `iframe: true`           | `type: "iframe"`                                                |
+| `downloadUrl`            | `download`, a URL or `false`                                    |
+| `download` (a filename)  | `downloadName`                                                  |
+| `slideName`              | `names` in [`useLightboxHash`](/docs/deep-linking#named-slides) |
+| `shareUrl`               | `share={{ url: (slide, index) => ... }}` on the lightbox        |
+
+A YouTube or Vimeo link in `src` becomes an embed, as it does with lightGallery's video plugin. Self-hosted video files are detected from the extension, or set `type: "video"`, and take `sources` and `tracks`. See [Slides](/docs/slides).
+
+## Settings
+
+| lightGallery                             | This package                                                                      |
+| ---------------------------------------- | --------------------------------------------------------------------------------- |
+| `slides`, `open`, `index`                | `slides`, `open`, `index`                                                         |
+| `onIndexChange`, `onClose`               | `onIndexChange`, `onClose`                                                        |
+| `onAfterOpen`, `onAfterClose`            | `onAfterOpen`, `onAfterClose`                                                     |
+| `mode`                                   | `transition`: `"slide"`, `"fade"` or `"zoom"`                                     |
+| `speed`, `easing`                        | `--eg-duration`, `--eg-easing`                                                    |
+| `loop`                                   | `loop`                                                                            |
+| `preload`                                | `preload`                                                                         |
+| `closeOnTap`                             | `closeOnBackdropClick`                                                            |
+| `swipeToClose`                           | Built in. `swipe={false}` turns it off with sideways swipes.                      |
+| `escKey`, `keyPress`                     | `keyboard`                                                                        |
+| `trapFocus`                              | Always on                                                                         |
+| `download`                               | `download`                                                                        |
+| `toolbarOverflow`                        | `toolbarOverflow`                                                                 |
+| `hideBarsDelay`                          | `idle`, in milliseconds                                                           |
+| `direction`                              | `dir`                                                                             |
+| `captionPosition`                        | `captionPosition`: `"bar"` or `"slide"`                                           |
+| `container`                              | `container`                                                                       |
+| `strings`                                | `labels`, with different keys. See [Labels](/docs/labels).                        |
+| `render.caption`, `render.counter`       | `render.caption`, `render.counter`                                                |
+| `render.icon`                            | `icons`. See [Icons](/docs/icons).                                                |
+| `render.prevButton`, `render.nextButton` | Not replaceable. Restyle through `classNames.arrow` and `--eg-arrow-*` variables. |
+| `className`                              | `className`, and `classNames` for each part                                       |
+| `licenseKey`                             | Delete it                                                                         |
+
+## Plugins
+
+| lightGallery plugin | This package                                                                                                     |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Thumbnail           | Built in. `thumbnails={false}` to hide it.                                                                       |
+| Zoom                | Built in. `zoom={{ maxScale, step, doubleTapScale, wheel }}`. lightGallery's `scale` is `step`.                  |
+| Video               | Built in. Embeds exist only on the current slide, and neighbors show their `poster`.                             |
+| Autoplay            | `slideshow={{ interval, autoplay, progress }}`, from `slideShowInterval`, `slideShowAutoplay` and `progressBar`. |
+| Fullscreen          | Built in. `fullscreen={false}` to hide it.                                                                       |
+| Hash                | [`useLightboxHash`](/docs/deep-linking)                                                                          |
+| Pager               | `pager`                                                                                                          |
+| Share               | `share`                                                                                                          |
+| Rotate              | `rotate`, and `flip` for the flip buttons                                                                        |
+| Origin crop         | Built in with `getThumbnail`                                                                                     |
+| Justified           | [`JustifiedGrid`](/docs/grids), next to `MasonryGrid` and `UniformGrid`                                          |
+
+## Justified grid
+
+```diff
+- <LightGallery plugins={[Thumbnail, Zoom]}>
+-   <JustifiedGrid rowHeight={180} gap={8}>
+-     {items.map((item) => (
+-       <LightGalleryItem key={item.src} item={item} data-lg-size={item.lgSize}>
+-         <img src={item.thumb} alt={item.alt} />
+-       </LightGalleryItem>
+-     ))}
+-   </JustifiedGrid>
+- </LightGallery>
++ <JustifiedGrid ref={grid} slides={slides} onOpen={setIndex} rowHeight={180} gap={8} />
++ <Lightbox
++   slides={slides}
++   open={index >= 0}
++   index={Math.max(index, 0)}
++   onIndexChange={setIndex}
++   onClose={() => setIndex(-1)}
++   getThumbnail={(i) => grid.current?.getThumbnail(i)}
++ />
+```
+
+The grid reads `width` and `height` from each slide, so there is no `data-lg-size`. `grid` is a `useRef<GridHandle>(null)`.
+
+## Styling
+
+The `lightgallery/css/*` files are replaced by one stylesheet and `--eg-*` CSS variables. The common ones:
+
+| Goal             | This package      |
+| ---------------- | ----------------- |
+| Backdrop color   | `--eg-background` |
+| Text and icons   | `--eg-color`      |
+| Animation length | `--eg-duration`   |
+| Stacking         | `--eg-z-index`    |
+
+The full list is in [Styling](/docs/styling).
