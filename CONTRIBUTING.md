@@ -54,4 +54,4 @@ Changes to the viewer must keep it usable with a keyboard and a screen reader. C
 
 ## Releases
 
-Maintainers release through GitHub; see [PUBLISHING.md](./PUBLISHING.md).
+Maintainers release by publishing a GitHub release, which runs the [publish workflow](./.github/workflows/publish.yml) and puts the version on npm.
