@@ -119,7 +119,8 @@
     opacity var(--eg-duration) var(--eg-easing);
 }
 
-.eg-slide > :first-child {
+.eg-slide > :first-child,
+.eg-slide > .eg-picture:first-child > .eg-image {
   margin-bottom: var(--eg-caption-space, 0px);
 }
 
@@ -177,7 +178,8 @@
   justify-content: center;
 }
 
-.eg-rotate > .eg-image {
+.eg-rotate > .eg-image,
+.eg-rotate > .eg-picture > .eg-image {
   flex: none;
   max-width: none;
   max-height: none;
@@ -249,6 +251,10 @@
   margin: 0;
   color: var(--eg-color-muted);
   text-align: center;
+}
+
+.eg-picture {
+  display: contents;
 }
 
 .eg-image {

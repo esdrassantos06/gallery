@@ -16,6 +16,7 @@ export type {
   GridLabels,
   GridProps,
   GridRender,
+  ImageSource,
   JustifiedGridProps,
   LightboxClassNames,
   LightboxIcons,

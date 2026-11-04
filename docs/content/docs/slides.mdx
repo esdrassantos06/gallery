@@ -37,6 +37,29 @@ The demo below mixes a native video with captions, images and an iframe page.
 - `alt` is the image's text alternative. The live region also reads it when there is no string `title`.
 - `title` renders as an `h2` and `description` as text under it. Both accept React nodes.
 
+### Modern formats and art direction
+
+Give an image slide `sources` and it renders inside a `<picture>`. The browser takes the first source whose `type` it can decode and whose `media` matches, and falls back to `src` and `srcSet` otherwise:
+
+```ts
+{
+  src: "/photos/harbour-1600.jpg",
+  srcSet: "/photos/harbour-640.jpg 640w, /photos/harbour-1600.jpg 1600w",
+  sources: [
+    {
+      srcSet: "/photos/harbour-640.avif 640w, /photos/harbour-1600.avif 1600w",
+      type: "image/avif",
+    },
+    { srcSet: "/photos/harbour-tall-900.webp 900w", media: "(orientation: portrait)" },
+  ],
+  width: 1600,
+  height: 1067,
+  alt: "Fishing boats in the harbour at dusk",
+}
+```
+
+Sources get the image's `sizes` unless they set their own, and wait their turn like the image does: neighbors only start downloading once the current slide has loaded. The image box keeps the slide's `width` and `height`, so a source with another aspect ratio, like the portrait crop above, shows letterboxed inside it. When your crops change shape, leave `width` and `height` out and the slide is measured from whichever file the browser picked.
+
 ## Caption position
 
 By default the caption is a band across the bottom of the viewer. `captionPosition="slide"` lays each caption over the bottom of its own image instead, as wide as the image, so it moves with the slide when you swipe:

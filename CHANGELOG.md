@@ -5,6 +5,7 @@ All notable changes are listed here. The project follows [Semantic Versioning](h
 ## Unreleased
 
 - Renamed from `@esdrassantos06/gallery` to `liftbox`, with docs at [liftbox.digital](https://liftbox.digital). Install `liftbox` and change the imports to `liftbox` and `liftbox/styles.css`. The API, class names and `--eg-*` variables are unchanged.
+- Image slides take `sources` for a `<picture>`: AVIF or WebP versions by `type` and other crops by `media`, with `src` and `srcSet` as the fallback. Sources wait their turn like the image. New `ImageSource` type.
 
 ## 1.2.0 (2026-11-02)
 
