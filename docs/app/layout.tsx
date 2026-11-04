@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
+import localFont from "next/font/local";
 import { Provider } from "@/components/provider";
 import { siteDescription, siteName, siteUrl } from "@/lib/shared";
 import "./global.css";
@@ -34,6 +34,16 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image" },
 };
+
+/** Geist Mono without a preload: it only styles code, so it should not compete with the hero text. */
+const GeistMono = localFont({
+  src: "../node_modules/geist/dist/fonts/geist-mono/GeistMono-Variable.woff2",
+  variable: "--font-geist-mono",
+  weight: "100 900",
+  preload: false,
+  adjustFontFallback: false,
+  fallback: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+});
 
 export const viewport: Viewport = {
   themeColor: [
