@@ -112,6 +112,8 @@ No player script is loaded on your page. YouTube runs on `youtube-nocookie.com` 
 
 Without `width` and `height`, an iframe slide fills the stage. Remember to allow its origin in your [Content Security Policy](/docs/csp).
 
+Only `http:`, `https:`, `blob:` and relative URLs are embedded. A `javascript:` or `data:` URL renders no iframe, so a link supplied by a user cannot run script in your page.
+
 ## Sizing
 
 Videos and embeds use `width` and `height` to keep their shape. When those are unknown they are 16:9, and a native video switches to its real size once its metadata loads.

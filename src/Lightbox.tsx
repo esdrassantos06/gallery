@@ -49,7 +49,7 @@ import {
 import { defaultIcons } from "./icons";
 import { defaultLabels } from "./labels";
 import { remember } from "./lru";
-import { getMedia } from "./media";
+import { getMedia, hasUnsafeScheme } from "./media";
 import { Thumbnails } from "./Thumbnails";
 import { getToolbarOverflow, TOOLBAR_PRIORITY, type ToolKey } from "./toolbar";
 import type { ImageSource, LightboxClassNames, LightboxProps, Slide, VideoSource } from "./types";
@@ -1076,27 +1076,28 @@ export function Lightbox({
       }
       const poster = item.poster ?? media.poster ?? item.thumbnail;
       return {
-        node: isCurrent ? (
-          <iframe
-            className={cn("embed", "eg-embed")}
-            src={media.embed}
-            title={name}
-            style={frameStyle}
-            allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-            allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
-          />
-        ) : poster ? (
-          <img
-            className="eg-embed-poster"
-            src={poster}
-            alt=""
-            style={frameStyle}
-            draggable={false}
-          />
-        ) : (
-          <div className="eg-embed-poster" style={frameStyle} />
-        ),
+        node:
+          isCurrent && media.embed ? (
+            <iframe
+              className={cn("embed", "eg-embed")}
+              src={media.embed}
+              title={name}
+              style={frameStyle}
+              allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+              allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
+            />
+          ) : poster ? (
+            <img
+              className="eg-embed-poster"
+              src={poster}
+              alt=""
+              style={frameStyle}
+              draggable={false}
+            />
+          ) : (
+            <div className="eg-embed-poster" style={frameStyle} />
+          ),
         builtIn: false,
         frame: frameStyle,
         reserved,
@@ -1219,7 +1220,10 @@ export function Lightbox({
 
   const downloadOptions = typeof download === "object" ? download : {};
   const downloadUrl =
-    download && slide.download !== false && (currentKind === "image" || currentKind === "video")
+    download &&
+    slide.download !== false &&
+    (currentKind === "image" || currentKind === "video") &&
+    !hasUnsafeScheme(slide.download ?? slide.src, ["data:"])
       ? (slide.download ?? slide.src)
       : null;
 

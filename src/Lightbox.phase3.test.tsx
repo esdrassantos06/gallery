@@ -124,6 +124,13 @@ describe("video slides", () => {
     expect(iframe).toHaveAttribute("title", "Map");
   });
 
+  it("renders no iframe for a script URL", async () => {
+    await openAt(0, {
+      slides: [{ src: "javascript:alert(1)", type: "iframe", title: "Bad" }],
+    });
+    expect(document.querySelector("iframe")).toBeNull();
+  });
+
   it("shows no zoom buttons on video slides", async () => {
     const { user } = await openAt(0, { slides: media });
     expect(screen.getByRole("button", { name: "Zoom in" })).toBeInTheDocument();

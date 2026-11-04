@@ -1,5 +1,6 @@
 ---
 title: Migrating from lightGallery
+seoTitle: "lightGallery alternative for React, MIT licensed"
 description: An MIT-licensed lightGallery alternative for React. Map @lightgallery/react props and plugins to liftbox and drop the commercial license.
 ---
 
@@ -21,7 +22,7 @@ Check this list first. If your gallery depends on one of these, this package is 
 
 ```diff
 - npm install @lightgallery/react lightgallery
-+ npm install @esdrassantos06/gallery
++ npm install liftbox
 ```
 
 ```diff
@@ -31,8 +32,8 @@ Check this list first. If your gallery depends on one of these, this package is 
 - import "lightgallery/css/lightgallery.css";
 - import "lightgallery/css/lg-thumbnail.css";
 - import "lightgallery/css/lg-zoom.css";
-+ import { Lightbox } from "@esdrassantos06/gallery";
-+ import "@esdrassantos06/gallery/styles.css";
++ import { Lightbox } from "liftbox";
++ import "liftbox/styles.css";
 ```
 
 There are no plugins to import and one stylesheet. Thumbnails, zoom and fullscreen are on by default. Video, YouTube and Vimeo work without setup.

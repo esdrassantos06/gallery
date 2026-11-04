@@ -5,14 +5,22 @@ import { source } from "@/lib/source";
 export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const pages = source.getPages();
+  const latest = pages.reduce<Date | undefined>(
+    (max, page) =>
+      page.data.lastModified && (!max || page.data.lastModified > max)
+        ? page.data.lastModified
+        : max,
+    undefined,
+  );
   return [
-    { url: siteUrl, priority: 1 },
-    ...source.getPages().map((page) => ({
+    { url: `${siteUrl}/`, lastModified: latest },
+    ...pages.map((page) => ({
       url: `${siteUrl}${page.url}`,
-      priority: page.url === "/docs" ? 0.9 : 0.7,
+      lastModified: page.data.lastModified,
     })),
-    { url: `${siteUrl}/privacy`, priority: 0.2 },
-    { url: `${siteUrl}/cookies`, priority: 0.2 },
-    { url: `${siteUrl}/terms`, priority: 0.2 },
+    { url: `${siteUrl}/privacy` },
+    { url: `${siteUrl}/cookies` },
+    { url: `${siteUrl}/terms` },
   ];
 }
