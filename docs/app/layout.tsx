@@ -2,8 +2,9 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { GeistSans } from "geist/font/sans";
 import localFont from "next/font/local";
+import { CookieBanner } from "@/components/consent";
 import { Provider } from "@/components/provider";
-import { siteDescription, siteName, siteUrl } from "@/lib/shared";
+import { gtmId, siteDescription, siteName, siteUrl } from "@/lib/shared";
 import "./global.css";
 
 export const metadata: Metadata = {
@@ -45,6 +46,12 @@ const GeistMono = localFont({
   fallback: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
 });
 
+/**
+ * Google Consent Mode defaults, set before any tag can load: everything denied
+ * until the visitor accepts in the cookie banner.
+ */
+const consentDefaults = `window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag("consent","default",{ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied",analytics_storage:"denied"});`;
+
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f6f5f2" },
@@ -59,8 +66,16 @@ export default function Layout({ children }: { children: ReactNode }) {
       className={`${GeistSans.variable} ${GeistMono.variable}`}
       suppressHydrationWarning
     >
+      {gtmId ? (
+        <head>
+          <script dangerouslySetInnerHTML={{ __html: consentDefaults }} />
+        </head>
+      ) : null}
       <body className="flex min-h-screen flex-col">
-        <Provider>{children}</Provider>
+        <Provider>
+          {children}
+          <CookieBanner />
+        </Provider>
       </body>
     </html>
   );

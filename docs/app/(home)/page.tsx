@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { CookieSettingsButton } from "@/components/consent";
 import { CopyCommand } from "@/components/copy-command";
 import { Demo } from "@/components/demo";
 import { GridsDemo } from "@/components/grids-demo";
@@ -241,6 +242,13 @@ export default function HomePage() {
           <Link href="/docs/changelog" className="hover:text-fd-foreground">
             Changelog
           </Link>
+          <Link href="/privacy" className="hover:text-fd-foreground">
+            Privacy
+          </Link>
+          <Link href="/cookies" className="hover:text-fd-foreground">
+            Cookies
+          </Link>
+          <CookieSettingsButton className="hover:text-fd-foreground" />
           <a href={repoUrl} className="hover:text-fd-foreground">
             esdrassantos06/liftbox
           </a>

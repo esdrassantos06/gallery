@@ -8,3 +8,4 @@ next-env.d.ts
 /public/videos
 /public/embed-demo.*
 /lib/generated
+.env*.local
