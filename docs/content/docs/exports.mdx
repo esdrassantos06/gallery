@@ -20,7 +20,7 @@ description: Everything the package exports besides the Lightbox component.
 ## getMedia
 
 ```ts
-import { getMedia } from "@esdrassantos06/gallery";
+import { getMedia } from "liftbox";
 
 getMedia({ src: "/clip.webm" }); // { kind: "video" }
 getMedia({ src: "https://vimeo.com/123" }); // { kind: "vimeo", embed: "https://player.vimeo.com/video/123?dnt=1" }
@@ -32,7 +32,7 @@ An explicit `type` on the slide always wins. `embed` is set for `youtube`, `vime
 ## fitContain
 
 ```ts
-import { fitContain } from "@esdrassantos06/gallery";
+import { fitContain } from "liftbox";
 
 fitContain(1600, 1067, 800, 600); // { width: 800, height: 534 }
 fitContain(400, 300, 800, 600); // { width: 400, height: 300 }, never upscaled

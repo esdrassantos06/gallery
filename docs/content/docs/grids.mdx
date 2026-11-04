@@ -11,8 +11,8 @@ The package has three optional grids. Each one works on its own: a grid without 
 
 ```tsx
 import { useRef, useState } from "react";
-import { JustifiedGrid, Lightbox, type GridHandle, type Slide } from "@esdrassantos06/gallery";
-import "@esdrassantos06/gallery/styles.css";
+import { JustifiedGrid, Lightbox, type GridHandle, type Slide } from "liftbox";
+import "liftbox/styles.css";
 
 export function Gallery({ slides }: { slides: Slide[] }) {
   const [index, setIndex] = useState(-1);

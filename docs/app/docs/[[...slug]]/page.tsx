@@ -27,7 +27,7 @@ export default async function Page({ params }: Props) {
           url: `${siteUrl}${page.url}`,
           inLanguage: "en",
           isPartOf: { "@type": "WebSite", name: siteName, url: siteUrl },
-          about: { "@type": "SoftwareSourceCode", name: "@esdrassantos06/gallery" },
+          about: { "@type": "SoftwareSourceCode", name: "liftbox" },
         }}
       />
       <DocsTitle>{page.data.title}</DocsTitle>

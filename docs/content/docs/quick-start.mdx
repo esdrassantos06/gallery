@@ -11,7 +11,7 @@ The lightbox is controlled. You own `open` and `index`, and it tells you when th
 ### Describe your slides
 
 ```ts
-import type { Slide } from "@esdrassantos06/gallery";
+import type { Slide } from "liftbox";
 
 const slides: Slide[] = [
   {
@@ -37,8 +37,8 @@ const slides: Slide[] = [
 
 ```tsx
 import { useRef, useState } from "react";
-import { Lightbox } from "@esdrassantos06/gallery";
-import "@esdrassantos06/gallery/styles.css";
+import { Lightbox } from "liftbox";
+import "liftbox/styles.css";
 
 export function Gallery() {
   const [index, setIndex] = useState(-1);

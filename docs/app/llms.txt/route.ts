@@ -9,11 +9,11 @@ export function GET() {
     .replace(/^# .*\n+/, "")
     .replaceAll("](/", `](${siteUrl}/`);
   return new Response(
-    `# @esdrassantos06/gallery
+    `# liftbox
 
 > ${siteDescription}
 
-Install with \`npm install @esdrassantos06/gallery\` and import \`@esdrassantos06/gallery/styles.css\` once. React 18 or 19 is a peer dependency. The package is ESM only.
+Install with \`npm install liftbox\` and import \`liftbox/styles.css\` once. React 18 or 19 is a peer dependency. The package is ESM only.
 
 The full documentation as one Markdown file: ${siteUrl}/llms-full.txt
 

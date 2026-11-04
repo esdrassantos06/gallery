@@ -110,7 +110,7 @@ Starts the current video or embed muted, which is what browsers allow without a 
 `getMedia(slide)` returns the same decision the lightbox makes, if your grid needs a play badge on video thumbnails:
 
 ```ts
-import { getMedia } from "@esdrassantos06/gallery";
+import { getMedia } from "liftbox";
 
 getMedia({ src: "https://youtu.be/VIDEO_ID" });
 // {
@@ -123,7 +123,7 @@ getMedia({ src: "https://youtu.be/VIDEO_ID" });
 `previewOf(slide)` returns the still the grids and the thumbnail strip show: `thumbnail`, then `poster`, then the provider's poster, then `src` for images. Videos and embeds without a still get `undefined`, so you never put a video file in an `<img>`:
 
 ```ts
-import { previewOf } from "@esdrassantos06/gallery";
+import { previewOf } from "liftbox";
 
 previewOf({ src: "/clip.mp4", poster: "/clip.jpg" }); // "/clip.jpg"
 previewOf({ src: "/clip.mp4" }); // undefined

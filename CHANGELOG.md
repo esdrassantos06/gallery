@@ -2,6 +2,10 @@
 
 All notable changes are listed here. The project follows [Semantic Versioning](https://semver.org).
 
+## Unreleased
+
+- Renamed from `@esdrassantos06/gallery` to `liftbox`, with docs at [liftbox.digital](https://liftbox.digital). Install `liftbox` and change the imports to `liftbox` and `liftbox/styles.css`. The API, class names and `--eg-*` variables are unchanged.
+
 ## 1.2.0 (2026-11-02)
 
 - `captionPosition="slide"`: lay each caption over the bottom of its own image, as wide as the image, moving with the slide. New `slideCaption` class name.

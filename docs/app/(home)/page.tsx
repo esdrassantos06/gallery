@@ -16,8 +16,8 @@ const facts = [
 ] as const;
 
 const usage = `import { useRef } from "react";
-import { Lightbox, useLightboxHash, type Slide } from "@esdrassantos06/gallery";
-import "@esdrassantos06/gallery/styles.css";
+import { Lightbox, useLightboxHash, type Slide } from "liftbox";
+import "liftbox/styles.css";
 
 export function Gallery({ slides }: { slides: Slide[] }) {
   const thumbnails = useRef<(HTMLButtonElement | null)[]>([]);
@@ -80,7 +80,7 @@ export default function HomePage() {
         data={{
           "@context": "https://schema.org",
           "@type": "SoftwareSourceCode",
-          name: "@esdrassantos06/gallery",
+          name: "liftbox",
           description: siteDescription,
           url: siteUrl,
           codeRepository: repoUrl,
@@ -122,7 +122,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="flex min-w-0 flex-col gap-4">
-          <CopyCommand command="npm install @esdrassantos06/gallery" />
+          <CopyCommand command="npm install liftbox" />
           <dl className="bg-fd-border grid grid-cols-2 gap-px overflow-hidden rounded-xl border">
             {facts.map(([value, label]) => (
               <div key={label} className="bg-fd-card p-4">
@@ -201,7 +201,7 @@ export default function HomePage() {
             Changelog
           </Link>
           <a href={repoUrl} className="hover:text-fd-foreground">
-            esdrassantos06/gallery
+            esdrassantos06/liftbox
           </a>
         </span>
       </footer>

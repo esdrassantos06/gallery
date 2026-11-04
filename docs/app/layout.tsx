@@ -9,8 +9,8 @@ import "./global.css";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "gallery: an accessible React lightbox with zoom and grids",
-    template: "%s | gallery, a React lightbox",
+    default: "liftbox: an accessible React lightbox with zoom and grids",
+    template: "%s | liftbox, a React lightbox",
   },
   description: siteDescription,
   applicationName: siteName,

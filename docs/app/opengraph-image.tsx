@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 export const dynamic = "force-static";
-export const alt = "gallery, an accessible React lightbox that flies out of your thumbnails";
+export const alt = "liftbox, an accessible React lightbox that flies out of your thumbnails";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -53,8 +53,8 @@ export default async function OpengraphImage() {
           <rect x="11" y="42" width="11" height="11" rx="2" fill="#f6f5f2" />
         </svg>
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 64, fontWeight: 600, letterSpacing: -1.5 }}>gallery</span>
-          <span style={{ fontSize: 28, color: "#5c5f66" }}>@esdrassantos06/gallery</span>
+          <span style={{ fontSize: 64, fontWeight: 600, letterSpacing: -1.5 }}>liftbox</span>
+          <span style={{ fontSize: 28, color: "#5c5f66" }}>liftbox.digital</span>
         </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 20, width: "100%" }}>

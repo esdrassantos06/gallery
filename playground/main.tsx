@@ -25,8 +25,8 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { brandTheme, mediaSlides, ptLabels, samples, thinIcons } from "./data";
 
-const REPO = "https://github.com/esdrassantos06/gallery";
-const NPM = "https://www.npmjs.com/package/@esdrassantos06/gallery";
+const REPO = "https://github.com/esdrassantos06/liftbox";
+const NPM = "https://www.npmjs.com/package/liftbox";
 
 interface Options {
   transition: Transition;
@@ -58,11 +58,11 @@ function LogoMark({ className }: { className?: string }) {
 
 function Logo() {
   return (
-    <a href="#top" className="flex items-center gap-3 rounded-md" aria-label="gallery, home">
+    <a href="#top" className="flex items-center gap-3 rounded-md" aria-label="liftbox, home">
       <LogoMark className="size-9" />
       <span className="flex flex-col leading-none" aria-hidden="true">
-        <span className="text-xl font-[650] tracking-[-0.02em]">gallery</span>
-        <span className="text-muted-foreground mt-1 text-xs font-medium">@esdrassantos06</span>
+        <span className="text-xl font-[650] tracking-[-0.02em]">liftbox</span>
+        <span className="text-muted-foreground mt-1 text-xs font-medium">playground</span>
       </span>
     </a>
   );
@@ -501,8 +501,8 @@ function GridsGallery() {
   );
 }
 
-const usage = `import { Lightbox, useLightboxHash } from "@esdrassantos06/gallery";
-import "@esdrassantos06/gallery/styles.css";
+const usage = `import { Lightbox, useLightboxHash } from "liftbox";
+import "liftbox/styles.css";
 
 export function Gallery({ slides }) {
   const thumbnails = useRef([]);
@@ -608,7 +608,7 @@ function App() {
               </div>
             </div>
             <div className="flex flex-col gap-4">
-              <CopyCommand command="npm install @esdrassantos06/gallery" />
+              <CopyCommand command="npm install liftbox" />
               <dl className="bg-border grid grid-cols-2 gap-px overflow-hidden rounded-xl border">
                 {facts.map(([value, label]) => (
                   <div key={label} className="bg-card p-4">
@@ -705,7 +705,7 @@ function App() {
             target="_blank"
             rel="noreferrer"
           >
-            esdrassantos06/gallery
+            esdrassantos06/liftbox
           </a>
         </footer>
       </div>

@@ -17,7 +17,7 @@ export function Wordmark() {
   return (
     <span className="flex items-center gap-2.5">
       <LogoMark className="size-7" />
-      <span className="text-[1.0625rem] font-[650] tracking-[-0.02em]">gallery</span>
+      <span className="text-[1.0625rem] font-[650] tracking-[-0.02em]">liftbox</span>
     </span>
   );
 }

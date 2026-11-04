@@ -30,9 +30,7 @@ The entries are defined in `.size-limit.json`, and CI runs the same check on eve
 - Load the lightbox lazily if it is not needed for first paint:
 
 ```tsx
-const Lightbox = lazy(() =>
-  import("@esdrassantos06/gallery").then((m) => ({ default: m.Lightbox })),
-);
+const Lightbox = lazy(() => import("liftbox").then((m) => ({ default: m.Lightbox })));
 ```
 
 Keep it inside `Suspense`, and note that the first open waits for the chunk.
