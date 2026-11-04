@@ -29,9 +29,10 @@ An accessible, themeable image lightbox for React, with optional masonry, justif
 - A toolbar that moves what does not fit into an accessible "More options" menu, controls that fade out when idle, and right-to-left layouts.
 - Native video with captions, YouTube and Vimeo without their player scripts, any page in an iframe, and room for [custom players](https://liftbox.digital/docs/custom-players) such as Video.js 10.
 - Slideshow that pauses when the user takes over.
+- AVIF, WebP and art-directed crops through `<picture>` sources on image slides.
 - Fast with thousands of images and videos: the current image loads first with its thumbnail as a placeholder, preloading adapts to slow connections, and the thumbnail strip, pager and grids render only what is in view.
 - Optional [justified, masonry and uniform grids](https://liftbox.digital/docs/grids) and a [category filter](https://liftbox.digital/docs/filter), each usable with or without the lightbox.
-- Deep links through the URL hash with `useLightboxHash`, closed by the back button.
+- Deep links through the URL hash with `useLightboxHash`, by number or by slide name, closed by the back button.
 - Modal dialog semantics, focus trap and return, a live region, reduced motion and a scroll lock that keeps the page still.
 - Server-rendering safe, ready for the Next.js App Router.
 - Styled with `--eg-*` CSS variables. The lightbox needs no `'unsafe-inline'` in a Content Security Policy.
