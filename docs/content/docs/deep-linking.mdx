@@ -30,6 +30,7 @@ Open a photo below and watch the address bar. Then press the back button.
 | URL                                              | State                             |
 | ------------------------------------------------ | --------------------------------- |
 | `/photos#photo-3`                                | Open on the third slide. 1-based. |
+| `/photos#photo-harbour`, with `names`            | Open on the slide named `harbour` |
 | `/photos`, `/photos#contact`, `/photos#photo-99` | Closed                            |
 
 ## History
@@ -42,11 +43,26 @@ Open a photo below and watch the address bar. Then press the back button.
 
 ## Options
 
-| Option  | Description                                                                |
-| ------- | -------------------------------------------------------------------------- |
-| `count` | Number of slides. Hashes past it read as closed instead of an empty slide. |
+| Option  | Description                                                                                              |
+| ------- | -------------------------------------------------------------------------------------------------------- |
+| `count` | Number of slides. Hashes past it read as closed instead of an empty slide.                               |
+| `names` | One unique name per slide, in order. The URL shows the name instead of the number. Sets `count` for you. |
 
 Use a different prefix for each gallery on a page.
+
+## Named slides
+
+A number changes when you reorder or filter the photos, so a link shared last month can open the wrong one. Pass `names` to put a stable name in the URL instead:
+
+```tsx
+const [index, setIndex] = useLightboxHash("photo", {
+  names: photos.map((photo) => photo.slug),
+});
+```
+
+The third slide then lives at `#photo-harbour` rather than `#photo-3`. Names are encoded with `encodeURIComponent`, so spaces and accents are fine, but short slugs make nicer links. Numbered links still open, which keeps links shared before you added names working.
+
+A shared link previews with your page's Open Graph image, not the photo, because sites that build link previews ignore everything after `#`. To preview the photo itself, give each one a real URL with its own `og:image`, such as `/photos/harbour`, and return it from [`share.url`](/docs/share).
 
 ## Server rendering
 

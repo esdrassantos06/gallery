@@ -6,6 +6,7 @@ All notable changes are listed here. The project follows [Semantic Versioning](h
 
 - Renamed from `@esdrassantos06/gallery` to `liftbox`, with docs at [liftbox.digital](https://liftbox.digital). Install `liftbox` and change the imports to `liftbox` and `liftbox/styles.css`. The API, class names and `--eg-*` variables are unchanged.
 - Image slides take `sources` for a `<picture>`: AVIF or WebP versions by `type` and other crops by `media`, with `src` and `srcSet` as the fallback. Sources wait their turn like the image. New `ImageSource` type.
+- `useLightboxHash` takes `names`, one per slide, to put `#prefix-harbour` in the URL instead of `#prefix-3`. Numbered links keep opening.
 
 ## 1.2.0 (2026-11-02)
 
