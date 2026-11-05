@@ -1,6 +1,6 @@
 {
   "name": "liftbox",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Accessible React gallery and lightbox with zoom, thumbnails, video and slideshow. Zero runtime dependencies, themeable with CSS variables.",
   "license": "MIT",
   "author": "Esdras Santos",
