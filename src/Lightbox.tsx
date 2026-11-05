@@ -26,7 +26,7 @@ import {
 import {
   fitContain,
   flipMedia,
-  getCropInset,
+  getCrop,
   getFlipTransform,
   getMediaTransform,
   getSlideWindow,
@@ -137,6 +137,25 @@ function contentBox(el: HTMLElement): Size {
 }
 
 /**
+ * The `object-position` of the picture in a thumbnail, or nothing when the
+ * picture already has its box's shape and so shows uncropped.
+ */
+function coverPosition(origin: HTMLElement): string | undefined {
+  const picture = origin.matches("img, video")
+    ? origin
+    : origin.querySelector<HTMLElement>("img, video");
+  if (!(picture instanceof HTMLImageElement || picture instanceof HTMLVideoElement)) return;
+  const [width, height] =
+    picture instanceof HTMLImageElement
+      ? [picture.naturalWidth, picture.naturalHeight]
+      : [picture.videoWidth, picture.videoHeight];
+  const box = picture.getBoundingClientRect();
+  if (!width || !height || !box.width || !box.height) return;
+  if (Math.abs((width * box.height) / (height * box.width) - 1) < 0.01) return;
+  return window.getComputedStyle(picture).objectPosition || undefined;
+}
+
+/**
  * Keyframes that grow `media` out of `origin`, cropped like the origin at the
  * start, or a zoom and fade when there is no usable origin. `transform` is the
  * media's own rotation and flip, and `sideways` says it is turned a quarter.
@@ -153,9 +172,9 @@ function openKeyframes(
   const from = origin?.getBoundingClientRect();
   const own = transform ? ` ${transform}` : "";
   const fits = to.width > 0 && to.height > 0;
-  const toward = (rect: Rect) => {
+  const toward = (rect: Rect, shift = { x: 0, y: 0 }) => {
     const { x, y, scale } = getFlipTransform(rect, to);
-    return `translate(${x}px, ${y}px) scale(${scale})${own}`;
+    return `translate(${x + shift.x}px, ${y + shift.y}px) scale(${scale})${own}`;
   };
   const rest = start && fits ? toward(start) : transform || "none";
   if (origin && from && isOnScreen(from) && fits) {
@@ -163,8 +182,11 @@ function openKeyframes(
     const axes = (rect: Rect): Size =>
       sideways ? { width: rect.height, height: rect.width } : rect;
     const radius = parseRadius(window.getComputedStyle(origin).borderTopLeftRadius, from.width);
+    // ponytail: rotated or flipped media flies from a centered crop, its axes no longer match the thumbnail's
+    const position = transform ? undefined : coverPosition(origin);
+    const crop = getCrop(axes(to), axes(from), scale, radius, position);
     return [
-      { transform: toward(from), clipPath: getCropInset(axes(to), axes(from), scale, radius) },
+      { transform: toward(from, crop), clipPath: crop.clipPath },
       { transform: rest, clipPath: radius > 0 ? "inset(0px 0px round 0px)" : "inset(0px 0px)" },
     ];
   }

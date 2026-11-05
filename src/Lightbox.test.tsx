@@ -345,6 +345,51 @@ describe("Lightbox motion", () => {
     expect(options.duration).toBe(250);
   });
 
+  /** Opens slide 3 from a 100px square `<img>` thumbnail showing `natural` pixels at `position`. */
+  async function flightFrom(natural: [number, number], position: string) {
+    const { callOn } = stubAnimate();
+    const thumb = document.createElement("img");
+    Object.defineProperties(thumb, {
+      naturalWidth: { value: natural[0] },
+      naturalHeight: { value: natural[1] },
+    });
+    document.body.append(thumb);
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (
+      this: Element,
+    ) {
+      if (this.matches(".eg-image")) return rect(200, 100, 800, 500);
+      if (this === thumb) return rect(10, 10, 100, 100);
+      return rect(0, 0, 0, 0);
+    });
+    const computed = window.getComputedStyle.bind(window);
+    vi.spyOn(window, "getComputedStyle").mockImplementation((el, pseudo) => {
+      const style = computed(el, pseudo);
+      if (el !== thumb) return style;
+      return new Proxy(style, {
+        get: (target, key) => {
+          if (key === "objectPosition") return position;
+          const value: unknown = Reflect.get(target, key, target);
+          return typeof value === "function" ? value.bind(target) : value;
+        },
+      });
+    });
+    await openAt(2, { getThumbnail: () => thumb });
+    thumb.remove();
+    return (callOn(".eg-image")!.args as [Keyframe[]])[0][0];
+  }
+
+  it("starts the flight from the thumbnail's object-position crop", async () => {
+    const first = await flightFrom([1600, 1000], "0% 50%");
+    expect(first?.transform).toBe("translate(-510px, -290px) scale(0.2)");
+    expect(first?.clipPath).toBe("inset(0px 300px 0px 0px)");
+  });
+
+  it("ignores object-position on a thumbnail file that is already cropped to its box", async () => {
+    const first = await flightFrom([400, 400], "0% 50%");
+    expect(first?.transform).toBe("translate(-540px, -290px) scale(0.2)");
+    expect(first?.clipPath).toBe("inset(0px 150px)");
+  });
+
   it("zooms and fades in when there is no thumbnail to start from", async () => {
     const { callOn } = stubAnimate();
     await openAt(2, { getThumbnail: () => null });
