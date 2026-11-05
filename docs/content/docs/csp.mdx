@@ -30,27 +30,29 @@ Content-Security-Policy:
 The [grids](/docs/grids) render on the server with their item positions as `style` attributes. A `style-src` without `'unsafe-inline'` blocks those attributes, so the grid looks unstyled until the client renders it again. Pick one:
 
 - Render the grid on the client only, for example behind a mounted flag.
-- Allow each attribute by hash with `'unsafe-hashes'`, if your pages are static. This site does that.
+- Allow each attribute by hash with `'unsafe-hashes'`, if your pages are static.
 - Allow `'unsafe-inline'` in `style-src`.
 
 `GalleryFilter` and the lightbox need none of this.
 
 ## This site
 
-This site is a static Next.js export, which inlines a few scripts, style tags and style attributes in every page. Instead of `'unsafe-inline'`, a build step hashes each of them and adds a policy to every page:
+This site is plain static Next.js pages served from a CDN. Next.js inlines a few scripts and style tags in every page, and the only ways to allow those without `'unsafe-inline'` are a fresh nonce per request, which renders every page on the server, or a build step that hashes each page. The site has no login, no forms and no user content, so it sends one fixed policy instead:
 
 ```http
 default-src 'self';
-script-src 'self' 'sha256-...';
-style-src 'self' 'unsafe-hashes' 'sha256-...';
-img-src 'self' data:;
+script-src 'self' 'unsafe-inline';
+style-src 'self' 'unsafe-inline';
+img-src 'self' blob: data:;
 media-src 'self';
 font-src 'self';
 frame-src 'self';
 connect-src 'self';
 object-src 'none';
 base-uri 'self';
-form-action 'self'
+form-action 'self';
+frame-ancestors 'self';
+upgrade-insecure-requests
 ```
 
-The server adds `frame-ancestors 'self'`, which a `<meta>` policy cannot set. Every demo on the site, lightbox, grids, video and slideshow included, runs under it with no violations. `'unsafe-hashes'` only lets through the exact `style` attributes that were hashed, and only because the grids and Next.js render them on the server.
+With Google Tag Manager configured, its hosts are added to that list, and its tags only load after you accept analytics in the cookie banner. The lightbox itself still needs none of the `'unsafe-inline'`: the sections above hold for your own site.
