@@ -15,8 +15,8 @@ import {
   siteDescription,
   siteName,
   siteUrl,
+  version,
 } from "@/lib/shared";
-import pkg from "../../../package.json";
 
 const facts = [
   [size.lightbox, "lightbox, min + brotli, measured"],
@@ -131,7 +131,7 @@ export default function HomePage() {
               url: `${siteUrl}/`,
               image: `${siteUrl}/opengraph-image`,
               codeRepository: repoUrl,
-              version: pkg.version,
+              version,
               sameAs: [repoUrl, npmUrl],
               programmingLanguage: ["TypeScript", "React"],
               runtimePlatform: "Web browser",

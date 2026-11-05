@@ -6,6 +6,7 @@ import type { MDXComponents } from "mdx/types";
 import { BundleSize } from "@/components/bundle-size";
 import { Demo, HashDemo } from "@/components/demo";
 import { GridsDemo } from "@/components/grids-demo";
+import { Size, Version } from "@/components/project-data";
 
 /** Components available in every MDX page. */
 export function getMDXComponents(components?: MDXComponents) {
@@ -15,11 +16,13 @@ export function getMDXComponents(components?: MDXComponents) {
     Demo,
     GridsDemo,
     HashDemo,
+    Size,
     Step,
     Steps,
     Tab,
     Tabs,
     TypeTable,
+    Version,
     ...components,
   } satisfies MDXComponents;
 }
