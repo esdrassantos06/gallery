@@ -1,3 +1,7 @@
+import pkg from "../../package.json";
+
+/** Version in the root `package.json`, read at build time. */
+export const version = pkg.version;
 export const siteUrl = "https://liftbox.digital";
 export const siteName = "liftbox";
 export const siteDescription =
