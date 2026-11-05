@@ -62,16 +62,76 @@ export function getFlipTransform(from: Rect, to: Rect): FlipTransform {
   };
 }
 
+/** How `getCrop` trims the media, and the screen offset to add to the flight's translate. */
+export interface Crop {
+  clipPath: string;
+  x: number;
+  y: number;
+}
+
+const EDGES: Record<string, number | undefined> = {
+  left: 0,
+  top: 0,
+  center: 0.5,
+  right: 1,
+  bottom: 1,
+};
+
+const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
+
+function resolveOffset(token: string, overflow: number): number {
+  const edge = EDGES[token];
+  if (edge !== undefined) return edge;
+  const match = /^(-?[\d.]+)(%|px)?$/.exec(token);
+  if (!match) return 0.5;
+  const amount = Number(match[1]);
+  if (match[2] === "%") return clamp01(amount / 100);
+  if ((match[2] === "px" || amount === 0) && overflow > 0) return clamp01(-amount / overflow);
+  return 0.5;
+}
+
+/** Reads `object-position` as a 0 to 1 fraction of the overflow on each axis. */
+function parsePosition(value: string, overflow: Size): { x: number; y: number } {
+  const tokens = value.trim().toLowerCase().split(/\s+/);
+  if (tokens.length > 2) return { x: 0.5, y: 0.5 };
+  let [first = "center", second = "center"] = tokens;
+  const vertical = /^(top|bottom)$/;
+  if (tokens.length === 1 && vertical.test(first)) [first, second] = ["center", first];
+  else if (vertical.test(first) || /^(left|right)$/.test(second)) [first, second] = [second, first];
+  return { x: resolveOffset(first, overflow.width), y: resolveOffset(second, overflow.height) };
+}
+
 /**
- * `clip-path` that trims `media`, scaled by `scale`, down to the `window` it is
- * seen through, so a flight from a cropped thumbnail starts with the same crop.
- * Both sizes are along the media's own axes. `radius` is the window's corner
- * radius in screen pixels.
+ * Crop that trims `media`, scaled by `scale`, down to what an `object-fit: cover`
+ * `window` shows at `position` (its computed `object-position`), so a flight from
+ * a cropped thumbnail starts on the same pixels. Both sizes are along the media's
+ * own axes. `radius` is the window's corner radius in screen pixels.
  */
-export function getCropInset(media: Size, window: Size, scale: number, radius = 0): string {
-  const x = Math.max((media.width - window.width / scale) / 2, 0);
-  const y = Math.max((media.height - window.height / scale) / 2, 0);
-  return radius > 0 ? `inset(${y}px ${x}px round ${radius / scale}px)` : `inset(${y}px ${x}px)`;
+export function getCrop(
+  media: Size,
+  window: Size,
+  scale: number,
+  radius = 0,
+  position = "50% 50%",
+): Crop {
+  const spareX = Math.max(media.width - window.width / scale, 0);
+  const spareY = Math.max(media.height - window.height / scale, 0);
+  const at = parsePosition(position, { width: spareX * scale, height: spareY * scale });
+  const [top, right, bottom, left] = [
+    spareY * at.y,
+    spareX * (1 - at.x),
+    spareY * (1 - at.y),
+    spareX * at.x,
+  ];
+  const sides =
+    top === bottom && left === right
+      ? `${top}px ${left}px`
+      : `${top}px ${right}px ${bottom}px ${left}px`;
+  return {
+    clipPath: radius > 0 ? `inset(${sides} round ${radius / scale}px)` : `inset(${sides})`,
+    x: (0.5 - at.x) * spareX * scale,
+    y: (0.5 - at.y) * spareY * scale,
+  };
 }
 
 /**

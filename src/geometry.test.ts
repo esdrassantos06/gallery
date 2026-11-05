@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   fitContain,
   flipMedia,
-  getCropInset,
+  getCrop,
   parseRadius,
   getFlipTransform,
   getMediaTransform,
@@ -129,28 +129,59 @@ describe("getMediaTransform", () => {
   });
 });
 
-describe("getCropInset", () => {
+describe("getCrop", () => {
+  const landscape = { width: 800, height: 500 };
+  const portrait = { width: 500, height: 800 };
+  const square = { width: 100, height: 100 };
+
   it("trims the sides of a landscape image seen through a square", () => {
-    expect(getCropInset({ width: 800, height: 500 }, { width: 100, height: 100 }, 0.2)).toBe(
-      "inset(0px 150px)",
-    );
+    expect(getCrop(landscape, square, 0.2)).toEqual({ clipPath: "inset(0px 150px)", x: 0, y: 0 });
   });
 
   it("trims the top and bottom of an image seen through a wide strip", () => {
-    expect(getCropInset({ width: 800, height: 500 }, { width: 100, height: 40 }, 0.125)).toBe(
-      "inset(90px 0px)",
-    );
+    expect(getCrop(landscape, { width: 100, height: 40 }, 0.125).clipPath).toBe("inset(90px 0px)");
   });
 
   it("never clips when the window is larger than the media", () => {
-    expect(getCropInset({ width: 100, height: 100 }, { width: 300, height: 300 }, 1)).toBe(
+    expect(getCrop({ width: 100, height: 100 }, { width: 300, height: 300 }, 1).clipPath).toBe(
       "inset(0px 0px)",
     );
   });
 
   it("rounds the corners like the window, in the media's own pixels", () => {
-    expect(getCropInset({ width: 800, height: 500 }, { width: 100, height: 100 }, 0.2, 8)).toBe(
-      "inset(0px 150px round 40px)",
+    expect(getCrop(landscape, square, 0.2, 8).clipPath).toBe("inset(0px 150px round 40px)");
+  });
+
+  it("keeps the top of a portrait for object-position top and shifts the flight down to match", () => {
+    expect(getCrop(portrait, square, 0.2, 0, "50% 0%")).toEqual({
+      clipPath: "inset(0px 0px 300px 0px)",
+      x: 0,
+      y: 30,
+    });
+  });
+
+  it.each(["top", "center top", "top center"])("reads the keyword form %s", (position) => {
+    expect(getCrop(portrait, square, 0.2, 0, position).clipPath).toBe("inset(0px 0px 300px 0px)");
+  });
+
+  it("keeps the right edge for object-position right", () => {
+    expect(getCrop(landscape, square, 0.2, 0, "right")).toEqual({
+      clipPath: "inset(0px 0px 0px 300px)",
+      x: -30,
+      y: 0,
+    });
+  });
+
+  it("resolves pixel offsets against the overflow", () => {
+    expect(getCrop(landscape, square, 0.2, 0, "0px 0px").clipPath).toBe("inset(0px 300px 0px 0px)");
+    expect(getCrop(landscape, square, 0.2, 0, "-60px 0px").clipPath).toBe(
+      "inset(0px 0px 0px 300px)",
+    );
+  });
+
+  it("stays centered on values it cannot read", () => {
+    expect(getCrop(landscape, square, 0.2, 0, "calc(100% - 10px) 0%").clipPath).toBe(
+      "inset(0px 150px)",
     );
   });
 });
