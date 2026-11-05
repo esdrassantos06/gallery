@@ -3,6 +3,7 @@ import {
   fitContain,
   flipMedia,
   getCropInset,
+  parseRadius,
   getFlipTransform,
   getMediaTransform,
   getSlideWindow,
@@ -145,5 +146,30 @@ describe("getCropInset", () => {
     expect(getCropInset({ width: 100, height: 100 }, { width: 300, height: 300 }, 1)).toBe(
       "inset(0px 0px)",
     );
+  });
+
+  it("rounds the corners like the window, in the media's own pixels", () => {
+    expect(getCropInset({ width: 800, height: 500 }, { width: 100, height: 100 }, 0.2, 8)).toBe(
+      "inset(0px 150px round 40px)",
+    );
+  });
+});
+
+describe("parseRadius", () => {
+  it("reads pixels", () => {
+    expect(parseRadius("12px", 200)).toBe(12);
+  });
+
+  it("resolves a percentage against the width", () => {
+    expect(parseRadius("50%", 120)).toBe(60);
+  });
+
+  it("takes the horizontal radius of an elliptical corner", () => {
+    expect(parseRadius("10px 20px", 200)).toBe(10);
+  });
+
+  it("is 0 for square or unparsable corners", () => {
+    expect(parseRadius("0px", 200)).toBe(0);
+    expect(parseRadius("", 200)).toBe(0);
   });
 });

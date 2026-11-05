@@ -30,6 +30,7 @@ import {
   getFlipTransform,
   getMediaTransform,
   getSlideWindow,
+  parseRadius,
   relativeOffset,
   wrapIndex,
   type Flip,
@@ -157,13 +158,14 @@ function openKeyframes(
     return `translate(${x}px, ${y}px) scale(${scale})${own}`;
   };
   const rest = start && fits ? toward(start) : transform || "none";
-  if (from && isOnScreen(from) && fits) {
+  if (origin && from && isOnScreen(from) && fits) {
     const { scale } = getFlipTransform(from, to);
     const axes = (rect: Rect): Size =>
       sideways ? { width: rect.height, height: rect.width } : rect;
+    const radius = parseRadius(window.getComputedStyle(origin).borderTopLeftRadius, from.width);
     return [
-      { transform: toward(from), clipPath: getCropInset(axes(to), axes(from), scale) },
-      { transform: rest, clipPath: "inset(0px 0px)" },
+      { transform: toward(from), clipPath: getCropInset(axes(to), axes(from), scale, radius) },
+      { transform: rest, clipPath: radius > 0 ? "inset(0px 0px round 0px)" : "inset(0px 0px)" },
     ];
   }
   return [

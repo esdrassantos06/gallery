@@ -65,12 +65,24 @@ export function getFlipTransform(from: Rect, to: Rect): FlipTransform {
 /**
  * `clip-path` that trims `media`, scaled by `scale`, down to the `window` it is
  * seen through, so a flight from a cropped thumbnail starts with the same crop.
- * Both sizes are along the media's own axes.
+ * Both sizes are along the media's own axes. `radius` is the window's corner
+ * radius in screen pixels.
  */
-export function getCropInset(media: Size, window: Size, scale: number): string {
+export function getCropInset(media: Size, window: Size, scale: number, radius = 0): string {
   const x = Math.max((media.width - window.width / scale) / 2, 0);
   const y = Math.max((media.height - window.height / scale) / 2, 0);
-  return `inset(${y}px ${x}px)`;
+  return radius > 0 ? `inset(${y}px ${x}px round ${radius / scale}px)` : `inset(${y}px ${x}px)`;
+}
+
+/**
+ * Corner radius in pixels from a computed `border-*-radius` value, resolving a
+ * percentage against `width`. An elliptical corner gives its horizontal radius.
+ */
+export function parseRadius(value: string, width: number): number {
+  const first = value.trim().split(/\s+/)[0] ?? "";
+  const amount = parseFloat(first);
+  if (!(amount > 0)) return 0;
+  return first.endsWith("%") ? (amount * width) / 100 : amount;
 }
 
 /** One mounted slide and its position relative to the current one. */

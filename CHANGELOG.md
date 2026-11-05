@@ -2,6 +2,10 @@
 
 All notable changes are listed here. The project follows [Semantic Versioning](https://semver.org).
 
+## Unreleased
+
+- The open and close flight now keeps the thumbnail's rounded corners. The crop starts with the thumbnail's `border-radius`, divided by the flight's scale so it matches on screen, and eases to square corners as the image grows. Before, a rounded thumbnail started the flight with square corners. Suggested by u/DVR_Design in the [r/reactjs thread](https://www.reddit.com/r/reactjs/comments/1xnv24l/how_i_made_a_lightbox_open_out_of_a_cropped/) about the flight.
+
 ## 1.3.2 (2026-11-04)
 
 - Security: an iframe slide whose `src` uses a scheme other than `http:`, `https:` or `blob:`, such as `javascript:` or `data:`, now renders no iframe. The download button is hidden when its URL uses `javascript:` or another non-web scheme (`data:` stays allowed). This matters when slide URLs come from your users, especially on React 18, which does not block `javascript:` URLs.
