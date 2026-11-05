@@ -40,16 +40,15 @@ Using liftbox? A star on GitHub is how the next person searching for a React lig
 
 ## Compared with other React lightboxes
 
-|                            | liftbox                     | yet-another-react-lightbox | PhotoSwipe | lightGallery                 |
-| -------------------------- | --------------------------- | -------------------------- | ---------- | ---------------------------- |
-| License                    | MIT                         | MIT                        | MIT        | GPL-3.0 or a paid license    |
-| Opens out of the thumbnail | Yes, also cropped ones      | No                         | Yes        | Yes, cropped with a plugin   |
-| Grids                      | Masonry, justified, uniform | Separate package           | No         | Justified                    |
-| Zoom, thumbnails, video    | Built in                    | One plugin each            | Zoom only  | One plugin each              |
-| YouTube and Vimeo          | Built in                    | No                         | No         | Plugin                       |
-| JS, min and brotli         | 13.12 kB with everything    | 19.46 kB with every plugin | 17.49 kB   | 25.32 kB with common plugins |
+|                            | liftbox                     | yet-another-react-lightbox | PhotoSwipe | lightGallery               |
+| -------------------------- | --------------------------- | -------------------------- | ---------- | -------------------------- |
+| License                    | MIT                         | MIT                        | MIT        | GPL-3.0 or a paid license  |
+| Opens out of the thumbnail | Yes, also cropped ones      | No                         | Yes        | Yes, cropped with a plugin |
+| Grids                      | Masonry, justified, uniform | Separate package           | No         | Justified                  |
+| Zoom, thumbnails, video    | Built in                    | One plugin each            | Zoom only  | One plugin each            |
+| YouTube and Vimeo          | Built in                    | No                         | No         | Plugin                     |
 
-Pinned versions, sources and an accessibility table are on the [comparison page](https://liftbox.digital/docs/comparison), with migration guides from [yet-another-react-lightbox](https://liftbox.digital/docs/migration), [lightGallery](https://liftbox.digital/docs/migration-lightgallery) and [PhotoSwipe](https://liftbox.digital/docs/vs-photoswipe).
+Measured bundle sizes, pinned versions, sources and an accessibility table are on the [comparison page](https://liftbox.digital/docs/comparison), with migration guides from [yet-another-react-lightbox](https://liftbox.digital/docs/migration), [lightGallery](https://liftbox.digital/docs/migration-lightgallery) and [PhotoSwipe](https://liftbox.digital/docs/vs-photoswipe).
 
 ## Installation
 
